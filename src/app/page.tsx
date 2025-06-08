@@ -1,103 +1,252 @@
-import Image from "next/image";
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import Link from "next/link"
+import { 
+  Calculator, 
+  FileText, 
+  Users, 
+  TrendingUp, 
+  Shield, 
+  Clock,
+  CheckCircle,
+  Star 
+} from "lucide-react"
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Navigation */}
+      <nav className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                <span className="text-white font-bold text-lg">R</span>
+              </div>
+              <span className="text-xl font-bold text-gray-900">RENTENBLICK.de</span>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link href="/login">
+                <Button variant="outline" className="px-6">
+                  Anmelden
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button className="px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                  Registrieren
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl mb-8 shadow-xl">
+            <span className="text-3xl text-white font-bold">R</span>
+          </div>
+          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent mb-6">
+            RENTENBLICK.de
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-8">
+            Die professionelle Lösung für Rentenberater. Erstellen Sie detaillierte Rentenchecks, 
+            verwalten Sie Ihre Mandanten und optimieren Sie Ihre Beratungsqualität.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+            <Link href="/register">
+              <Button 
+                size="lg" 
+                className="px-8 py-4 text-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-xl hover:shadow-2xl transition-all duration-200"
+              >
+                Kostenlos starten
+              </Button>
+            </Link>
+            <Link href="/login">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="px-8 py-4 text-lg border-2 hover:bg-gray-50"
+              >
+                Bereits registriert? Anmelden
+              </Button>
+            </Link>
+          </div>
+
+          <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
+            <div className="flex items-center">
+              <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+              PDF-Export
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="w-4 h-4 text-blue-500 mr-2" />
+              Mandantenverwaltung
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="w-4 h-4 text-purple-500 mr-2" />
+              Professionelle Berichte
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Alles was Sie für die Rentenberatung brauchen
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Moderne Tools für professionelle Rentenberater
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200">
+              <CardContent className="p-8">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-6">
+                  <Calculator className="h-6 w-6 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Rentencheck-Rechner</h3>
+                <p className="text-gray-600">
+                  Präzise Berechnungen der Rentenlücke und individueller Vorsorgebedarf 
+                  für jeden Mandanten.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200">
+              <CardContent className="p-8">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-6">
+                  <FileText className="h-6 w-6 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">PDF-Berichte</h3>
+                <p className="text-gray-600">
+                  Professionelle, gebrandete PDF-Berichte für Ihre Mandanten 
+                  mit allen wichtigen Kennzahlen.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200">
+              <CardContent className="p-8">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-6">
+                  <Users className="h-6 w-6 text-purple-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Mandantenverwaltung</h3>
+                <p className="text-gray-600">
+                  Zentrale Verwaltung aller Mandanten mit Verlaufsdokumentation 
+                  und Terminerinnerungen.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200">
+              <CardContent className="p-8">
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-6">
+                  <TrendingUp className="h-6 w-6 text-orange-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Trend-Analysen</h3>
+                <p className="text-gray-600">
+                  Übersichtliche Dashboards und Auswertungen für bessere 
+                  Beratungsentscheidungen.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200">
+              <CardContent className="p-8">
+                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-6">
+                  <Shield className="h-6 w-6 text-red-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Datenschutz</h3>
+                <p className="text-gray-600">
+                  DSGVO-konforme Datenhaltung und höchste Sicherheitsstandards 
+                  für sensible Mandantendaten.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200">
+              <CardContent className="p-8">
+                <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-6">
+                  <Clock className="h-6 w-6 text-indigo-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Zeitersparnis</h3>
+                <p className="text-gray-600">
+                  Automatisierte Berechnungen und vorgefertigte Templates sparen 
+                  wertvolle Beratungszeit.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto">
+          <Card className="bg-gradient-to-r from-blue-600 to-indigo-600 border-0 shadow-2xl">
+            <CardContent className="p-12 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Bereit für professionelle Rentenberatung?
+              </h2>
+              <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+                Starten Sie noch heute und erstellen Sie Ihren ersten Rentencheck. 
+                Kostenlose Registrierung ohne Vertragsbindung.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link href="/register">
+                  <Button 
+                    size="lg" 
+                    variant="secondary"
+                    className="px-8 py-4 text-lg bg-white text-blue-600 hover:bg-gray-50 shadow-lg"
+                  >
+                    Jetzt kostenlos registrieren
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button 
+                    size="lg" 
+                    variant="outline"
+                    className="px-8 py-4 text-lg border-2 border-white text-white hover:bg-white/10"
+                  >
+                    Anmelden
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center justify-center mb-8">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mr-3">
+                <span className="text-white font-bold text-lg">R</span>
+              </div>
+              <span className="text-2xl font-bold">RENTENBLICK.de</span>
+            </div>
+            <div className="text-center text-gray-400">
+              <p className="mb-4">
+                © 2024 RENTENBLICK.de - Professionelle Rentenberatungssoftware
+              </p>
+              <div className="flex items-center justify-center space-x-6 text-sm">
+                <Link href="#" className="hover:text-white transition-colors">Datenschutz</Link>
+                <Link href="#" className="hover:text-white transition-colors">Impressum</Link>
+                <Link href="#" className="hover:text-white transition-colors">AGB</Link>
+                <Link href="#" className="hover:text-white transition-colors">Kontakt</Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
-  );
+  )
 }
