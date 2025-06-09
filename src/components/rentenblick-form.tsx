@@ -31,23 +31,43 @@ export interface RentenblickData {
 
   // Step 3: Contract Overview
   statutoryPensionClaims: boolean
+  statutoryPensionAge?: number
+  statutoryPensionAmount?: number
+  
   professionalProvisionWorks: boolean
+  professionalProvisionAge?: number
+  professionalProvisionAmount?: number
+  
   publicServiceAdditionalProvision: boolean
+  publicServiceProvisionAge?: number
+  publicServiceProvisionAmount?: number
+  
   civilServiceProvision: boolean
+  civilServiceProvisionAge?: number
+  civilServiceProvisionAmount?: number
+  
   payoutContracts: Array<{
-    type: string
-    amount: number
-    description: string
+    contract: string
+    company: string
+    contractType: string
+    interestRate: number
+    maturityYear: number
+    guaranteedAmount: number
+    projectedAmount: number
   }>
   pensionContracts: Array<{
-    type: string
-    amount: number
-    description: string
+    contract: string
+    company: string
+    contractType: string
+    interestRate: number
+    pensionFromYear: number
+    pensionAmount: number
   }>
   additionalIncome: Array<{
     type: string
+    fromYear: number
     amount: number
-    description: string
+    frequency: string
   }>
 
   // Step 4: Important Aspects
@@ -143,9 +163,17 @@ export function RentenblickForm({
     provisionDuration: 92,
     assumedInflation: 0,
     statutoryPensionClaims: false,
+    statutoryPensionAge: 0,
+    statutoryPensionAmount: 0,
     professionalProvisionWorks: false,
+    professionalProvisionAge: 0,
+    professionalProvisionAmount: 0,
     publicServiceAdditionalProvision: false,
+    publicServiceProvisionAge: 0,
+    publicServiceProvisionAmount: 0,
     civilServiceProvision: false,
+    civilServiceProvisionAge: 0,
+    civilServiceProvisionAmount: 0,
     payoutContracts: [],
     pensionContracts: [],
     additionalIncome: [],
