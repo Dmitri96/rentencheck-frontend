@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Plus, Edit3, Download, Loader2 } from "lucide-react";
+import { FileText, Plus, Edit3, Download, Loader2, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { Rentencheck } from "@/lib/services/rentencheck-service";
@@ -133,19 +133,28 @@ export function RentenchecksCard({
                 </Button>
               </Link>
               {check.status === 'completed' && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  title="PDF herunterladen"
-                  onClick={() => handleDownloadPdf(check.id)}
-                  disabled={creating}
-                >
-                  {creating ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Download className="h-4 w-4" />
-                  )}
-                </Button>
+                <>
+                  <Link
+                    href={`/dashboard/clients/${clientId}/rentencheck/${check.id}/analysis`}
+                  >
+                    <Button variant="outline" size="sm" title="Analyse anzeigen">
+                      <BarChart3 className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    title="PDF herunterladen"
+                    onClick={() => handleDownloadPdf(check.id)}
+                    disabled={creating}
+                  >
+                    {creating ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Download className="h-4 w-4" />
+                    )}
+                  </Button>
+                </>
               )}
             </div>
           </div>

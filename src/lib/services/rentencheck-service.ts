@@ -20,9 +20,18 @@ export interface RentencheckData {
 
   // Step 3: Contract Overview
   statutoryPensionClaims: boolean
+  // Extended Step 3 fields used in analysis
+  statutoryPensionAge?: number
+  statutoryPensionAmount?: number
   professionalProvisionWorks: boolean
+  professionalProvisionAge?: number
+  professionalProvisionAmount?: number
   publicServiceAdditionalProvision: boolean
+  publicServiceProvisionAge?: number
+  publicServiceProvisionAmount?: number
   civilServiceProvision: boolean
+  civilServiceProvisionAge?: number
+  civilServiceProvisionAmount?: number
   payoutContracts: Array<{
     type: string
     amount: number
@@ -231,11 +240,10 @@ export class RentencheckService {
    */
   static async downloadPdf(clientId: number, rentencheckId: number): Promise<void> {
     try {
-      // Use the configured axios instance that already handles auth and base URL
       const response = await ApiService.get(
         `${this.baseUrl}/${clientId}/rentenchecks/${rentencheckId}/pdf`,
         {
-          responseType: 'blob', // Important: tell axios to expect binary data
+          responseType: 'blob',
           headers: {
             'Accept': 'application/pdf',
           }
@@ -248,21 +256,30 @@ export class RentencheckService {
       const link = document.createElement('a')
       link.href = url
       
-      // Extract filename from Content-Disposition header or use default
-      const contentDisposition = response.headers['content-disposition']
-      const filename = contentDisposition?.match(/filename="([^"]+)"/)?.[1] || `Rentencheck_${rentencheckId}.pdf`
-      
+      const filename = `Rentencheck_${rentencheckId}.pdf`
       link.download = filename
       document.body.appendChild(link)
       link.click()
       
-      // Cleanup
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
     } catch (error) {
       console.error('Error downloading PDF:', error)
       throw new Error('Fehler beim Herunterladen des PDFs')
     }
+  }
+
+  /**
+   * Get calculated pension data using dynamic backend parameters
+   */
+  static async getPensionCalculation(clientId: number, rentencheckId: number): Promise<{
+    pension_data: any
+    pension_totals: any
+    client: any
+    message: string
+  }> {
+    const response = await ApiService.get(`${this.baseUrl}/${clientId}/rentenchecks/${rentencheckId}/calculation`)
+    return response.data
   }
 
   /**

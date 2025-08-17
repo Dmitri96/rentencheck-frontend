@@ -88,15 +88,25 @@ export const PensionContractSchema = z.object({
     .min(0, 'Zinssatz kann nicht negativ sein')
     .max(100, 'Zinssatz kann nicht über 100% liegen'),
   
-  pensionFromYear: z
+  pensionStartYear: z
     .number()
     .int('Jahr muss eine ganze Zahl sein')
     .min(1900, GERMAN_ERRORS.minYear)
     .max(2100, 'Jahr darf nicht über 2100 liegen'),
   
-  pensionAmount: z
+  guaranteedAmount: z
     .number()
-    .min(0.01, 'Renten-Betrag muss mindestens 0,01 € betragen')
+    .min(0, 'Garantierter Betrag kann nicht negativ sein')
+    .max(100000, 'Betrag ist zu hoch'),
+  
+  projectedAmount: z
+    .number()
+    .min(0, 'Prognostizierter Betrag kann nicht negativ sein')
+    .max(100000, 'Betrag ist zu hoch'),
+  
+  monthlyAmount: z
+    .number()
+    .min(0.01, 'Monatliche Rente muss mindestens 0,01 € betragen')
     .max(100000, 'Monatliche Rente ist zu hoch')
 })
 
@@ -110,7 +120,7 @@ export const AdditionalIncomeSchema = z.object({
     .min(1, GERMAN_ERRORS.required)
     .max(100, 'Einkunftsart darf maximal 100 Zeichen haben'),
   
-  fromYear: z
+  startYear: z
     .number()
     .int('Jahr muss eine ganze Zahl sein')
     .min(1900, GERMAN_ERRORS.minYear)

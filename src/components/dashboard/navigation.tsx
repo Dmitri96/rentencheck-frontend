@@ -43,6 +43,12 @@ const Navigation = () => {
       icon: UserCog,
       roles: ['admin']
     },
+    {
+      href: '/dashboard/admin/pension-settings',
+      label: 'Pensionsparameter',
+      icon: Settings,
+      roles: ['admin']
+    },
     
     // Advisor and Admin items
     {

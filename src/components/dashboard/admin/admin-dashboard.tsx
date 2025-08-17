@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { Button } from '../../ui/button'
 import { AdminService } from '../../../lib/services/admin-service'
 import { AdminDashboardData } from '../../../types/auth'
-import { Users, UserCheck, UserX, FileText, CheckCircle, TrendingUp, Plus } from 'lucide-react'
+import { Users, UserCheck, UserX, FileText, CheckCircle, TrendingUp, Plus, Settings2 } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
 
@@ -84,6 +84,12 @@ const AdminDashboard = () => {
             <Button className="bg-blue-600 hover:bg-blue-700">
               <Users className="w-4 h-4 mr-2" />
               Berater verwalten
+            </Button>
+          </Link>
+          <Link href="/dashboard/admin/pension-settings">
+            <Button variant="outline">
+              <Settings2 className="w-4 h-4 mr-2" />
+              Pensionsparameter
             </Button>
           </Link>
           <Link href="/dashboard/admin/advisors/create">
@@ -183,6 +189,57 @@ const AdminDashboard = () => {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* System Management */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <Link href="/dashboard/admin/advisors">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Berater-Verwaltung</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Verwalten Sie Finanzberater und deren Berechtigungen
+                  </p>
+                  <div className="flex items-center gap-4 text-sm">
+                    <span className="text-blue-600 font-medium">
+                      {overview.total_advisors} Berater
+                    </span>
+                    <span className="text-green-600 font-medium">
+                      {overview.active_advisors} aktiv
+                    </span>
+                  </div>
+                </div>
+                <Users className="w-8 h-8 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/dashboard/admin/pension-settings">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Pensionsparameter</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Deutsche Steuer- und Sozialversicherungsparameter konfigurieren
+                  </p>
+                  <div className="flex items-center gap-4 text-sm">
+                    <span className="text-orange-600 font-medium">
+                      20 Parameter
+                    </span>
+                    <span className="text-green-600 font-medium">
+                      Aktiv
+                    </span>
+                  </div>
+                </div>
+                <Settings2 className="w-8 h-8 text-orange-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Recent Activity */}

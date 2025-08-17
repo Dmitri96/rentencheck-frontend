@@ -100,13 +100,15 @@ export const useContractManagement = (
     company: '',
     contractType: '',
     interestRate: 0,
-    pensionFromYear: new Date().getFullYear(),
-    pensionAmount: 0
+    pensionStartYear: new Date().getFullYear(),
+    guaranteedAmount: 0,
+    projectedAmount: 0,
+    monthlyAmount: 0
   })
 
   const [incomeForm, setIncomeForm] = useState<AdditionalIncomeData>({
     type: '',
-    fromYear: new Date().getFullYear(),
+    startYear: new Date().getFullYear(),
     amount: 0,
     frequency: ''
   })
@@ -131,13 +133,15 @@ export const useContractManagement = (
       company: '',
       contractType: '',
       interestRate: 0,
-      pensionFromYear: new Date().getFullYear(),
-      pensionAmount: 0
+      pensionStartYear: new Date().getFullYear(),
+      guaranteedAmount: 0,
+      projectedAmount: 0,
+      monthlyAmount: 0
     })
     
     setIncomeForm({
       type: '',
-      fromYear: new Date().getFullYear(),
+      startYear: new Date().getFullYear(),
       amount: 0,
       frequency: ''
     })
@@ -191,7 +195,7 @@ export const useContractManagement = (
 
       resetFormData()
       setState(prev => ({ ...prev, showPayoutForm: false }))
-      toast.success('Auszahlungsvertrag erfolgreich hinzugefügt')
+      toast.success('Auszahlungsvertrag erfolgreich hinzugefügt - Vergessen Sie nicht, die Daten zu bestätigen!')
     } catch (error) {
       console.error('Error adding payout contract:', error)
       toast.error('Fehler beim Hinzufügen des Vertrags')
@@ -214,7 +218,7 @@ export const useContractManagement = (
 
       resetFormData()
       setState(prev => ({ ...prev, showPensionForm: false }))
-      toast.success('Rentenvertrag erfolgreich hinzugefügt')
+      toast.success('Rentenvertrag erfolgreich hinzugefügt - Vergessen Sie nicht, die Daten zu bestätigen!')
     } catch (error) {
       console.error('Error adding pension contract:', error)
       toast.error('Fehler beim Hinzufügen des Vertrags')
@@ -237,7 +241,7 @@ export const useContractManagement = (
 
       resetFormData()
       setState(prev => ({ ...prev, showIncomeForm: false }))
-      toast.success('Zusätzliche Einkunft erfolgreich hinzugefügt')
+      toast.success('Zusätzliche Einkunft erfolgreich hinzugefügt - Vergessen Sie nicht, die Daten zu bestätigen!')
     } catch (error) {
       console.error('Error adding income entry:', error)
       toast.error('Fehler beim Hinzufügen der Einkunft')
@@ -294,7 +298,7 @@ export const useContractManagement = (
           updated[index] = payoutForm
           updateData({ payoutContracts: updated })
           setState(prev => ({ ...prev, showPayoutForm: false }))
-          toast.success('Auszahlungsvertrag erfolgreich aktualisiert')
+          toast.success('Auszahlungsvertrag erfolgreich aktualisiert - Vergessen Sie nicht, die Daten zu bestätigen!')
           break
         }
         case 'pension': {
@@ -305,7 +309,7 @@ export const useContractManagement = (
           updated[index] = pensionForm
           updateData({ pensionContracts: updated })
           setState(prev => ({ ...prev, showPensionForm: false }))
-          toast.success('Rentenvertrag erfolgreich aktualisiert')
+          toast.success('Rentenvertrag erfolgreich aktualisiert - Vergessen Sie nicht, die Daten zu bestätigen!')
           break
         }
         case 'income': {
@@ -316,7 +320,7 @@ export const useContractManagement = (
           updated[index] = incomeForm
           updateData({ additionalIncome: updated })
           setState(prev => ({ ...prev, showIncomeForm: false }))
-          toast.success('Zusätzliche Einkunft erfolgreich aktualisiert')
+          toast.success('Zusätzliche Einkunft erfolgreich aktualisiert - Vergessen Sie nicht, die Daten zu bestätigen!')
           break
         }
         default:
