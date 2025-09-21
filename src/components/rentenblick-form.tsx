@@ -19,10 +19,30 @@ import { ContractOverviewStep } from "./form-steps/contract-overview-step";
 import { ImportantAspectsStep } from "./form-steps/important-aspects-step";
 import { ConclusionStep } from "./form-steps/conclusion-step";
 import { PensionResultsOverview } from "./pension-results-overview";
-import { pensionParametersService } from "@/lib/services/pension-parameters-service";
 import { toast } from "sonner";
 import ApiService from "@/lib/api-service";
-import { SettingsPayload } from "@/components/admin/pension-settings-panel";
+
+// Narrow type for the admin "current_parameters" response used for mapping defaults
+type PensionParameters = {
+  economic_assumptions?: {
+    inflation_rate?: number;
+    pension_increase_rate?: number;
+    investment_return_rate?: number;
+  };
+  social_insurance?: {
+    health_insurance_rate?: number;
+    additional_health_insurance_rate?: number;
+    care_insurance_rate?: number;
+    total_insurance_rate?: number;
+    health_insurance_exemption_bav?: number;
+  };
+  tax_system?: unknown; // not needed for the form defaults
+  regional_taxes?: unknown; // not needed for the form defaults
+  demographics?: {
+    retirement_age?: number;
+    life_expectancy?: number;
+  };
+};
 
 export interface RentenblickData {
   // Step 1: Personal and Financial Information
@@ -47,6 +67,8 @@ export interface RentenblickData {
   statutoryPensionClaims: boolean;
   statutoryPensionAge?: number;
   statutoryPensionAmount?: number;
+  // New: disability pension amount (Erwerbsminderungsrente), monthly
+  disabilityPensionAmount?: number;
 
   professionalProvisionWorks: boolean;
   professionalProvisionAge?: number;
@@ -172,7 +194,6 @@ export function RentenblickForm({
   const [confirmedSteps, setConfirmedSteps] =
     useState<number[]>(completedSteps);
   const [loading, setLoading] = useState(false);
-  const [defaultValues, setDefaultValues] = useState<RentenblickData>(null);
   const [showResults, setShowResults] = useState(false);
   const [formData, setFormData] = useState<RentenblickData>({
     profession: "",
@@ -192,6 +213,7 @@ export function RentenblickForm({
     statutoryPensionClaims: false,
     statutoryPensionAge: 0,
     statutoryPensionAmount: 0,
+    disabilityPensionAmount: 0,
     professionalProvisionWorks: false,
     professionalProvisionAge: 0,
     professionalProvisionAmount: 0,
@@ -234,10 +256,34 @@ export function RentenblickForm({
     const load = async () => {
       try {
         setLoading(true);
-        const res = await ApiService.get("/admin/pension-settings");
+        const res = await ApiService.get("/pension-parameters");
         if (!res.data?.success) throw new Error("API Fehler");
 
-        const rows = res.data.data as SettingsPayload;
+        // Public parameters endpoint returns the parameters in `data`
+        const p = (res.data.data || {}) as PensionParameters;
+
+        // Map only values that actually exist in this form
+        const mappedDefaults: Partial<RentenblickData> = {
+          assumedInflation: p.economic_assumptions?.inflation_rate ?? undefined,
+          retirementAge: p.demographics?.retirement_age ?? undefined,
+          // In the admin UI, life_expectancy is the target age at end of pension
+          provisionDuration: p.demographics?.life_expectancy ?? undefined,
+          // Sum rate provided by backend for convenience
+          healthInsuranceContribution:
+            p.social_insurance?.total_insurance_rate ?? undefined,
+          statutoryPensionAge: p.demographics?.retirement_age,
+          professionalProvisionAge: p.demographics?.retirement_age,
+          publicServiceProvisionAge: p.demographics?.retirement_age,
+          civilServiceProvisionAge: p.demographics?.retirement_age,
+        };
+
+        // Apply defaults without overwriting user-provided initialData unnecessarily
+        setFormData((prev) => ({
+          ...prev,
+          ...Object.fromEntries(
+            Object.entries(mappedDefaults).filter(([, v]) => v !== undefined),
+          ),
+        }));
       } catch (err) {
         console.error(err);
         toast.error("Fehler beim Laden der Einstellungen");

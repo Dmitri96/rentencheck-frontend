@@ -214,6 +214,31 @@ export function PersonalFinancialStep({
         </RadioGroup>
       </div>
 
+      <div className="space-y-4">
+        <Label className="text-sm font-semibold text-gray-700">
+          Kirchensteuer
+        </Label>
+        <RadioGroup
+          value={data.hasToChurchTax ? "Ja" : "Nein"}
+          onValueChange={(value) => updateData({ hasToChurchTax: value === "Ja" })}
+          disabled={isConfirmed}
+          className="grid grid-cols-2 gap-4 max-w-md"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="Ja" id="kirche-ja" />
+            <Label htmlFor="kirche-ja" className="text-sm cursor-pointer">
+              Ja
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="Nein" id="kirche-nein" />
+            <Label htmlFor="kirche-nein" className="text-sm cursor-pointer">
+              Nein
+            </Label>
+          </div>
+        </RadioGroup>
+      </div>
+
       <div className="space-y-3">
         <Label
           htmlFor="healthInsuranceContribution"

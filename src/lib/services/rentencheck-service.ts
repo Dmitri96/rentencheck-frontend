@@ -9,6 +9,8 @@ export interface RentencheckData {
   assetSeparation: string
   healthInsurance: string
   healthInsuranceContribution: number
+  // Optional: whether church tax applies (frontend control). If omitted, assume true.
+  hasToChurchTax?: boolean
 
   // Step 2: Expectations
   currentAge: number
@@ -23,6 +25,7 @@ export interface RentencheckData {
   // Extended Step 3 fields used in analysis
   statutoryPensionAge?: number
   statutoryPensionAmount?: number
+  disabilityPensionAmount?: number
   professionalProvisionWorks: boolean
   professionalProvisionAge?: number
   professionalProvisionAmount?: number

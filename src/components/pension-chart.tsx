@@ -10,8 +10,12 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import { Filler } from "chart.js";
+import annotationPlugin from "chartjs-plugin-annotation";
 import type { Rentencheck } from "@/lib/services/rentencheck-service";
+import { DisabilityIncomeDiagram } from "@/components/disability-income-diagram";
 import { RentencheckService } from "@/lib/services/rentencheck-service";
+import { PensionResultsTable } from "@/components/pension-results-table";
 
 ChartJS.register(
   CategoryScale,
@@ -21,6 +25,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
+  Filler,
+  annotationPlugin,
 );
 
 interface PensionChartProps {
@@ -42,6 +48,7 @@ interface PensionData {
     economic_assumptions: {
       inflation_rate: number;
       investment_return_rate: number;
+      pension_increase_rate?: number;
     };
     social_insurance: {
       health_insurance_rate: number;
@@ -62,7 +69,11 @@ const formatNumber = (value: number) => {
 /**
  * Hook to fetch pension calculation data from backend using dynamic admin parameters
  */
-function usePensionCalculation(clientId?: number, rentencheckId?: number, desiredPension?: number) {
+function usePensionCalculation(
+  clientId?: number,
+  rentencheckId?: number,
+  desiredPension?: number,
+) {
   const [pensionData, setPensionData] = useState<PensionData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,9 +85,12 @@ function usePensionCalculation(clientId?: number, rentencheckId?: number, desire
       setLoading(true);
       setError(null);
       try {
-        const response = await RentencheckService.getPensionCalculation(clientId, rentencheckId);
+        const response = await RentencheckService.getPensionCalculation(
+          clientId,
+          rentencheckId,
+        );
         const backendData = response.pension_data;
-        
+
         // Transform backend data to our clean interface
         const cleanData: PensionData = {
           currentAge: backendData.currentAge,
@@ -84,19 +98,29 @@ function usePensionCalculation(clientId?: number, rentencheckId?: number, desire
           lifeExpectancy: backendData.lifeExpectancy,
           inflationRate: backendData.inflationRate,
           statutoryPensionGross: backendData.statutoryPensionGross,
-          statutoryPensionAfterInsurance: backendData.statutoryPensionAfterInsurance,
+          statutoryPensionAfterInsurance:
+            backendData.statutoryPensionAfterInsurance,
           privatePensionToday: backendData.privatePensionToday,
           bavRiesterToday: backendData.bavRiesterToday,
-          currentPensionGap: Math.max(0, desiredPension - (backendData.statutoryPensionAfterInsurance + backendData.privatePensionToday + backendData.bavRiesterToday)),
+          currentPensionGap: Math.max(
+            0,
+            desiredPension -
+              (backendData.statutoryPensionAfterInsurance +
+                backendData.privatePensionToday +
+                backendData.bavRiesterToday),
+          ),
           parameters: backendData.parameters_used,
           isBackendCalculation: true,
         };
-        
+
         setPensionData(cleanData);
-        console.log("✅ Using Backend Calculation with Dynamic Admin Parameters:", cleanData.parameters);
+        console.log(
+          "✅ Using Backend Calculation with Dynamic Admin Parameters:",
+          cleanData.parameters,
+        );
       } catch (err) {
         console.warn("Backend calculation failed, will use fallback:", err);
-        setError(err instanceof Error ? err.message : 'Unbekannter Fehler');
+        setError(err instanceof Error ? err.message : "Unbekannter Fehler");
         setPensionData(null);
       } finally {
         setLoading(false);
@@ -112,16 +136,22 @@ function usePensionCalculation(clientId?: number, rentencheckId?: number, desire
 export function PensionChart({ data, desiredPension }: PensionChartProps) {
   const clientId = data.client_id;
   const rentencheckId = data.id;
-  
+
   // Try to get backend calculation data with dynamic parameters
-  const { pensionData, loading, error } = usePensionCalculation(clientId, rentencheckId, desiredPension);
+  const { pensionData, loading, error } = usePensionCalculation(
+    clientId,
+    rentencheckId,
+    desiredPension,
+  );
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
-          <p className="text-sm text-gray-600">Berechnung mit aktuellen Admin-Parametern...</p>
+          <p className="text-sm text-gray-600">
+            Berechnung mit aktuellen Admin-Parametern...
+          </p>
         </div>
       </div>
     );
@@ -129,22 +159,25 @@ export function PensionChart({ data, desiredPension }: PensionChartProps) {
 
   if (pensionData) {
     // Render with backend calculation data
-    return renderChart(pensionData, desiredPension);
+    return renderChart(pensionData, desiredPension, data);
   }
 
   // Fallback: create pension data from frontend
   const fallbackData = createFallbackPensionData(data, desiredPension);
-  return renderChart(fallbackData, desiredPension);
+  return renderChart(fallbackData, desiredPension, data);
 }
 
 /**
  * Create fallback pension data when backend calculation is not available
  */
-function createFallbackPensionData(data: Rentencheck, desiredPension: number): PensionData {
+function createFallbackPensionData(
+  data: Rentencheck,
+  desiredPension: number,
+): PensionData {
   const currentAge = data.step_2_data?.currentAge || 30;
   const retirementAge = data.step_2_data?.retirementAge || 67;
   const lifeExpectancy = 85; // Realistic German life expectancy
-  
+
   // Use hardcoded fallback parameters
   const fallbackParameters = {
     economic_assumptions: {
@@ -160,10 +193,13 @@ function createFallbackPensionData(data: Rentencheck, desiredPension: number): P
 
   // Simple fallback calculations
   const statutoryPensionGross = 800; // Simplified fallback
-  const statutoryPensionAfterInsurance = statutoryPensionGross * (1 - fallbackParameters.social_insurance.total_insurance_rate / 100);
+  const statutoryPensionAfterInsurance =
+    statutoryPensionGross *
+    (1 - fallbackParameters.social_insurance.total_insurance_rate / 100);
   const privatePensionToday = 200; // Simplified fallback
   const bavRiesterToday = 150; // Simplified fallback
-  const totalAvailable = statutoryPensionAfterInsurance + privatePensionToday + bavRiesterToday;
+  const totalAvailable =
+    statutoryPensionAfterInsurance + privatePensionToday + bavRiesterToday;
 
   return {
     currentAge,
@@ -183,7 +219,11 @@ function createFallbackPensionData(data: Rentencheck, desiredPension: number): P
 /**
  * Render the pension chart with calculated data
  */
-function renderChart(pensionData: PensionData, desiredPension: number) {
+function renderChart(
+  pensionData: PensionData,
+  desiredPension: number,
+  rootData?: Rentencheck,
+) {
   const {
     currentAge,
     retirementAge,
@@ -195,378 +235,235 @@ function renderChart(pensionData: PensionData, desiredPension: number) {
     bavRiesterToday,
     currentPensionGap,
     parameters,
-    isBackendCalculation
+    isBackendCalculation,
   } = pensionData;
 
   const INFLATION_RATE = inflationRate / 100;
   const yearsToRetirement = retirementAge - currentAge;
-  const totalAvailablePension = statutoryPensionAfterInsurance + privatePensionToday + bavRiesterToday;
-  const gapAtRetirement = currentPensionGap * Math.pow(1 + INFLATION_RATE, yearsToRetirement);
+  const totalAvailablePension =
+    statutoryPensionAfterInsurance + privatePensionToday + bavRiesterToday;
+  const gapAtRetirement =
+    currentPensionGap * Math.pow(1 + INFLATION_RATE, yearsToRetirement);
 
   // Generate years array for chart
   const years = Array.from(
     { length: lifeExpectancy - currentAge + 1 },
     (_, i) => currentAge + i,
   );
+  // Build per-age series using inflation projection (keeps single source of truth)
+  const series = years.map((age) => {
+    const yearsFromNow = age - currentAge;
+    const desired = desiredPension * Math.pow(1 + INFLATION_RATE, yearsFromNow);
 
-  // Key points for the chart calculations
-  const keyPoints = [
-    {
-      age: currentAge,
-      desired: desiredPension,
-      available: totalAvailablePension,
-      gap: currentPensionGap,
-      statutory: statutoryPensionAfterInsurance,
-      private: privatePensionToday + bavRiesterToday,
-    },
-    {
-      age: retirementAge,
-      desired: desiredPension * Math.pow(1 + INFLATION_RATE, yearsToRetirement),
-      available: totalAvailablePension * Math.pow(1 + INFLATION_RATE, yearsToRetirement),
-      gap: gapAtRetirement,
-      statutory: statutoryPensionAfterInsurance * Math.pow(1 + INFLATION_RATE, yearsToRetirement),
-      private: (privatePensionToday + bavRiesterToday) * Math.pow(1 + INFLATION_RATE, yearsToRetirement),
-    },
-    {
-      age: lifeExpectancy,
-      desired: desiredPension * Math.pow(1 + INFLATION_RATE, lifeExpectancy - currentAge),
-      available: totalAvailablePension * Math.pow(1 + INFLATION_RATE, lifeExpectancy - currentAge),
-      gap: currentPensionGap * Math.pow(1 + INFLATION_RATE, lifeExpectancy - currentAge),
-      statutory: statutoryPensionAfterInsurance * Math.pow(1 + INFLATION_RATE, lifeExpectancy - currentAge),
-      private: (privatePensionToday + bavRiesterToday) * Math.pow(1 + INFLATION_RATE, lifeExpectancy - currentAge),
-    },
-  ];
+    const pensionIncreaseRate =
+      (parameters?.economic_assumptions?.pension_increase_rate ?? 0) / 100;
 
-  // Helper function to interpolate values between key points
-  const interpolateValue = (
-    year: number,
-    values: { age: number; value: number }[],
-  ) => {
-    const sortedValues = values.sort((a, b) => a.age - b.age);
-    const startPoint = sortedValues.find((point) => point.age <= year);
-    const endPoint = sortedValues.find((point) => point.age >= year);
+    // Gesetzliche Rente: ab HEUTE sichtbar (Übersicht wie im Rentenbrief).
+    // Basiswert ab aktuellem Alter ist die eingegebene Brutto-Rente (z. B. 3000).
+    // Ab jedem Jahr steigt sie um die Rentensteigerungsrate.
+    const statutoryAtCurrentAge = statutoryPensionGross;
+    const statutory =
+      age < currentAge
+        ? 0
+        : statutoryAtCurrentAge *
+          Math.pow(1 + pensionIncreaseRate, age - currentAge);
 
-    if (!startPoint || !endPoint) return 0;
-    if (startPoint.age === endPoint.age) return startPoint.value;
+    // BAV (neu): Berufsständische Versorgungswerke + Zusatzversorgung öffentlicher Dienst (ab Rentenbeginn, konstant)
+    const bavNeuAtRetirement =
+      (rootData?.step_3_data?.professionalProvisionAmount || 0) +
+      (rootData?.step_3_data?.publicServiceProvisionAmount || 0);
+    const bavNeu = age < retirementAge ? 0 : bavNeuAtRetirement;
 
-    const progress = (year - startPoint.age) / (endPoint.age - startPoint.age);
-    return startPoint.value + (endPoint.value - startPoint.value) * progress;
-  };
+    // Weitere Einkommen werden nicht separat visualisiert; verbleibende private Einkünfte zur Lückenberechnung
+    const otherIncomeAtRetirement = privatePensionToday + bavRiesterToday;
+    const otherIncome = age < retirementAge ? 0 : otherIncomeAtRetirement;
 
-  // Chart data configuration
+    const totalIncome = statutory + bavNeu + otherIncome;
+    const gap = Math.max(0, desired - totalIncome);
+    return { age, desired, statutory, bavNeu, otherIncome, totalIncome, gap };
+  });
+
+  // Yearly and cumulative gap (start cumulation at retirement age)
+  const yearlyGapSeries = series.map((d) => (d.age >= retirementAge ? d.gap * 12 : 0));
+  const cumulativeGapSeries = yearlyGapSeries.reduce((acc: number[], val, idx) => {
+    const prev = idx > 0 ? acc[idx - 1] : 0;
+    acc[idx] = prev + val;
+    return acc;
+  }, [] as number[]);
+
+  const retirementIndex = years.indexOf(retirementAge);
+  // Summe der monatlichen Lücke über alle Ruhestandsjahre -> in Jahresäquivalent (12 Monate pro Jahr)
+  const totalGap = series
+    .filter((d) => d.age >= retirementAge && d.age <= lifeExpectancy)
+    .reduce((sum, d) => sum + d.gap * 12, 0);
+
+  // KPIs für Kacheln
+  const monthlyGapAtRetirement =
+    retirementIndex >= 0 ? series[retirementIndex].gap : 0;
+  const totalIncomeAtRetirement =
+    retirementIndex >= 0 ? series[retirementIndex].totalIncome : 0;
+
+  // Chart data configuration (stacked cumulative areas like the new Chart.js demo)
   const chartData = {
     labels: years,
     datasets: [
       {
         label: "Gesetzliche Rente",
-        data: years.map((year) =>
-          year >= currentAge && year <= retirementAge
-            ? interpolateValue(
-                year,
-                keyPoints.map((point) => ({
-                  age: point.age,
-                  value: point.statutory,
-                })),
-              )
-            : null,
-        ),
-        borderColor: "rgb(255, 159, 64)",
+        data: series.map((d) => Math.round(d.statutory)),
+        backgroundColor: "rgba(22, 163, 74, 0.8)",
+        borderColor: "rgba(22, 163, 74, 1)",
+        borderWidth: 1,
+        fill: true,
         tension: 0.1,
-        pointRadius: years.map((year) =>
-          [currentAge, retirementAge].includes(year) ? 4 : 0,
-        ),
-        fill: false,
-        order: 4,
       },
       {
-        label: "Private Rente",
-        data: years.map((year) =>
-          year >= currentAge && year <= retirementAge
-            ? interpolateValue(
-                year,
-                keyPoints.map((point) => ({
-                  age: point.age,
-                  value: point.statutory + point.private,
-                })),
-              )
-            : null,
-        ),
-        borderColor: "rgb(54, 162, 235)",
+        label: "BAV (neu)",
+        data: series.map((d) => Math.round(d.statutory + d.bavNeu)),
+        backgroundColor: "rgba(2, 132, 199, 0.8)",
+        borderColor: "rgba(2, 132, 199, 1)",
+        borderWidth: 1,
+        fill: "-1" as const,
         tension: 0.1,
-        pointRadius: years.map((year) =>
-          [currentAge, retirementAge].includes(year) ? 4 : 0,
-        ),
-        fill: false,
-        order: 3,
       },
       {
         label: "Rentenwunsch",
-        data: years.map((year) =>
-          interpolateValue(
-            year,
-            keyPoints.map((point) => ({
-              age: point.age,
-              value: point.desired,
-            })),
-          ),
-        ),
-        borderColor: "rgb(75, 192, 192)",
-        tension: 0.1,
-        pointRadius: years.map((year) =>
-          [currentAge, retirementAge, lifeExpectancy].includes(year) ? 4 : 0,
-        ),
-        fill: false,
-        order: 2,
-      },
-      {
-        label: "Verfügbare Rente",
-        data: years.map((year) =>
-          year >= currentAge && year <= retirementAge
-            ? interpolateValue(
-                year,
-                keyPoints.map((point) => ({
-                  age: point.age,
-                  value: point.available,
-                })),
-              )
-            : null,
-        ),
-        borderColor: "rgb(75, 192, 75)",
-        tension: 0.1,
-        pointRadius: years.map((year) =>
-          [currentAge, retirementAge].includes(year) ? 4 : 0,
-        ),
-        fill: false,
-        order: 1,
-      },
-      {
-        label: "Versorgungslücke",
-        data: years.map((year) => {
-          if (year < retirementAge || year > lifeExpectancy) return null;
-          
-          const desired = interpolateValue(
-            year,
-            keyPoints.map((point) => ({
-              age: point.age,
-              value: point.desired,
-            })),
-          );
-          
-          const available = interpolateValue(
-            year,
-            keyPoints.map((point) => ({
-              age: point.age,
-              value: point.available,
-            })),
-          );
-          
-          return Math.max(0, desired - available);
-        }),
-        backgroundColor: "rgba(239, 68, 68, 0.3)",
-        borderColor: "rgba(239, 68, 68, 0.8)",
+        data: series.map((d) => Math.round(d.desired)),
+        backgroundColor: "rgba(234, 88, 12, 0.8)",
+        borderColor: "rgba(234, 88, 12, 1)",
         borderWidth: 2,
-        fill: true,
-        pointRadius: 0,
-        order: 6,
-      },
-      {
-        label: "Rentenzeit",
-        data: years.map((year) =>
-          year >= retirementAge && year <= lifeExpectancy
-            ? interpolateValue(
-                year,
-                keyPoints.map((point) => ({
-                  age: point.age,
-                  value: point.desired,
-                })),
-              )
-            : null,
-        ),
-        backgroundColor: "rgba(200, 200, 200, 0.2)",
-        borderColor: "transparent",
-        fill: true,
-        pointRadius: 0,
-        order: 5,
+        fill: "-1" as const,
+        tension: 0.1,
       },
     ],
   };
 
+  // Custom hover ruler plugin: draws a thin vertical line at the hovered x position
+  const hoverLinePlugin = {
+    id: "hoverLine",
+    afterDatasetsDraw(chart: any) {
+      const { ctx } = chart;
+      const active = chart.getActiveElements?.() || [];
+      if (!active.length) return;
+      const x = active[0].element?.x;
+      const chartArea = chart.chartArea;
+      if (x == null || !chartArea) return;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x, chartArea.top);
+      ctx.lineTo(x, chartArea.bottom);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(0,0,0,0.15)";
+      ctx.setLineDash([3, 3]);
+      ctx.stroke();
+      ctx.restore();
+    },
+  };
+
   // Chart options
-  const options = {
+  const options: any = {
     responsive: true,
     maintainAspectRatio: false,
-    layout: {
-      padding: {
-        top: 40,
-        bottom: 60,
-        left: 40,
-        right: 40,
+    interaction: { mode: "index", intersect: false, axis: "x" },
+    elements: {
+      point: {
+        radius: 2,
+        hoverRadius: 6,
+        hitRadius: 10,
+      },
+      line: {
+        borderWidth: 2,
       },
     },
     plugins: {
-      legend: {
-        position: "top" as const,
-        labels: {
-          padding: 20,
-          usePointStyle: true,
-          boxWidth: 8,
+      legend: { position: "top" },
+      title: { display: false },
+      tooltip: {
+        mode: "index",
+        intersect: false,
+        displayColors: true,
+        backgroundColor: "rgba(17,24,39,0.9)",
+        borderColor: "rgba(0,0,0,0.1)",
+        borderWidth: 1,
+        padding: 10,
+        titleFont: { weight: "600" },
+        callbacks: {
+          title: (items: any[]) => {
+            const age = items?.[0]?.label;
+            return `Alter ${age}`;
+          },
+          afterBody: (context: any) => {
+            const i = context[0].dataIndex;
+            const d = series[i];
+            const lines = [
+              `Gesamte Einnahmen: €${Math.round(d.totalIncome).toLocaleString()}`,
+              `Lücke (monatlich): €${Math.round(d.gap).toLocaleString()}`,
+            ];
+            if (d.age >= retirementAge) {
+              const yearlyGap = Math.round(yearlyGapSeries[i]);
+              const cumGap = Math.round(cumulativeGapSeries[i]);
+              lines.push(`Lücke pro Jahr: €${yearlyGap.toLocaleString()}`);
+              lines.push(`Kumulierte Lücke bis Alter ${d.age}: €${cumGap.toLocaleString()}`);
+            }
+            return lines;
+          },
         },
       },
-      title: {
-        display: false,
-      },
-      tooltip: {
-        enabled: false,
+      annotation: {
+        annotations: {
+          retirementLine: {
+            type: "line",
+            xMin: retirementIndex,
+            xMax: retirementIndex,
+            borderColor: "rgba(220, 38, 38, 0.8)",
+            borderWidth: 3,
+            borderDash: [5, 5] as number[],
+            label: {
+              display: true,
+              content: "Renteneintritt",
+              position: "start",
+              backgroundColor: "rgba(220, 38, 38, 0.8)",
+              color: "white",
+            },
+          },
+          gapLabel: {
+            type: "label",
+            xValue: Math.floor((retirementIndex + years.length) / 2),
+            yValue: Math.max(...series.map((d) => d.desired)) * 0.7,
+            content: `Gesamte Lücke: €${Math.round(totalGap).toLocaleString()}`,
+            backgroundColor: "rgba(220, 38, 38, 0.9)",
+            color: "white",
+            padding: 8,
+            borderRadius: 4,
+          },
+        },
       },
     },
     scales: {
-      y: {
-        display: false,
-        beginAtZero: true,
-        grace: '10%',
-      },
       x: {
-        grid: {
-          display: false,
-        },
+        title: { display: true, text: "Alter" },
+      },
+      y: {
+        title: { display: true, text: "Monatlicher Betrag (€)" },
         ticks: {
-          callback: function (value: any) {
-            const age = years[value];
-            return [currentAge, retirementAge, lifeExpectancy].includes(age)
-              ? `${age}`
-              : "";
-          },
-          maxTicksLimit: 10,
-          padding: 10,
+          callback: (value: any) => "€" + Number(value).toLocaleString(),
         },
       },
     },
   };
-
-  // Chart plugins for custom drawing
-  const chartPlugins = [
-    {
-      id: "chartLabels",
-      beforeDraw: (chart: any) => {
-        const ctx = chart.ctx;
-        const xAxis = chart.scales.x;
-        const chartArea = chart.chartArea;
-
-        ctx.save();
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 1;
-        ctx.setLineDash([4, 4]);
-
-        // Today line
-        const xCurrentAge = xAxis.getPixelForValue(years.indexOf(currentAge));
-        ctx.beginPath();
-        ctx.moveTo(xCurrentAge, chartArea.bottom);
-        ctx.lineTo(xCurrentAge, chartArea.top);
-        ctx.stroke();
-
-        // Retirement line
-        const xRetirement = xAxis.getPixelForValue(years.indexOf(retirementAge));
-        ctx.beginPath();
-        ctx.moveTo(xRetirement, chartArea.bottom);
-        ctx.lineTo(xRetirement, chartArea.top);
-        ctx.stroke();
-
-        // Life expectancy line
-        const xLifeExpectancy = xAxis.getPixelForValue(years.indexOf(lifeExpectancy));
-        ctx.beginPath();
-        ctx.moveTo(xLifeExpectancy, chartArea.bottom);
-        ctx.lineTo(xLifeExpectancy, chartArea.top);
-        ctx.stroke();
-
-        ctx.restore();
-      },
-      afterDraw: (chart: any) => {
-        const ctx = chart.ctx;
-        const xAxis = chart.scales.x;
-        const yAxis = chart.scales.y;
-        const chartArea = chart.chartArea;
-
-        ctx.save();
-        ctx.font = "10px Arial";
-
-        // Current Age values
-        const currentAgeIndex = years.indexOf(currentAge);
-        const xCurrentAge = xAxis.getPixelForValue(currentAgeIndex);
-
-        ctx.fillStyle = "rgb(75, 192, 192)";
-        ctx.fillText(
-          formatNumber(desiredPension),
-          Math.max(10, xCurrentAge - 40),
-          Math.max(20, yAxis.getPixelForValue(desiredPension) - 15),
-        );
-
-        ctx.fillStyle = "rgb(75, 192, 75)";
-        ctx.fillText(
-          formatNumber(totalAvailablePension),
-          Math.max(10, xCurrentAge - 40),
-          Math.max(35, yAxis.getPixelForValue(totalAvailablePension) + 15),
-        );
-
-        // Retirement Age values
-        const retirementAgeIndex = years.indexOf(retirementAge);
-        const xRetirement = xAxis.getPixelForValue(retirementAgeIndex);
-
-        const desiredAtRetirement = desiredPension * Math.pow(1 + INFLATION_RATE, yearsToRetirement);
-        const availableAtRetirement = totalAvailablePension * Math.pow(1 + INFLATION_RATE, yearsToRetirement);
-
-        ctx.fillStyle = "rgb(75, 192, 192)";
-        ctx.fillText(
-          formatNumber(desiredAtRetirement),
-          Math.max(10, xRetirement - 40),
-          Math.max(20, yAxis.getPixelForValue(desiredAtRetirement) - 15),
-        );
-
-        ctx.fillStyle = "rgb(75, 192, 75)";
-        ctx.fillText(
-          formatNumber(availableAtRetirement),
-          Math.max(10, xRetirement - 40),
-          Math.max(35, yAxis.getPixelForValue(availableAtRetirement) + 15),
-        );
-
-        // Life Expectancy value
-        const lifeExpectancyIndex = years.indexOf(lifeExpectancy);
-        const xLifeExpectancy = xAxis.getPixelForValue(lifeExpectancyIndex);
-
-        const desiredAtLifeExpectancy = desiredPension * Math.pow(1 + INFLATION_RATE, lifeExpectancy - currentAge);
-
-        ctx.fillStyle = "rgb(75, 192, 192)";
-        ctx.fillText(
-          formatNumber(desiredAtLifeExpectancy),
-          Math.min(chartArea.right - 100, xLifeExpectancy - 40),
-          Math.max(20, yAxis.getPixelForValue(desiredAtLifeExpectancy) - 15),
-        );
-
-        // Add age labels with better positioning
-        ctx.fillStyle = "black";
-        ctx.font = "12px Arial";
-        
-        ctx.fillText(`${currentAge}`, Math.max(5, xCurrentAge - 10), chartArea.bottom + 15);
-        ctx.fillText(`${retirementAge}`, Math.max(5, xRetirement - 10), chartArea.bottom + 15);
-        ctx.fillText(`${lifeExpectancy}`, Math.min(chartArea.right - 20, xLifeExpectancy - 10), chartArea.bottom + 15);
-        
-        // Add descriptive labels with better positioning
-        ctx.font = "10px Arial";
-        ctx.fillStyle = "gray";
-        ctx.fillText("Heute", Math.max(0, xCurrentAge - 15), chartArea.bottom + 30);
-        ctx.fillText("Renteneintritt", Math.max(0, xRetirement - 30), chartArea.bottom + 30);
-        ctx.fillText("Lebensalter", Math.min(chartArea.right - 60, xLifeExpectancy - 25), chartArea.bottom + 30);
-
-        ctx.restore();
-      },
-    },
-  ];
+  // No custom canvas plugins needed; using annotation plugin for lines/labels
 
   return (
     <div className="w-full">
       {/* Calculation Source Indicator */}
-      <div className={`p-4 rounded-lg border mb-6 ${isBackendCalculation ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'}`}>
-        <h3 className={`text-lg font-semibold mb-2 ${isBackendCalculation ? 'text-green-800' : 'text-yellow-800'}`}>
-          {isBackendCalculation ? '✅ Backend-Berechnung mit dynamischen Admin-Parametern' : '⚠️ Fallback-Berechnung (Frontend)'}
+      <div
+        className={`p-4 rounded-lg border mb-6 ${isBackendCalculation ? "bg-green-50 border-green-200" : "bg-yellow-50 border-yellow-200"}`}
+      >
+        <h3
+          className={`text-lg font-semibold mb-2 ${isBackendCalculation ? "text-green-800" : "text-yellow-800"}`}
+        >
+          {isBackendCalculation
+            ? "✅ Backend-Berechnung mit dynamischen Admin-Parametern"
+            : "⚠️ Fallback-Berechnung (Frontend)"}
         </h3>
         <div className="space-y-2 text-sm">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -584,15 +481,61 @@ function renderChart(pensionData: PensionData, desiredPension: number) {
             </div>
             <div>
               <span className="block font-medium">Kapitalrendite:</span>
-              <span>{parameters.economic_assumptions.investment_return_rate}%</span>
+              <span>
+                {parameters.economic_assumptions.investment_return_rate}%
+              </span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* KPI-Kacheln */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="rounded-xl border p-4 bg-white">
+let
+          <div className="text-2xl font-bold text-red-600">
+            {formatNumber(totalGap)}
+          </div>
+          <div className="text-xs text-gray-500 mt-1">Summe aller Ruhestandsjahre, 12 Monate pro Jahr</div>
+        </div>
+        <div className="rounded-xl border p-4 bg-white">
+          <div className="text-sm text-gray-600 mb-1">
+            Monatliche Lücke zum Rentenbeginn
+          </div>
+          <div className="text-2xl font-bold text-orange-600">
+            {formatNumber(monthlyGapAtRetirement)}
+          </div>
+          <div className="text-xs text-gray-500 mt-1">
+            Monatlicher Fehlbetrag mit {retirementAge} Jahren
+          </div>
+        </div>
+        <div className="rounded-xl border p-4 bg-white">
+          <div className="text-sm text-gray-600 mb-1">
+            Gesamte monatliche Einnahmen zum Rentenbeginn
+          </div>
+          <div className="text-2xl font-bold text-blue-600">
+            {formatNumber(totalIncomeAtRetirement)}
+          </div>
+          <div className="text-xs text-gray-500 mt-1">
+            Alle Einkommensquellen kombiniert
           </div>
         </div>
       </div>
 
       {/* Chart Container */}
       <div className="w-full mb-8" style={{ height: "500px", padding: "20px" }}>
-        <Line data={chartData} options={options} plugins={chartPlugins} />
+        <Line data={chartData} options={options} plugins={[hoverLinePlugin]} />
+      </div>
+
+      {/* Berufsunfähigkeits-Diagramm */}
+      <div className="mt-10">
+        <DisabilityIncomeDiagram
+          initialSalary={rootData?.step_1_data?.currentGrossIncome ?? 4000}
+          initialNetSalary={rootData?.step_1_data?.currentNetIncome}
+          disabilityPensionNetAmount={
+            rootData?.step_3_data?.disabilityPensionAmount ?? undefined
+          }
+        />
       </div>
 
       {/* Analysis Table is handled by separate PensionResultsTable component elsewhere */}
