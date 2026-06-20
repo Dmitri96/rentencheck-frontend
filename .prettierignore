@@ -6,3 +6,6 @@ bun.lock
 package-lock.json
 *.min.js
 *.min.css
+
+# Generated from OpenAPI spec (bun run api:types); do not format
+src/lib/api/schema.d.ts

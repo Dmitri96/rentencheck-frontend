@@ -17,7 +17,7 @@ const eslintConfig = [
     "prettier",
   ),
   {
-    ignores: [".next/**", "node_modules/**", "public/**"],
+    ignores: [".next/**", "node_modules/**", "public/**", "src/lib/api/schema.d.ts"],
   },
 ];
 
