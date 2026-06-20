@@ -7,7 +7,7 @@
 
 export type ApiError = {
   message?: string;
-  errors?: Record<string, string[]>;
+  errors?: Record<string, string | string[]>;
   [key: string]: unknown;
 };
 
@@ -27,10 +27,12 @@ export function getErrorMessage(
 }
 
 /**
- * Flattens Laravel-style { field: [msg, ...] } validation errors into a single string array.
+ * Flattens Laravel-style { field: string | string[] } validation errors into
+ * a single string array. Defensive against custom validators that return a
+ * single string instead of an array.
  */
 export function getValidationMessages(error: ApiError | undefined): string[] {
-  if (!isValidationError(error)) return [];
-  const map = error!.errors as Record<string, string[]>;
-  return Object.values(map).flat();
+  const errors = error?.errors;
+  if (!errors || typeof errors !== "object") return [];
+  return Object.values(errors).flatMap((value) => (Array.isArray(value) ? value : [String(value)]));
 }
