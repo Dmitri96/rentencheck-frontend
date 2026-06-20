@@ -4,6 +4,9 @@ import { toast } from "sonner";
 /**
  * Axios instance for API communication
  * Configured with base URL, interceptors for token management and error handling
+ *
+ * @deprecated New callers should use the typed openapi-fetch client from `@/lib/api`.
+ *             This module is removed in Phase 7 (frontend foundations).
  */
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost/api",
@@ -29,7 +32,7 @@ apiClient.interceptors.request.use(
 
     return config;
   },
-  (error: any) => {
+  (error: unknown) => {
     return Promise.reject(error);
   },
 );

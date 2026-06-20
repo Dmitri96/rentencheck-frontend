@@ -1,3 +1,8 @@
+/**
+ * @deprecated Untyped fetch wrapper. New callers should use the typed
+ *             openapi-fetch client from `@/lib/api/`. Removed in Phase 7.
+ */
+
 import { AuthResponse, LoginInput, RegisterInput, User } from "@/types/auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost/api";
