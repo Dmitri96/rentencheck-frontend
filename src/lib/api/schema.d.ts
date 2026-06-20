@@ -1650,45 +1650,50 @@ export interface operations {
         content: {
           "application/json": {
             pension_data: {
-              /** @description General Settings (using dynamic parameters) */
               currentAge: number;
-              inflationRate: string;
+              inflationRate: number;
               retirementAge: number;
               /** @constant */
               lifeExpectancy: 85;
-              /** @description Desired Pension */
               desiredPensionToday: number;
               desiredPensionRetirement: number;
               desiredPensionLifeExpectancy: number;
-              /** @description Legal Pension (using dynamic calculations) */
               legalPensionToday: number;
               legalPensionRetirement: number;
               statutoryPensionGross: number;
               statutoryPensionAfterInsurance: number;
               statutoryPensionPurchasingPower: number;
-              /** @description Private Pension */
               privatePensionToday: number;
               privatePensionRetirement: number;
-              /** @description BAV/Riester */
               bavRiesterToday: number;
               bavRiesterRetirement: number;
-              /** @description Include current parameters used for transparency */
               parameters_used: {
                 economic_assumptions: {
-                  inflation_rate: string;
-                  pension_increase_rate: string;
-                  investment_return_rate: string;
+                  inflation_rate: number;
+                  pension_increase_rate: number;
+                  investment_return_rate: number;
                 };
                 social_insurance: {
-                  health_insurance_rate: string;
-                  additional_health_insurance_rate: string;
-                  care_insurance_rate: string;
+                  health_insurance_rate: number;
+                  additional_health_insurance_rate: number;
+                  care_insurance_rate: number;
                   total_insurance_rate: string;
-                  health_insurance_exemption_bav: string;
+                  health_insurance_exemption_bav: number;
                 };
                 tax_system: {
-                  rates: string;
-                  thresholds: string;
+                  rates: {
+                    stufe_1: number;
+                    stufe_2: number;
+                    stufe_3: number;
+                    stufe_4: number;
+                    stufe_5: number;
+                  };
+                  thresholds: {
+                    threshold_1: number;
+                    threshold_2: number;
+                    threshold_3: number;
+                    threshold_4: number;
+                  };
                   solidarity_surcharge_rate: number;
                   solidarity_surcharge_threshold: number;
                 };
