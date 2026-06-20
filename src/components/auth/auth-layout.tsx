@@ -1,9 +1,9 @@
-import { ReactNode } from "react"
+import { ReactNode } from "react";
 
 interface AuthLayoutProps {
-  children: ReactNode
-  title?: string
-  subtitle?: string
+  children: ReactNode;
+  title?: string;
+  subtitle?: string;
 }
 
 /**
@@ -21,12 +21,10 @@ export function AuthLayout({ children, title = "RENTENBLICK.de", subtitle }: Aut
           <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent mb-2">
             {title}
           </h1>
-          {subtitle && (
-            <p className="text-gray-600">{subtitle}</p>
-          )}
+          {subtitle && <p className="text-gray-600">{subtitle}</p>}
         </div>
         {children}
       </div>
     </div>
-  )
-} 
+  );
+}

@@ -4,7 +4,7 @@
  */
 
 // Auth types
-export * from './auth'
+export * from "./auth";
 
 // Client types
-export * from './client' 
+export * from "./client";

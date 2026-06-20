@@ -24,15 +24,10 @@ export function PersonalFinancialStep({
   isConfirmed,
 }: PersonalFinancialStepProps) {
   return (
-    <div
-      className={`space-y-8 ${isConfirmed ? "opacity-60 pointer-events-none" : ""}`}
-    >
+    <div className={`space-y-8 ${isConfirmed ? "opacity-60 pointer-events-none" : ""}`}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Label
-            htmlFor="profession"
-            className="text-sm font-semibold text-gray-700"
-          >
+          <Label htmlFor="profession" className="text-sm font-semibold text-gray-700">
             Ihr Beruf
           </Label>
           <Input
@@ -46,10 +41,7 @@ export function PersonalFinancialStep({
         </div>
 
         <div className="space-y-3">
-          <Label
-            htmlFor="currentGrossIncome"
-            className="text-sm font-semibold text-gray-700"
-          >
+          <Label htmlFor="currentGrossIncome" className="text-sm font-semibold text-gray-700">
             Aktuelles Bruttoeinkommen (€)
           </Label>
           <Input
@@ -70,10 +62,7 @@ export function PersonalFinancialStep({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Label
-            htmlFor="currentNetIncome"
-            className="text-sm font-semibold text-gray-700"
-          >
+          <Label htmlFor="currentNetIncome" className="text-sm font-semibold text-gray-700">
             Aktuelles Nettoeinkommen (€)
           </Label>
           <Input
@@ -92,10 +81,7 @@ export function PersonalFinancialStep({
         </div>
 
         <div className="space-y-3">
-          <Label
-            htmlFor="maritalStatus"
-            className="text-sm font-semibold text-gray-700"
-          >
+          <Label htmlFor="maritalStatus" className="text-sm font-semibold text-gray-700">
             Familienstand
           </Label>
           <Select
@@ -111,19 +97,14 @@ export function PersonalFinancialStep({
               <SelectItem value="Verheiratet">Verheiratet</SelectItem>
               <SelectItem value="Geschieden">Geschieden</SelectItem>
               <SelectItem value="Verwitwet">Verwitwet</SelectItem>
-              <SelectItem value="Lebenspartnerschaft">
-                Lebenspartnerschaft
-              </SelectItem>
+              <SelectItem value="Lebenspartnerschaft">Lebenspartnerschaft</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
       <div className="space-y-3">
-        <Label
-          htmlFor="assetSeparation"
-          className="text-sm font-semibold text-gray-700"
-        >
+        <Label htmlFor="assetSeparation" className="text-sm font-semibold text-gray-700">
           Gütertrennung
         </Label>
         <Select
@@ -142,9 +123,7 @@ export function PersonalFinancialStep({
       </div>
 
       <div className="space-y-4">
-        <Label className="text-sm font-semibold text-gray-700">
-          Krankenversicherung
-        </Label>
+        <Label className="text-sm font-semibold text-gray-700">Krankenversicherung</Label>
         <RadioGroup
           value={data.healthInsurance}
           onValueChange={(value) => updateData({ healthInsurance: value })}
@@ -152,38 +131,20 @@ export function PersonalFinancialStep({
           className="grid grid-cols-1 md:grid-cols-2 gap-4"
         >
           <div className="flex items-center space-x-2">
-            <RadioGroupItem
-              value="Gesetzlich/PflichtV"
-              id="gesetzlich-pflicht"
-            />
-            <Label
-              htmlFor="gesetzlich-pflicht"
-              className="text-sm cursor-pointer"
-            >
+            <RadioGroupItem value="Gesetzlich/PflichtV" id="gesetzlich-pflicht" />
+            <Label htmlFor="gesetzlich-pflicht" className="text-sm cursor-pointer">
               Gesetzlich/PflichtV
             </Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem
-              value="Gesetzlich/FamilienV"
-              id="gesetzlich-familien"
-            />
-            <Label
-              htmlFor="gesetzlich-familien"
-              className="text-sm cursor-pointer"
-            >
+            <RadioGroupItem value="Gesetzlich/FamilienV" id="gesetzlich-familien" />
+            <Label htmlFor="gesetzlich-familien" className="text-sm cursor-pointer">
               Gesetzlich/FamilienV
             </Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem
-              value="Gesetzlich/Freiwillig"
-              id="gesetzlich-freiwillig"
-            />
-            <Label
-              htmlFor="gesetzlich-freiwillig"
-              className="text-sm cursor-pointer"
-            >
+            <RadioGroupItem value="Gesetzlich/Freiwillig" id="gesetzlich-freiwillig" />
+            <Label htmlFor="gesetzlich-freiwillig" className="text-sm cursor-pointer">
               Gesetzlich/Freiwillig
             </Label>
           </div>
@@ -200,14 +161,8 @@ export function PersonalFinancialStep({
             </Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem
-              value="Freie Heilfürsorge"
-              id="freie-heilfuersorge"
-            />
-            <Label
-              htmlFor="freie-heilfuersorge"
-              className="text-sm cursor-pointer"
-            >
+            <RadioGroupItem value="Freie Heilfürsorge" id="freie-heilfuersorge" />
+            <Label htmlFor="freie-heilfuersorge" className="text-sm cursor-pointer">
               Freie Heilfürsorge
             </Label>
           </div>
@@ -215,9 +170,7 @@ export function PersonalFinancialStep({
       </div>
 
       <div className="space-y-4">
-        <Label className="text-sm font-semibold text-gray-700">
-          Kirchensteuer
-        </Label>
+        <Label className="text-sm font-semibold text-gray-700">Kirchensteuer</Label>
         <RadioGroup
           value={data.hasToChurchTax ? "Ja" : "Nein"}
           onValueChange={(value) => updateData({ hasToChurchTax: value === "Ja" })}
@@ -252,8 +205,7 @@ export function PersonalFinancialStep({
           value={data.healthInsuranceContribution || ""}
           onChange={(e) =>
             updateData({
-              healthInsuranceContribution:
-                Number.parseFloat(e.target.value) || 0,
+              healthInsuranceContribution: Number.parseFloat(e.target.value) || 0,
             })
           }
           placeholder="0"

@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,14 +17,7 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 interface DisabilityIncomeProps {
   initialSalary?: number;
@@ -65,10 +52,7 @@ function calculateNetFromGross(grossSalary: number): number {
   const solidarityTax = monthlyIncomeTax * 0.055; // 5.5% solidarity surcharge
 
   const netSalary =
-    grossSalary -
-    grossSalary * socialSecurityRate -
-    monthlyIncomeTax -
-    solidarityTax;
+    grossSalary - grossSalary * socialSecurityRate - monthlyIncomeTax - solidarityTax;
   return Math.round(netSalary);
 }
 
@@ -90,9 +74,7 @@ export function DisabilityIncomeDiagram({
   }, [initialSalary]);
 
   useEffect(() => {
-    setMonthlyNetSalary(
-      initialNetSalary ?? calculateNetFromGross(initialSalary),
-    );
+    setMonthlyNetSalary(initialNetSalary ?? calculateNetFromGross(initialSalary));
   }, [initialNetSalary, initialSalary]);
 
   const handleGrossChange = (value: number) => {
@@ -117,27 +99,21 @@ export function DisabilityIncomeDiagram({
 
   // Krankengeld is subject to social security contributions but not income tax
   const socialSecurityRate = 0.2025;
-  const krankengeldNetAdjusted = Math.round(
-    krankengeldNet * (1 - socialSecurityRate),
-  );
+  const krankengeldNetAdjusted = Math.round(krankengeldNet * (1 - socialSecurityRate));
 
   // Erwerbsminderungsrente: use provided net amount if available, otherwise estimate
   const estimatedEmrGross = Math.round(monthlySalary * 0.35); // ~35% typical disability pension
   const estimatedEmrNet = Math.round(estimatedEmrGross * 0.85);
   const erwerbsminderungsrenteNet =
-    disabilityPensionNetAmount != null
-      ? Math.round(disabilityPensionNetAmount)
-      : estimatedEmrNet;
+    disabilityPensionNetAmount != null ? Math.round(disabilityPensionNetAmount) : estimatedEmrNet;
   const erwerbsminderungsrenteGross =
     disabilityPensionNetAmount != null
       ? Math.round(disabilityPensionNetAmount / 0.85)
       : estimatedEmrGross;
 
   const privateInsuranceBenefit = privateInsurance;
-  const totalWithInsuranceGross =
-    erwerbsminderungsrenteGross + privateInsuranceBenefit;
-  const totalWithInsuranceNet =
-    erwerbsminderungsrenteNet + privateInsuranceBenefit; // Private insurance usually tax-free
+  const totalWithInsuranceGross = erwerbsminderungsrenteGross + privateInsuranceBenefit;
+  const totalWithInsuranceNet = erwerbsminderungsrenteNet + privateInsuranceBenefit; // Private insurance usually tax-free
 
   const chartData = {
     labels: [
@@ -149,12 +125,7 @@ export function DisabilityIncomeDiagram({
     datasets: [
       {
         label: "Netto (verfügbar)",
-        data: [
-          fullSalaryNet,
-          krankengeldNet,
-          erwerbsminderungsrenteNet,
-          totalWithInsuranceNet,
-        ],
+        data: [fullSalaryNet, krankengeldNet, erwerbsminderungsrenteNet, totalWithInsuranceNet],
         backgroundColor: [
           "#3b82f6", // Full salary - blue
           "#f59e0b", // Krankengeld - amber
@@ -273,8 +244,7 @@ export function DisabilityIncomeDiagram({
             Berufsunfähigkeit: Einkommensausfälle visualisiert
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Sehen Sie, wie sich Ihr Einkommen bei Krankheit und
-            Berufsunfähigkeit entwickelt
+            Sehen Sie, wie sich Ihr Einkommen bei Krankheit und Berufsunfähigkeit entwickelt
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -341,12 +311,8 @@ export function DisabilityIncomeDiagram({
                   <div className="text-2xl font-bold text-chart-2">
                     €{krankengeldNet.toLocaleString()}
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    Netto verfügbar
-                  </div>
-                  <div className="text-sm">
-                    Brutto: €{krankengeldGross.toLocaleString()}
-                  </div>
+                  <div className="text-sm text-muted-foreground">Netto verfügbar</div>
+                  <div className="text-sm">Brutto: €{krankengeldGross.toLocaleString()}</div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
                   70% des Bruttogehalts für max. 72 Wochen
@@ -356,18 +322,14 @@ export function DisabilityIncomeDiagram({
 
             <Card className="border-l-4 border-l-destructive">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">
-                  Erwerbsminderungsrente
-                </CardTitle>
+                <CardTitle className="text-lg">Erwerbsminderungsrente</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="text-2xl font-bold text-destructive">
                     €{erwerbsminderungsrenteNet.toLocaleString()}
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    Netto verfügbar
-                  </div>
+                  <div className="text-sm text-muted-foreground">Netto verfügbar</div>
                   <div className="text-sm">
                     Brutto: €{erwerbsminderungsrenteGross.toLocaleString()}
                   </div>
@@ -387,12 +349,8 @@ export function DisabilityIncomeDiagram({
                   <div className="text-2xl font-bold text-primary">
                     €{totalWithInsuranceNet.toLocaleString()}
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    Netto verfügbar
-                  </div>
-                  <div className="text-sm">
-                    Brutto: €{totalWithInsuranceGross.toLocaleString()}
-                  </div>
+                  <div className="text-sm text-muted-foreground">Netto verfügbar</div>
+                  <div className="text-sm">Brutto: €{totalWithInsuranceGross.toLocaleString()}</div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
                   Staatliche + private Absicherung

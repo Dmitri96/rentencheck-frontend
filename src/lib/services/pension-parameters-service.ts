@@ -1,39 +1,39 @@
-import { ApiService } from '../api-service'
+import { ApiService } from "../api-service";
 
 interface PensionParameters {
   economic_assumptions: {
-    inflation_rate: number
-    pension_increase_rate: number
-    investment_return_rate: number
-  }
+    inflation_rate: number;
+    pension_increase_rate: number;
+    investment_return_rate: number;
+  };
   social_insurance: {
-    health_insurance_rate: number
-    additional_health_insurance_rate: number
-    care_insurance_rate: number
-    total_insurance_rate: number
-    health_insurance_exemption_bav: number
-  }
+    health_insurance_rate: number;
+    additional_health_insurance_rate: number;
+    care_insurance_rate: number;
+    total_insurance_rate: number;
+    health_insurance_exemption_bav: number;
+  };
   tax_system: {
-    rates: Record<string, number>
-    thresholds: Record<string, number>
-    solidarity_surcharge_rate: number
-    solidarity_surcharge_threshold: number
-  }
+    rates: Record<string, number>;
+    thresholds: Record<string, number>;
+    solidarity_surcharge_rate: number;
+    solidarity_surcharge_threshold: number;
+  };
 }
 
 class PensionParametersService {
   async getPensionParameters(): Promise<PensionParameters> {
     try {
-      const response = await ApiService.get('/pension-parameters')
-      
+      const response = await ApiService.get("/pension-parameters");
+
       if (!response.data.success) {
-        throw new Error(response.data.message || 'Failed to fetch pension parameters')
+        throw new Error(response.data.message || "Failed to fetch pension parameters");
       }
 
-      return response.data.data
+      return response.data.data;
     } catch (error) {
-      console.warn('Failed to fetch dynamic pension parameters, using defaults:', error)
-      
+      console.warn("Failed to fetch dynamic pension parameters, using defaults:", error);
+
       // Return default values if API call fails
       return {
         economic_assumptions: {
@@ -65,10 +65,10 @@ class PensionParametersService {
           solidarity_surcharge_rate: 5.5,
           solidarity_surcharge_threshold: 19450.0,
         },
-      }
+      };
     }
   }
 }
 
-export const pensionParametersService = new PensionParametersService()
-export type { PensionParameters } 
+export const pensionParametersService = new PensionParametersService();
+export type { PensionParameters };

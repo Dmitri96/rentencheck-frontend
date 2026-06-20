@@ -8,7 +8,7 @@ export interface User {
   phone?: string;
   company?: string;
   plan?: string;
-  status: 'active' | 'blocked' | 'pending';
+  status: "active" | "blocked" | "pending";
   newsletter?: boolean;
   roles?: string[];
   is_admin: boolean;
@@ -82,7 +82,7 @@ export interface Advisor {
   email: string;
   phone?: string;
   company?: string;
-  status: 'active' | 'blocked' | 'pending';
+  status: "active" | "blocked" | "pending";
   created_at: string;
   last_login?: string;
   statistics: AdvisorStatistics;
@@ -145,4 +145,4 @@ export interface AdvisorDetails {
     rentenchecks_count: number;
     created_at: string;
   }[];
-} 
+}

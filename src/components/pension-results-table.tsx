@@ -46,10 +46,7 @@ interface IncomeRowComputed {
 const currency = (value: number) =>
   `${value.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€`;
 
-export function PensionResultsTable({
-  data,
-  desiredPension,
-}: PensionResultsTableProps) {
+export function PensionResultsTable({ data, desiredPension }: PensionResultsTableProps) {
   const [parameters, setParameters] = useState<ParametersShape | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -58,10 +55,7 @@ export function PensionResultsTable({
     const load = async () => {
       try {
         setLoading(true);
-        const res = await RentencheckService.getPensionCalculation(
-          data.client_id,
-          data.id,
-        );
+        const res = await RentencheckService.getPensionCalculation(data.client_id, data.id);
         if (!mounted) return;
         setParameters(res.pension_data.parameters_used);
       } catch {
@@ -97,8 +91,7 @@ export function PensionResultsTable({
 
     const yearsToRetirement = Math.max(
       0,
-      (data.step_2_data?.retirementAge || 67) -
-        (data.step_2_data?.currentAge || 30),
+      (data.step_2_data?.retirementAge || 67) - (data.step_2_data?.currentAge || 30),
     );
 
     const compute = (
@@ -115,8 +108,7 @@ export function PensionResultsTable({
       // Ges. KV laut Vorgabe auf Brutto berechnen (nicht auf Nach-Steuer)
       const healthInsurance = brutto * (kvSharePct / 100) * (kvRate / 100);
       const afterKV = afterTax - healthInsurance;
-      const purchasingPower =
-        afterKV / Math.pow(1 + inflation / 100, yearsToRetirement);
+      const purchasingPower = afterKV / Math.pow(1 + inflation / 100, yearsToRetirement);
 
       return {
         label,
@@ -138,19 +130,10 @@ export function PensionResultsTable({
     // 1. Gesetzliche Versorgung (inkl. Beamtenversorgung in Summe)
     if (data.step_3_data?.statutoryPensionClaims) {
       const statutory = Number(data.step_3_data?.statutoryPensionAmount || 0);
-      const civilService = Number(
-        data.step_3_data?.civilServiceProvisionAmount || 0,
-      );
+      const civilService = Number(data.step_3_data?.civilServiceProvisionAmount || 0);
       const legalTotal = statutory + civilService;
       if (legalTotal > 0) {
-        items.push(
-          compute(
-            "Gesetzl. Versorgung (inkl. Rentensteigerung)",
-            legalTotal,
-            100,
-            100,
-          ),
-        );
+        items.push(compute("Gesetzl. Versorgung (inkl. Rentensteigerung)", legalTotal, 100, 100));
       }
     }
 
@@ -164,15 +147,12 @@ export function PensionResultsTable({
 
     // 3. Rentenverträge (Basis, BAV, Riester, Privat)
     const pensionContracts = data.step_3_data?.pensionContracts || [];
-    const groupedByType = pensionContracts.reduce<Record<string, number>>(
-      (acc, c: any) => {
-        const type = c.contractType || "Sonstige Rente";
-        const amount = Number(c.monthlyAmount) || 0;
-        acc[type] = (acc[type] || 0) + amount;
-        return acc;
-      },
-      {},
-    );
+    const groupedByType = pensionContracts.reduce<Record<string, number>>((acc, c: any) => {
+      const type = c.contractType || "Sonstige Rente";
+      const amount = Number(c.monthlyAmount) || 0;
+      acc[type] = (acc[type] || 0) + amount;
+      return acc;
+    }, {});
 
     Object.entries(groupedByType).forEach(([type, amount]) => {
       // Default shares 100%/100%; adjust here if needed per type
@@ -186,26 +166,20 @@ export function PensionResultsTable({
         const guaranteed = Number(c.guaranteedAmount) || 0;
         return sum + guaranteed / 240; // 20 Jahre -> 240 Monate
       }, 0);
-      if (monthly > 0)
-        items.push(
-          compute("Auszahlungsverträge (äquiv. mtl.)", monthly, 100, 100),
-        );
+      if (monthly > 0) items.push(compute("Auszahlungsverträge (äquiv. mtl.)", monthly, 100, 100));
     }
 
     // 5. Zusatzeinkommen
     const additionalIncome = data.step_3_data?.additionalIncome || [];
     if (additionalIncome.length > 0) {
-      const groupedIncome = additionalIncome.reduce<Record<string, number>>(
-        (acc, i: any) => {
-          let monthly = Number(i.amount) || 0;
-          if (i.frequency === "Jährlich") monthly = monthly / 12;
-          if (i.frequency === "Einmalig") monthly = monthly / 240;
-          const label = i.type || "Zusatzeinkommen";
-          acc[label] = (acc[label] || 0) + monthly;
-          return acc;
-        },
-        {},
-      );
+      const groupedIncome = additionalIncome.reduce<Record<string, number>>((acc, i: any) => {
+        let monthly = Number(i.amount) || 0;
+        if (i.frequency === "Jährlich") monthly = monthly / 12;
+        if (i.frequency === "Einmalig") monthly = monthly / 240;
+        const label = i.type || "Zusatzeinkommen";
+        acc[label] = (acc[label] || 0) + monthly;
+        return acc;
+      }, {});
       Object.entries(groupedIncome).forEach(([label, amount]) =>
         items.push(compute(label, amount, 100, 100)),
       );
@@ -258,9 +232,7 @@ export function PensionResultsTable({
         <h3 className="font-semibold text-gray-900">Berechnungstabelle</h3>
         <div className="mt-1 text-xs text-gray-600 grid grid-cols-2 md:grid-cols-4 gap-2">
           <div>Steuer: {effectiveTaxRate}%</div>
-          <div>
-            Kirchensteuer: {hasChurchTaxHeader ? "9% (auf Brutto)" : "0% (aus)"}
-          </div>
+          <div>Kirchensteuer: {hasChurchTaxHeader ? "9% (auf Brutto)" : "0% (aus)"}</div>
           <div>Soli: {soliRate}% (auf Brutto)</div>
           <div>Ges. KV: {kvRate}%</div>
         </div>
@@ -289,23 +261,13 @@ export function PensionResultsTable({
                 <td className="p-3 font-medium">{r.label}</td>
                 <td className="p-3 text-right">{currency(r.brutto)}</td>
                 <td className="p-3 text-center">{r.taxSharePct.toFixed(0)}%</td>
-                <td className="p-3 text-right text-red-600">
-                  {currency(r.incomeTax)}
-                </td>
-                <td className="p-3 text-right text-red-600">
-                  {currency(r.churchTax)}
-                </td>
-                <td className="p-3 text-right text-red-600">
-                  {currency(r.soli)}
-                </td>
+                <td className="p-3 text-right text-red-600">{currency(r.incomeTax)}</td>
+                <td className="p-3 text-right text-red-600">{currency(r.churchTax)}</td>
+                <td className="p-3 text-right text-red-600">{currency(r.soli)}</td>
                 <td className="p-3 text-right">{currency(r.afterTax)}</td>
                 <td className="p-3 text-center">{r.kvSharePct.toFixed(0)}%</td>
-                <td className="p-3 text-right text-red-600">
-                  {currency(r.healthInsurance)}
-                </td>
-                <td className="p-3 text-right text-green-700 font-medium">
-                  {currency(r.afterKV)}
-                </td>
+                <td className="p-3 text-right text-red-600">{currency(r.healthInsurance)}</td>
+                <td className="p-3 text-right text-green-700 font-medium">{currency(r.afterKV)}</td>
                 <td className="p-3 text-right text-emerald-700 font-bold">
                   {currency(r.purchasingPower)}
                 </td>
@@ -321,13 +283,9 @@ export function PensionResultsTable({
               <td className="p-3 text-right">{currency(totals.soli)}</td>
               <td className="p-3 text-right">{currency(totals.afterTax)}</td>
               <td className="p-3 text-center">–</td>
-              <td className="p-3 text-right">
-                {currency(totals.healthInsurance)}
-              </td>
+              <td className="p-3 text-right">{currency(totals.healthInsurance)}</td>
               <td className="p-3 text-right">{currency(totals.afterKV)}</td>
-              <td className="p-3 text-right">
-                {currency(totals.purchasingPower)}
-              </td>
+              <td className="p-3 text-right">{currency(totals.purchasingPower)}</td>
             </tr>
           </tbody>
         </table>

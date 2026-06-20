@@ -22,26 +22,21 @@ interface RentenchecksCardProps {
   loading: boolean;
 }
 
-export function RentenchecksCard({
-  clientId,
-  rentenchecks,
-  loading,
-}: RentenchecksCardProps) {
+export function RentenchecksCard({ clientId, rentenchecks, loading }: RentenchecksCardProps) {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
 
   const handleCreateFirstRentencheck = async () => {
     try {
       setCreating(true);
-      
+
       // Create new rentencheck first
       const response = await RentencheckService.createRentencheck(parseInt(clientId), {
-        title: `Erster Rentencheck`
+        title: `Erster Rentencheck`,
       });
-      
+
       // Navigate to the specific rentencheck edit page
       router.push(`/dashboard/clients/${clientId}/rentencheck/${response.rentencheck.id}`);
-      
     } catch (error: any) {
       console.error("Error creating rentencheck:", error);
       toast.error("Fehler beim Erstellen des Rentenchecks");
@@ -66,13 +61,11 @@ export function RentenchecksCard({
   const renderEmptyState = () => (
     <div className="text-center py-12">
       <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-        Noch keine Rentenchecks
-      </h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">Noch keine Rentenchecks</h3>
       <p className="text-gray-600 mb-6">
         Erstellen Sie den ersten Rentencheck für diesen Mandanten.
       </p>
-      <Button 
+      <Button
         onClick={handleCreateFirstRentencheck}
         disabled={creating}
         className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
@@ -108,42 +101,34 @@ export function RentenchecksCard({
                 <span className="text-sm text-gray-500">
                   Erstellt: {formatDate(check.created_at)}
                 </span>
-                <Badge
-                  className={`text-xs ${getRentencheckStatusColor(check.status)}`}
-                >
+                <Badge className={`text-xs ${getRentencheckStatusColor(check.status)}`}>
                   {getRentencheckStatusText(check.status)}
                 </Badge>
               </div>
               <div className="mt-2">
                 <span className="text-sm text-gray-600">Fortschritt: </span>
-                <span className="font-semibold text-blue-600">
-                  {check.progress_percentage}%
-                </span>
+                <span className="font-semibold text-blue-600">{check.progress_percentage}%</span>
                 <span className="text-sm text-gray-500 ml-2">
                   ({check.completed_steps?.length || 0} von 5 Schritten)
                 </span>
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <Link
-                href={`/dashboard/clients/${clientId}/rentencheck/${check.id}`}
-              >
+              <Link href={`/dashboard/clients/${clientId}/rentencheck/${check.id}`}>
                 <Button variant="outline" size="sm" title="Bearbeiten">
                   <Edit3 className="h-4 w-4" />
                 </Button>
               </Link>
-              {check.status === 'completed' && (
+              {check.status === "completed" && (
                 <>
-                  <Link
-                    href={`/dashboard/clients/${clientId}/rentencheck/${check.id}/analysis`}
-                  >
+                  <Link href={`/dashboard/clients/${clientId}/rentencheck/${check.id}/analysis`}>
                     <Button variant="outline" size="sm" title="Analyse anzeigen">
                       <BarChart3 className="h-4 w-4" />
                     </Button>
                   </Link>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     title="PDF herunterladen"
                     onClick={() => handleDownloadPdf(check.id)}
                     disabled={creating}

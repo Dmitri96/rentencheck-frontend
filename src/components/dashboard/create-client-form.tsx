@@ -1,30 +1,27 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { ArrowLeft, Settings, LogOut, Save, X } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
-import { ClientService } from "@/lib/services/client-service"
-import { 
-  createClientSchema, 
-  type CreateClientFormInput
-} from "@/lib/validations/client"
-import { useAuth } from "@/hooks/useAuth"
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, Settings, LogOut, Save, X } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { ClientService } from "@/lib/services/client-service";
+import { createClientSchema, type CreateClientFormInput } from "@/lib/validations/client";
+import { useAuth } from "@/hooks/useAuth";
 
 export function CreateClientForm() {
-  const router = useRouter()
-  const { logout } = useAuth()
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter();
+  const { logout } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
@@ -44,10 +41,10 @@ export function CreateClientForm() {
       birth_date: "",
       notes: "",
     },
-  })
+  });
 
   const onSubmit = async (data: CreateClientFormInput) => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       // Convert empty strings to undefined for optional fields
@@ -59,49 +56,48 @@ export function CreateClientForm() {
         postal_code: data.postal_code || undefined,
         birth_date: data.birth_date || undefined,
         notes: data.notes || undefined,
-      }
+      };
 
-      const response = await ClientService.createClient(clientData)
-      
-      toast.success(response.message || "Mandant erfolgreich angelegt!")
-      router.push("/dashboard")
+      const response = await ClientService.createClient(clientData);
+
+      toast.success(response.message || "Mandant erfolgreich angelegt!");
+      router.push("/dashboard");
     } catch (error: any) {
-      console.error("Error creating client:", error)
-      
+      console.error("Error creating client:", error);
+
       // Handle validation errors
       if (error.response?.status === 422 && error.response?.data?.errors) {
-        const serverErrors = error.response.data.errors
+        const serverErrors = error.response.data.errors;
         Object.keys(serverErrors).forEach((field) => {
-          const messages = serverErrors[field]
+          const messages = serverErrors[field];
           if (Array.isArray(messages) && messages.length > 0) {
-            toast.error(messages[0])
+            toast.error(messages[0]);
           }
-        })
+        });
       } else {
         toast.error(
-          error.response?.data?.message || 
-          "Ein Fehler ist beim Anlegen des Mandanten aufgetreten"
-        )
+          error.response?.data?.message || "Ein Fehler ist beim Anlegen des Mandanten aufgetreten",
+        );
       }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleCancel = () => {
-    reset()
-    router.push("/dashboard")
-  }
+    reset();
+    router.push("/dashboard");
+  };
 
   const handleLogout = async () => {
     try {
-      await logout()
-      router.push("/login")
+      await logout();
+      router.push("/login");
     } catch (error) {
-      console.error("Logout error:", error)
-      router.push("/login")
+      console.error("Logout error:", error);
+      router.push("/login");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -130,9 +126,9 @@ export function CreateClientForm() {
                 <Settings className="h-4 w-4" />
                 Einstellungen
               </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="flex items-center gap-2 text-red-600"
                 onClick={handleLogout}
               >
@@ -209,9 +205,7 @@ export function CreateClientForm() {
                       className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
                       aria-invalid={errors.email ? "true" : "false"}
                     />
-                    {errors.email && (
-                      <p className="text-sm text-red-600">{errors.email.message}</p>
-                    )}
+                    {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
                   </div>
 
                   <div className="space-y-3">
@@ -226,9 +220,7 @@ export function CreateClientForm() {
                       className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
                       aria-invalid={errors.phone ? "true" : "false"}
                     />
-                    {errors.phone && (
-                      <p className="text-sm text-red-600">{errors.phone.message}</p>
-                    )}
+                    {errors.phone && <p className="text-sm text-red-600">{errors.phone.message}</p>}
                   </div>
                 </div>
 
@@ -244,9 +236,7 @@ export function CreateClientForm() {
                     className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
                     aria-invalid={errors.street ? "true" : "false"}
                   />
-                  {errors.street && (
-                    <p className="text-sm text-red-600">{errors.street.message}</p>
-                  )}
+                  {errors.street && <p className="text-sm text-red-600">{errors.street.message}</p>}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -261,9 +251,7 @@ export function CreateClientForm() {
                       className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
                       aria-invalid={errors.city ? "true" : "false"}
                     />
-                    {errors.city && (
-                      <p className="text-sm text-red-600">{errors.city.message}</p>
-                    )}
+                    {errors.city && <p className="text-sm text-red-600">{errors.city.message}</p>}
                   </div>
 
                   <div className="space-y-3">
@@ -314,9 +302,7 @@ export function CreateClientForm() {
                     className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
                     aria-invalid={errors.notes ? "true" : "false"}
                   />
-                  {errors.notes && (
-                    <p className="text-sm text-red-600">{errors.notes.message}</p>
-                  )}
+                  {errors.notes && <p className="text-sm text-red-600">{errors.notes.message}</p>}
                 </div>
 
                 {/* Action Buttons */}
@@ -353,5 +339,5 @@ export function CreateClientForm() {
         </div>
       </div>
     </div>
-  )
+  );
 }

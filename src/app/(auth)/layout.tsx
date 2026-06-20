@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import ErrorBoundary from '@/components/ui/error-boundary';
+import ErrorBoundary from "@/components/ui/error-boundary";
 
 export default function AuthLayout({
   children,
@@ -9,9 +9,7 @@ export default function AuthLayout({
 }>) {
   return (
     <ErrorBoundary>
-      <main className="min-h-screen bg-gray-100">
-        {children}
-      </main>
+      <main className="min-h-screen bg-gray-100">{children}</main>
     </ErrorBoundary>
   );
-} 
+}

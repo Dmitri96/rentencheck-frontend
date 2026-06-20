@@ -1,5 +1,5 @@
-import apiClient from './axios';
-import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import apiClient from "./axios";
+import { AxiosRequestConfig, AxiosResponse } from "axios";
 
 /**
  * Generic API Service
@@ -39,7 +39,7 @@ export const ApiService = {
    */
   delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return apiClient.delete<T>(url, config);
-  }
+  },
 };
 
-export default ApiService; 
+export default ApiService;

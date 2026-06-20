@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Plus,
   Search,
@@ -19,120 +19,117 @@ import {
   Trash2,
   Filter,
   Loader2,
-} from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
-import { ClientService } from "@/lib/services/client-service"
-import { useAuth } from "@/hooks/useAuth"
-import type { Client, ClientFilters } from "@/types"
-import { RentencheckService } from "@/lib/services/rentencheck-service"
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { ClientService } from "@/lib/services/client-service";
+import { useAuth } from "@/hooks/useAuth";
+import type { Client, ClientFilters } from "@/types";
+import { RentencheckService } from "@/lib/services/rentencheck-service";
 
 export function ClientDashboard() {
-  const router = useRouter()
-  const { logout } = useAuth()
-  const [clients, setClients] = useState<Client[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all")
-  const [deleteLoading, setDeleteLoading] = useState<number | null>(null)
-  const [creatingRentencheck, setCreatingRentencheck] = useState<number | null>(null)
+  const router = useRouter();
+  const { logout } = useAuth();
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
+  const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
+  const [creatingRentencheck, setCreatingRentencheck] = useState<number | null>(null);
 
   // Load clients on component mount
   useEffect(() => {
-    loadClients()
-  }, [])
+    loadClients();
+  }, []);
 
   const loadClients = async () => {
     try {
-      setLoading(true)
-      const response = await ClientService.getClients(1) // Load first page
-      setClients(response.data)
+      setLoading(true);
+      const response = await ClientService.getClients(1); // Load first page
+      setClients(response.data);
     } catch (error: any) {
-      console.error("Error loading clients:", error)
-      toast.error("Fehler beim Laden der Mandanten")
+      console.error("Error loading clients:", error);
+      toast.error("Fehler beim Laden der Mandanten");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleDeleteClient = async (clientId: number) => {
     if (!confirm("Möchten Sie diesen Mandanten wirklich deaktivieren?")) {
-      return
+      return;
     }
 
     try {
-      setDeleteLoading(clientId)
-      await ClientService.deleteClient(clientId)
-      toast.success("Mandant erfolgreich deaktiviert")
-      
+      setDeleteLoading(clientId);
+      await ClientService.deleteClient(clientId);
+      toast.success("Mandant erfolgreich deaktiviert");
+
       // Remove from local state or reload
-      setClients(clients.filter(client => client.id !== clientId))
+      setClients(clients.filter((client) => client.id !== clientId));
     } catch (error: any) {
-      console.error("Error deleting client:", error)
-      toast.error("Fehler beim Deaktivieren des Mandanten")
+      console.error("Error deleting client:", error);
+      toast.error("Fehler beim Deaktivieren des Mandanten");
     } finally {
-      setDeleteLoading(null)
+      setDeleteLoading(null);
     }
-  }
+  };
 
   const handleCreateRentencheckForClient = async (client: Client) => {
     try {
-      setCreatingRentencheck(client.id)
-      
+      setCreatingRentencheck(client.id);
+
       // Create new rentencheck first
       const response = await RentencheckService.createRentencheck(client.id, {
-        title: `Rentencheck für ${client.full_name}`
-      })
-      
+        title: `Rentencheck für ${client.full_name}`,
+      });
+
       // Navigate to the specific rentencheck edit page
-      router.push(`/dashboard/clients/${client.id}/rentencheck/${response.rentencheck.id}`)
-      
+      router.push(`/dashboard/clients/${client.id}/rentencheck/${response.rentencheck.id}`);
     } catch (error: any) {
-      console.error("Error creating rentencheck:", error)
-      toast.error("Fehler beim Erstellen des Rentenchecks")
+      console.error("Error creating rentencheck:", error);
+      toast.error("Fehler beim Erstellen des Rentenchecks");
     } finally {
-      setCreatingRentencheck(null)
+      setCreatingRentencheck(null);
     }
-  }
+  };
 
   const handleLogout = async () => {
     try {
-      await logout()
-      router.push("/login")
+      await logout();
+      router.push("/login");
     } catch (error) {
-      console.error("Logout error:", error)
-      router.push("/login")
+      console.error("Logout error:", error);
+      router.push("/login");
     }
-  }
+  };
 
   const filteredClients = clients.filter((client) => {
     const matchesSearch =
       client.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchTerm.toLowerCase())
+      client.email.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = 
-      statusFilter === "all" || 
+    const matchesStatus =
+      statusFilter === "all" ||
       (statusFilter === "active" && client.is_active) ||
-      (statusFilter === "inactive" && !client.is_active)
+      (statusFilter === "inactive" && !client.is_active);
 
-    return matchesSearch && matchesStatus
-  })
+    return matchesSearch && matchesStatus;
+  });
 
   const getStatusColor = (isActive: boolean) => {
-    return isActive 
-      ? "bg-green-100 text-green-800" 
-      : "bg-gray-100 text-gray-800"
-  }
+    return isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800";
+  };
 
   const getStatusText = (isActive: boolean) => {
-    return isActive ? "Aktiv" : "Inaktiv"
-  }
+    return isActive ? "Aktiv" : "Inaktiv";
+  };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('de-DE')
-  }
+    return new Date(dateString).toLocaleDateString("de-DE");
+  };
 
   if (loading) {
     return (
@@ -140,12 +137,14 @@ export function ClientDashboard() {
         <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
           <CardContent className="p-12 text-center">
             <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Mandanten werden geladen...</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Mandanten werden geladen...
+            </h3>
             <p className="text-gray-600">Bitte warten Sie einen Moment.</p>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -168,9 +167,9 @@ export function ClientDashboard() {
                 <Settings className="h-4 w-4" />
                 Einstellungen
               </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="flex items-center gap-2 text-red-600"
                 onClick={handleLogout}
               >
@@ -187,7 +186,9 @@ export function ClientDashboard() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Meine Mandanten</h2>
-            <p className="text-gray-600">Verwalten Sie Ihre Mandanten und erstellen Sie Rentenchecks</p>
+            <p className="text-gray-600">
+              Verwalten Sie Ihre Mandanten und erstellen Sie Rentenchecks
+            </p>
           </div>
           <Link href="/dashboard/clients/new">
             <Button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
@@ -251,11 +252,13 @@ export function ClientDashboard() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Neue Mandanten</p>
                   <p className="text-3xl font-bold text-purple-600">
-                    {clients.filter((c) => {
-                      const createdDate = new Date(c.created_at)
-                      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-                      return createdDate > weekAgo
-                    }).length}
+                    {
+                      clients.filter((c) => {
+                        const createdDate = new Date(c.created_at);
+                        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                        return createdDate > weekAgo;
+                      }).length
+                    }
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -305,21 +308,17 @@ export function ClientDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                      {client.full_name}
-                    </h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">{client.full_name}</h3>
                     <Badge className={`text-xs ${getStatusColor(client.is_active)}`}>
                       {getStatusText(client.is_active)}
                     </Badge>
                     {client.age && (
-                      <p className="text-sm text-gray-500 mt-1">
-                        {client.age} Jahre alt
-                      </p>
+                      <p className="text-sm text-gray-500 mt-1">{client.age} Jahre alt</p>
                     )}
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={() => handleDeleteClient(client.id)}
                     disabled={deleteLoading === client.id}
@@ -350,9 +349,7 @@ export function ClientDashboard() {
                     </div>
                   )}
                   <div className="flex items-center text-sm text-gray-500">
-                    <span className="text-xs">
-                      Angelegt: {formatDate(client.created_at)}
-                    </span>
+                    <span className="text-xs">Angelegt: {formatDate(client.created_at)}</span>
                   </div>
                 </div>
 
@@ -379,10 +376,10 @@ export function ClientDashboard() {
                       </Button>
                     </Link>
                   </div>
-                  <Button 
+                  <Button
                     onClick={() => handleCreateRentencheckForClient(client)}
                     disabled={creatingRentencheck === client.id}
-                    size="sm" 
+                    size="sm"
                     className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1"
                   >
                     {creatingRentencheck === client.id ? (
@@ -404,7 +401,9 @@ export function ClientDashboard() {
               <div className="text-6xl mb-4">👥</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Keine Mandanten gefunden</h3>
               <p className="text-gray-600 mb-6">
-                {searchTerm ? "Ihre Suche ergab keine Treffer." : "Sie haben noch keine Mandanten angelegt."}
+                {searchTerm
+                  ? "Ihre Suche ergab keine Treffer."
+                  : "Sie haben noch keine Mandanten angelegt."}
               </p>
               <Link href="/dashboard/clients/new">
                 <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
@@ -417,5 +416,5 @@ export function ClientDashboard() {
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -1,32 +1,32 @@
-"use client"
+"use client";
 
-import React from "react"
-import { useContractManagement } from "@/hooks/use-contract-management"
-import type { RentenblickData } from "../rentenblick-form"
-import { StatutoryPensionSection } from "./sections/statutory-pension-section"
-import { ProfessionalProvisionSection } from "./sections/professional-provision-section"
-import { PublicServiceProvisionSection } from "./sections/public-service-provision-section"
-import { CivilServiceProvisionSection } from "./sections/civil-service-provision-section"
-import { PayoutContractsSection } from "./sections/payout-contracts-section"
-import { PensionContractsSection } from "./sections/pension-contracts-section"
-import { AdditionalIncomeSection } from "./sections/additional-income-section"
+import React from "react";
+import { useContractManagement } from "@/hooks/use-contract-management";
+import type { RentenblickData } from "../rentenblick-form";
+import { StatutoryPensionSection } from "./sections/statutory-pension-section";
+import { ProfessionalProvisionSection } from "./sections/professional-provision-section";
+import { PublicServiceProvisionSection } from "./sections/public-service-provision-section";
+import { CivilServiceProvisionSection } from "./sections/civil-service-provision-section";
+import { PayoutContractsSection } from "./sections/payout-contracts-section";
+import { PensionContractsSection } from "./sections/pension-contracts-section";
+import { AdditionalIncomeSection } from "./sections/additional-income-section";
 
 /**
  * Props interface for the Contract Overview Step component
  * This step handles collection of existing pension contracts and future income expectations
  */
 interface ContractOverviewStepProps {
-    data: RentenblickData
-    updateData: (data: Partial<RentenblickData>) => void
-    isConfirmed: boolean
+  data: RentenblickData;
+  updateData: (data: Partial<RentenblickData>) => void;
+  isConfirmed: boolean;
 }
 
 /**
  * ContractOverviewStep Component
- * 
+ *
  * Main orchestrator component that coordinates all pension-related sections.
  * Follows Next.js best practices with proper component composition and separation of concerns.
- * 
+ *
  * Architecture:
  * - Uses custom hook for business logic separation (useContractManagement)
  * - Composes multiple focused section components
@@ -34,69 +34,65 @@ interface ContractOverviewStepProps {
  * - Maintains clean data flow through props
  */
 export function ContractOverviewStep({ data, updateData, isConfirmed }: ContractOverviewStepProps) {
-    /**
-     * Custom hook that handles all contract-related business logic
-     * Provides clean separation of concerns and reusable contract management
-     */
-    const contractManagement = useContractManagement(data, updateData, isConfirmed)
+  /**
+   * Custom hook that handles all contract-related business logic
+   * Provides clean separation of concerns and reusable contract management
+   */
+  const contractManagement = useContractManagement(data, updateData, isConfirmed);
 
-    return (
-        <div className={`space-y-8 ${isConfirmed ? "opacity-60 pointer-events-none" : ""}`}>
-            {/* Pension Claims Sections */}
-            <div className="space-y-6">
-                <StatutoryPensionSection 
-                    data={data} 
-                    updateData={updateData} 
-                    isConfirmed={isConfirmed} 
-                />
-                
-                <ProfessionalProvisionSection 
-                    data={data} 
-                    updateData={updateData} 
-                    isConfirmed={isConfirmed} 
-                />
-                
-                <PublicServiceProvisionSection 
-                    data={data} 
-                    updateData={updateData} 
-                    isConfirmed={isConfirmed} 
-                />
-                
-                <CivilServiceProvisionSection 
-                    data={data} 
-                    updateData={updateData} 
-                    isConfirmed={isConfirmed} 
-                />
-            </div>
+  return (
+    <div className={`space-y-8 ${isConfirmed ? "opacity-60 pointer-events-none" : ""}`}>
+      {/* Pension Claims Sections */}
+      <div className="space-y-6">
+        <StatutoryPensionSection data={data} updateData={updateData} isConfirmed={isConfirmed} />
 
-            {/* Contract Management Sections */}
-            <PayoutContractsSection 
-                data={data} 
-                contractManagement={contractManagement}
-                isConfirmed={isConfirmed} 
-            />
-            
-            <PensionContractsSection 
-                data={data} 
-                contractManagement={contractManagement}
-                isConfirmed={isConfirmed} 
-            />
-            
-            <AdditionalIncomeSection 
-                data={data} 
-                contractManagement={contractManagement}
-                isConfirmed={isConfirmed} 
-            />
+        <ProfessionalProvisionSection
+          data={data}
+          updateData={updateData}
+          isConfirmed={isConfirmed}
+        />
 
-            {/* Confirmation Status */}
-            {isConfirmed && (
-                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span className="text-green-800 font-medium">Vertragsübersicht bestätigt</span>
-                    </div>
-                </div>
-            )}
+        <PublicServiceProvisionSection
+          data={data}
+          updateData={updateData}
+          isConfirmed={isConfirmed}
+        />
+
+        <CivilServiceProvisionSection
+          data={data}
+          updateData={updateData}
+          isConfirmed={isConfirmed}
+        />
+      </div>
+
+      {/* Contract Management Sections */}
+      <PayoutContractsSection
+        data={data}
+        contractManagement={contractManagement}
+        isConfirmed={isConfirmed}
+      />
+
+      <PensionContractsSection
+        data={data}
+        contractManagement={contractManagement}
+        isConfirmed={isConfirmed}
+      />
+
+      <AdditionalIncomeSection
+        data={data}
+        contractManagement={contractManagement}
+        isConfirmed={isConfirmed}
+      />
+
+      {/* Confirmation Status */}
+      {isConfirmed && (
+        <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span className="text-green-800 font-medium">Vertragsübersicht bestätigt</span>
+          </div>
         </div>
-    )
+      )}
+    </div>
+  );
 }

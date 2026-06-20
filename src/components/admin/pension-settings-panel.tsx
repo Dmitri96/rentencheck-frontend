@@ -55,9 +55,7 @@ type PensionParameters = {
 };
 
 function get(obj: any, path: string): any {
-  return path
-    .split(".")
-    .reduce((acc, key) => (acc ? acc[key] : undefined), obj);
+  return path.split(".").reduce((acc, key) => (acc ? acc[key] : undefined), obj);
 }
 
 function set(obj: any, path: string, value: any) {
@@ -70,9 +68,7 @@ function set(obj: any, path: string, value: any) {
 export function PensionSettingsPanel() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [settingsRows, setSettingsRows] = useState<SettingsPayload | null>(
-    null,
-  );
+  const [settingsRows, setSettingsRows] = useState<SettingsPayload | null>(null);
   const [parameters, setParameters] = useState<PensionParameters | null>(null);
   const [form, setForm] = useState<PensionParameters | null>(null);
 
@@ -113,8 +109,7 @@ export function PensionSettingsPanel() {
     category: keyof SettingsPayload | "demographics",
     key: string,
   ): string | null => {
-    if (category === "economic_assumptions")
-      return `economic_assumptions.${key}`;
+    if (category === "economic_assumptions") return `economic_assumptions.${key}`;
     if (category === "social_insurance") return `social_insurance.${key}`;
     if (category === "tax_brackets") {
       const m = key.match(/^tax_rate_(stufe_\d)$/);
@@ -150,11 +145,7 @@ export function PensionSettingsPanel() {
           if (!path) return;
           const before = get(parameters, path);
           const after = get(form, path);
-          if (
-            typeof after === "number" &&
-            !Number.isNaN(after) &&
-            before !== after
-          ) {
+          if (typeof after === "number" && !Number.isNaN(after) && before !== after) {
             changes.push({ id: row.id, value: after });
           }
         });
@@ -164,10 +155,9 @@ export function PensionSettingsPanel() {
         toast.info("Keine Änderungen");
         return;
       }
-      const res = await ApiService.patch(
-        "/admin/pension-settings/bulk-update",
-        { settings: changes },
-      );
+      const res = await ApiService.patch("/admin/pension-settings/bulk-update", {
+        settings: changes,
+      });
       if (!res.data?.success) throw new Error("Speichern fehlgeschlagen");
       toast.success("Einstellungen gespeichert");
       setParameters(form);
@@ -180,11 +170,7 @@ export function PensionSettingsPanel() {
   };
 
   if (loading || !form) {
-    return (
-      <div className="p-8 text-center text-gray-600">
-        Einstellungen werden geladen...
-      </div>
-    );
+    return <div className="p-8 text-center text-gray-600">Einstellungen werden geladen...</div>;
   }
 
   const s = form.social_insurance;
@@ -208,44 +194,31 @@ export function PensionSettingsPanel() {
                     step="0.1"
                     value={form.economic_assumptions.inflation_rate}
                     onChange={(e) =>
-                      handleChange(
-                        "economic_assumptions.inflation_rate",
-                        e.target.value,
-                      )
+                      handleChange("economic_assumptions.inflation_rate", e.target.value)
                     }
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label htmlFor="pension_increase_rate">
-                    Rentensteigerung (%)
-                  </Label>
+                  <Label htmlFor="pension_increase_rate">Rentensteigerung (%)</Label>
                   <Input
                     id="pension_increase_rate"
                     type="number"
                     step="0.1"
                     value={form.economic_assumptions.pension_increase_rate}
                     onChange={(e) =>
-                      handleChange(
-                        "economic_assumptions.pension_increase_rate",
-                        e.target.value,
-                      )
+                      handleChange("economic_assumptions.pension_increase_rate", e.target.value)
                     }
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label htmlFor="investment_return_rate">
-                    Kapitalrendite (%)
-                  </Label>
+                  <Label htmlFor="investment_return_rate">Kapitalrendite (%)</Label>
                   <Input
                     id="investment_return_rate"
                     type="number"
                     step="0.1"
                     value={form.economic_assumptions.investment_return_rate}
                     onChange={(e) =>
-                      handleChange(
-                        "economic_assumptions.investment_return_rate",
-                        e.target.value,
-                      )
+                      handleChange("economic_assumptions.investment_return_rate", e.target.value)
                     }
                   />
                 </div>
@@ -263,17 +236,12 @@ export function PensionSettingsPanel() {
                     step="0.01"
                     value={s.health_insurance_rate}
                     onChange={(e) =>
-                      handleChange(
-                        "social_insurance.health_insurance_rate",
-                        e.target.value,
-                      )
+                      handleChange("social_insurance.health_insurance_rate", e.target.value)
                     }
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label htmlFor="additional_health_insurance_rate">
-                    Zusatzbeitrag KV (%)
-                  </Label>
+                  <Label htmlFor="additional_health_insurance_rate">Zusatzbeitrag KV (%)</Label>
                   <Input
                     id="additional_health_insurance_rate"
                     type="number"
@@ -288,19 +256,14 @@ export function PensionSettingsPanel() {
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label htmlFor="care_insurance_rate">
-                    Pflegeversicherung (%)
-                  </Label>
+                  <Label htmlFor="care_insurance_rate">Pflegeversicherung (%)</Label>
                   <Input
                     id="care_insurance_rate"
                     type="number"
                     step="0.01"
                     value={s.care_insurance_rate}
                     onChange={(e) =>
-                      handleChange(
-                        "social_insurance.care_insurance_rate",
-                        e.target.value,
-                      )
+                      handleChange("social_insurance.care_insurance_rate", e.target.value)
                     }
                   />
                 </div>
@@ -309,9 +272,7 @@ export function PensionSettingsPanel() {
                   <Input value={s.total_insurance_rate} readOnly />
                 </div>
                 <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label htmlFor="health_insurance_exemption_bav">
-                    Freibetrag BAV (EUR)
-                  </Label>
+                  <Label htmlFor="health_insurance_exemption_bav">Freibetrag BAV (EUR)</Label>
                   <Input
                     id="health_insurance_exemption_bav"
                     type="number"
@@ -338,9 +299,7 @@ export function PensionSettingsPanel() {
                       type="number"
                       step="0.1"
                       value={form.tax_system.rates.stufe_1}
-                      onChange={(e) =>
-                        handleChange("tax_system.rates.stufe_1", e.target.value)
-                      }
+                      onChange={(e) => handleChange("tax_system.rates.stufe_1", e.target.value)}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3 items-center">
@@ -349,9 +308,7 @@ export function PensionSettingsPanel() {
                       type="number"
                       step="0.1"
                       value={form.tax_system.rates.stufe_2}
-                      onChange={(e) =>
-                        handleChange("tax_system.rates.stufe_2", e.target.value)
-                      }
+                      onChange={(e) => handleChange("tax_system.rates.stufe_2", e.target.value)}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3 items-center">
@@ -360,9 +317,7 @@ export function PensionSettingsPanel() {
                       type="number"
                       step="0.1"
                       value={form.tax_system.rates.stufe_3}
-                      onChange={(e) =>
-                        handleChange("tax_system.rates.stufe_3", e.target.value)
-                      }
+                      onChange={(e) => handleChange("tax_system.rates.stufe_3", e.target.value)}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3 items-center">
@@ -371,9 +326,7 @@ export function PensionSettingsPanel() {
                       type="number"
                       step="0.1"
                       value={form.tax_system.rates.stufe_4}
-                      onChange={(e) =>
-                        handleChange("tax_system.rates.stufe_4", e.target.value)
-                      }
+                      onChange={(e) => handleChange("tax_system.rates.stufe_4", e.target.value)}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3 items-center">
@@ -382,9 +335,7 @@ export function PensionSettingsPanel() {
                       type="number"
                       step="0.1"
                       value={form.tax_system.rates.stufe_5}
-                      onChange={(e) =>
-                        handleChange("tax_system.rates.stufe_5", e.target.value)
-                      }
+                      onChange={(e) => handleChange("tax_system.rates.stufe_5", e.target.value)}
                     />
                   </div>
                 </div>
@@ -397,10 +348,7 @@ export function PensionSettingsPanel() {
                       step="1"
                       value={form.tax_system.thresholds.threshold_1}
                       onChange={(e) =>
-                        handleChange(
-                          "tax_system.thresholds.threshold_1",
-                          e.target.value,
-                        )
+                        handleChange("tax_system.thresholds.threshold_1", e.target.value)
                       }
                     />
                   </div>
@@ -411,10 +359,7 @@ export function PensionSettingsPanel() {
                       step="1"
                       value={form.tax_system.thresholds.threshold_2}
                       onChange={(e) =>
-                        handleChange(
-                          "tax_system.thresholds.threshold_2",
-                          e.target.value,
-                        )
+                        handleChange("tax_system.thresholds.threshold_2", e.target.value)
                       }
                     />
                   </div>
@@ -425,10 +370,7 @@ export function PensionSettingsPanel() {
                       step="1"
                       value={form.tax_system.thresholds.threshold_3}
                       onChange={(e) =>
-                        handleChange(
-                          "tax_system.thresholds.threshold_3",
-                          e.target.value,
-                        )
+                        handleChange("tax_system.thresholds.threshold_3", e.target.value)
                       }
                     />
                   </div>
@@ -439,10 +381,7 @@ export function PensionSettingsPanel() {
                       step="1"
                       value={form.tax_system.thresholds.threshold_4}
                       onChange={(e) =>
-                        handleChange(
-                          "tax_system.thresholds.threshold_4",
-                          e.target.value,
-                        )
+                        handleChange("tax_system.thresholds.threshold_4", e.target.value)
                       }
                     />
                   </div>
@@ -453,10 +392,7 @@ export function PensionSettingsPanel() {
                       step="0.1"
                       value={form.tax_system.solidarity_surcharge_rate}
                       onChange={(e) =>
-                        handleChange(
-                          "tax_system.solidarity_surcharge_rate",
-                          e.target.value,
-                        )
+                        handleChange("tax_system.solidarity_surcharge_rate", e.target.value)
                       }
                     />
                   </div>
@@ -467,10 +403,7 @@ export function PensionSettingsPanel() {
                       step="1"
                       value={form.tax_system.solidarity_surcharge_threshold}
                       onChange={(e) =>
-                        handleChange(
-                          "tax_system.solidarity_surcharge_threshold",
-                          e.target.value,
-                        )
+                        handleChange("tax_system.solidarity_surcharge_threshold", e.target.value)
                       }
                     />
                   </div>
@@ -479,9 +412,7 @@ export function PensionSettingsPanel() {
             </div>
 
             <div className="md:col-span-2">
-              <h3 className="font-medium mb-3">
-                Regionale Steuern & Demografie
-              </h3>
+              <h3 className="font-medium mb-3">Regionale Steuern & Demografie</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-3 items-center">
@@ -491,10 +422,7 @@ export function PensionSettingsPanel() {
                       step="0.1"
                       value={form.regional_taxes?.church_tax_bavaria_bw ?? 8}
                       onChange={(e) =>
-                        handleChange(
-                          "regional_taxes.church_tax_bavaria_bw",
-                          e.target.value,
-                        )
+                        handleChange("regional_taxes.church_tax_bavaria_bw", e.target.value)
                       }
                     />
                   </div>
@@ -505,10 +433,7 @@ export function PensionSettingsPanel() {
                       step="0.1"
                       value={form.regional_taxes?.church_tax_other_states ?? 9}
                       onChange={(e) =>
-                        handleChange(
-                          "regional_taxes.church_tax_other_states",
-                          e.target.value,
-                        )
+                        handleChange("regional_taxes.church_tax_other_states", e.target.value)
                       }
                     />
                   </div>
@@ -520,12 +445,7 @@ export function PensionSettingsPanel() {
                       type="number"
                       step="1"
                       value={form.demographics?.retirement_age ?? 67}
-                      onChange={(e) =>
-                        handleChange(
-                          "demographics.retirement_age",
-                          e.target.value,
-                        )
-                      }
+                      onChange={(e) => handleChange("demographics.retirement_age", e.target.value)}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3 items-center">
@@ -534,12 +454,7 @@ export function PensionSettingsPanel() {
                       type="number"
                       step="1"
                       value={form.demographics?.life_expectancy ?? 85}
-                      onChange={(e) =>
-                        handleChange(
-                          "demographics.life_expectancy",
-                          e.target.value,
-                        )
-                      }
+                      onChange={(e) => handleChange("demographics.life_expectancy", e.target.value)}
                     />
                   </div>
                 </div>

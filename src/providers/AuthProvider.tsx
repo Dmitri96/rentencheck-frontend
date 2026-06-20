@@ -1,6 +1,6 @@
-import React, { createContext, ReactNode, useContext } from 'react';
-import { LoginInput, RegisterInput, User } from '@/types/auth';
-import { useAuth } from '@/hooks/useAuth';
+import React, { createContext, ReactNode, useContext } from "react";
+import { LoginInput, RegisterInput, User } from "@/types/auth";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AuthContextType {
   user: User | null;
@@ -24,7 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function useAuthContext(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuthContext must be used within an AuthProvider');
+    throw new Error("useAuthContext must be used within an AuthProvider");
   }
   return context;
 }
@@ -42,13 +42,9 @@ export function AuthProvider({ children }: AuthProviderProps): React.ReactElemen
     isAdmin: auth.user?.is_admin ?? false,
     isAdvisor: auth.user?.is_advisor ?? false,
     hasPermission: (permission: string) => auth.permissions.includes(permission),
-    hasAnyPermission: (permissions: string[]) => 
-      permissions.some(permission => auth.permissions.includes(permission)),
+    hasAnyPermission: (permissions: string[]) =>
+      permissions.some((permission) => auth.permissions.includes(permission)),
   };
 
-  return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
-  );
-} 
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
+}

@@ -6,7 +6,12 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:check": "next lint --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "ci": "bun run lint:check && bun run typecheck && bun run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
@@ -72,6 +77,8 @@
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.5.19",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "tailwindcss": "^4.1.5",
     "tailwindcss-animate": "^1.0.7",
     "tw-animate-css": "^1.2.9",

@@ -1,25 +1,31 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, EyeOff, UserPlus, ArrowRight, Check } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { registerSchema, type RegisterSchema } from "@/lib/validations/auth"
-import { useAuthContext } from "@/providers/AuthProvider"
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Eye, EyeOff, UserPlus, ArrowRight, Check } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { registerSchema, type RegisterSchema } from "@/lib/validations/auth";
+import { useAuthContext } from "@/providers/AuthProvider";
 
 export function RegisterForm() {
-  const router = useRouter()
-  const { register: registerUser, isLoading } = useAuthContext()
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const router = useRouter();
+  const { register: registerUser, isLoading } = useAuthContext();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -42,43 +48,43 @@ export function RegisterForm() {
       accept_privacy: false,
       newsletter: false,
     },
-  })
+  });
 
-  const watchedValues = watch()
+  const watchedValues = watch();
 
   const onSubmit = async (data: RegisterSchema) => {
     try {
-      await registerUser(data)
+      await registerUser(data);
       // Redirect to dashboard after successful registration
-      router.push("/dashboard")
+      router.push("/dashboard");
     } catch (error) {
       // Error handling is done in the useAuth hook
-      console.error("Registration error:", error)
+      console.error("Registration error:", error);
     }
-  }
+  };
 
   const handleTogglePassword = () => {
-    setShowPassword(!showPassword)
-  }
+    setShowPassword(!showPassword);
+  };
 
   const handleToggleConfirmPassword = () => {
-    setShowConfirmPassword(!showConfirmPassword)
-  }
+    setShowConfirmPassword(!showConfirmPassword);
+  };
 
   const handlePlanChange = (value: string) => {
-    setValue("plan", value)
-  }
+    setValue("plan", value);
+  };
 
   const handleCheckboxChange = (field: keyof RegisterSchema, checked: boolean) => {
-    setValue(field, checked as any)
-  }
+    setValue(field, checked as any);
+  };
 
   const plans = [
     { value: "free", label: "Gratis - 3 Mandanten, 6 Rentenchecks", price: "0€" },
     { value: "basic", label: "Basic - 20 Mandanten, 40 Rentenchecks", price: "49€/Monat" },
     { value: "premium", label: "Premium - 100 Mandanten, 200 Rentenchecks", price: "99€/Monat" },
     { value: "vip", label: "VIP - Unbegrenzt", price: "199€/Monat" },
-  ]
+  ];
 
   return (
     <Card className="shadow-2xl border-0 bg-white/90 backdrop-blur-sm">
@@ -139,9 +145,7 @@ export function RegisterForm() {
               className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
               aria-invalid={errors.email ? "true" : "false"}
             />
-            {errors.email && (
-              <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
-            )}
+            {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -157,9 +161,7 @@ export function RegisterForm() {
                 className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
                 aria-invalid={errors.phone ? "true" : "false"}
               />
-              {errors.phone && (
-                <p className="text-sm text-red-600 mt-1">{errors.phone.message}</p>
-              )}
+              {errors.phone && <p className="text-sm text-red-600 mt-1">{errors.phone.message}</p>}
             </div>
 
             <div className="space-y-3">
@@ -199,9 +201,7 @@ export function RegisterForm() {
                 ))}
               </SelectContent>
             </Select>
-            {errors.plan && (
-              <p className="text-sm text-red-600 mt-1">{errors.plan.message}</p>
-            )}
+            {errors.plan && <p className="text-sm text-red-600 mt-1">{errors.plan.message}</p>}
           </div>
 
           {/* Password Fields */}
@@ -234,7 +234,10 @@ export function RegisterForm() {
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="password_confirmation" className="text-sm font-semibold text-gray-700">
+              <Label
+                htmlFor="password_confirmation"
+                className="text-sm font-semibold text-gray-700"
+              >
                 Passwort bestätigen *
               </Label>
               <div className="relative">
@@ -252,7 +255,11 @@ export function RegisterForm() {
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                   aria-label={showConfirmPassword ? "Passwort verbergen" : "Passwort anzeigen"}
                 >
-                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
               {errors.password_confirmation && (
@@ -267,10 +274,15 @@ export function RegisterForm() {
               <Checkbox
                 id="accept_terms"
                 checked={watchedValues.accept_terms}
-                onCheckedChange={(checked) => handleCheckboxChange("accept_terms", checked as boolean)}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("accept_terms", checked as boolean)
+                }
                 className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 mt-1"
               />
-              <Label htmlFor="accept_terms" className="text-sm text-gray-600 cursor-pointer leading-relaxed">
+              <Label
+                htmlFor="accept_terms"
+                className="text-sm text-gray-600 cursor-pointer leading-relaxed"
+              >
                 Ich akzeptiere die{" "}
                 <Link href="/terms" className="text-blue-600 hover:text-blue-700 underline">
                   Allgemeinen Geschäftsbedingungen
@@ -286,10 +298,15 @@ export function RegisterForm() {
               <Checkbox
                 id="accept_privacy"
                 checked={watchedValues.accept_privacy}
-                onCheckedChange={(checked) => handleCheckboxChange("accept_privacy", checked as boolean)}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("accept_privacy", checked as boolean)
+                }
                 className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 mt-1"
               />
-              <Label htmlFor="accept_privacy" className="text-sm text-gray-600 cursor-pointer leading-relaxed">
+              <Label
+                htmlFor="accept_privacy"
+                className="text-sm text-gray-600 cursor-pointer leading-relaxed"
+              >
                 Ich akzeptiere die{" "}
                 <Link href="/privacy" className="text-blue-600 hover:text-blue-700 underline">
                   Datenschutzerklärung
@@ -305,10 +322,15 @@ export function RegisterForm() {
               <Checkbox
                 id="newsletter"
                 checked={watchedValues.newsletter}
-                onCheckedChange={(checked) => handleCheckboxChange("newsletter", checked as boolean)}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("newsletter", checked as boolean)
+                }
                 className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 mt-1"
               />
-              <Label htmlFor="newsletter" className="text-sm text-gray-600 cursor-pointer leading-relaxed">
+              <Label
+                htmlFor="newsletter"
+                className="text-sm text-gray-600 cursor-pointer leading-relaxed"
+              >
                 Ich möchte den Newsletter mit Updates und Tipps zur Rentenberatung erhalten
               </Label>
             </div>
@@ -333,7 +355,10 @@ export function RegisterForm() {
         <div className="mt-8 pt-6 border-t border-gray-200">
           <p className="text-center text-gray-600">
             Bereits registriert?{" "}
-            <Link href="/login" className="text-blue-600 hover:text-blue-700 font-semibold transition-colors">
+            <Link
+              href="/login"
+              className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+            >
               Jetzt anmelden
             </Link>
           </p>
@@ -363,5 +388,5 @@ export function RegisterForm() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

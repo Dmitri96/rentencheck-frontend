@@ -1,15 +1,15 @@
-import React, { memo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { CheckCircle } from 'lucide-react'
-import type { PensionParameters } from './types'
+import React, { memo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle } from "lucide-react";
+import type { PensionParameters } from "./types";
 
 interface ParametersOverviewProps {
-  parameters: PensionParameters
+  parameters: PensionParameters;
 }
 
 /**
  * Parameter-Übersicht-Komponente
- * 
+ *
  * Zeigt aktuelle Pensionsberechnungsparameter in einem Raster-Layout an.
  * Für Performance-Optimierung memoized.
  */
@@ -51,7 +51,7 @@ export const ParametersOverview = memo<ParametersOverviewProps>(({ parameters })
         </div>
       </CardContent>
     </Card>
-  )
-})
+  );
+});
 
-ParametersOverview.displayName = 'ParameterUebersicht' 
+ParametersOverview.displayName = "ParameterUebersicht";

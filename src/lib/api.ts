@@ -1,18 +1,18 @@
-import { AuthResponse, LoginInput, RegisterInput, User } from '@/types/auth';
+import { AuthResponse, LoginInput, RegisterInput, User } from "@/types/auth";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost/api";
 
 /**
  * Creates headers with Authorization token if token is provided
  */
 const createHeaders = (token?: string | null) => {
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
   };
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   return headers;
@@ -23,15 +23,15 @@ const createHeaders = (token?: string | null) => {
  */
 export const registerUser = async (data: RegisterInput): Promise<AuthResponse> => {
   const response = await fetch(`${API_URL}/register`, {
-    method: 'POST',
+    method: "POST",
     headers: createHeaders(),
     body: JSON.stringify(data),
-    credentials: 'include',
+    credentials: "include",
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Registration failed');
+    throw new Error(error.message || "Registration failed");
   }
 
   return response.json();
@@ -42,15 +42,15 @@ export const registerUser = async (data: RegisterInput): Promise<AuthResponse> =
  */
 export const loginUser = async (data: LoginInput): Promise<AuthResponse> => {
   const response = await fetch(`${API_URL}/login`, {
-    method: 'POST',
+    method: "POST",
     headers: createHeaders(),
     body: JSON.stringify(data),
-    credentials: 'include',
+    credentials: "include",
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Login failed');
+    throw new Error(error.message || "Login failed");
   }
 
   return response.json();
@@ -61,13 +61,13 @@ export const loginUser = async (data: LoginInput): Promise<AuthResponse> => {
  */
 export const getCurrentUser = async (token: string): Promise<{ user: User; message: string }> => {
   const response = await fetch(`${API_URL}/user`, {
-    method: 'GET',
+    method: "GET",
     headers: createHeaders(token),
-    credentials: 'include',
+    credentials: "include",
   });
 
   if (!response.ok) {
-    throw new Error('Failed to get user data');
+    throw new Error("Failed to get user data");
   }
 
   return response.json();
@@ -78,14 +78,14 @@ export const getCurrentUser = async (token: string): Promise<{ user: User; messa
  */
 export const logoutUser = async (token: string): Promise<{ message: string }> => {
   const response = await fetch(`${API_URL}/logout`, {
-    method: 'POST',
+    method: "POST",
     headers: createHeaders(token),
-    credentials: 'include',
+    credentials: "include",
   });
 
   if (!response.ok) {
-    throw new Error('Logout failed');
+    throw new Error("Logout failed");
   }
 
   return response.json();
-}; 
+};

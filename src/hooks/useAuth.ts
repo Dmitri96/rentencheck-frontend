@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
-import { LoginInput, RegisterInput, User, ApiError } from '@/types/auth';
-import { clearAuth, getToken, getUser, saveToken, saveUser } from '@/lib/storage';
-import { AuthService } from '@/lib/services/auth-service';
-import { toast } from 'sonner';
+import { useCallback, useEffect, useState } from "react";
+import { LoginInput, RegisterInput, User, ApiError } from "@/types/auth";
+import { clearAuth, getToken, getUser, saveToken, saveUser } from "@/lib/storage";
+import { AuthService } from "@/lib/services/auth-service";
+import { toast } from "sonner";
 
 export interface UseAuthReturn {
   user: User | null;
@@ -46,26 +46,26 @@ export function useAuth(): UseAuthReturn {
   const register = useCallback(async (data: RegisterInput): Promise<void> => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await AuthService.register(data);
       setToken(response.token);
       setUser(response.user);
       setPermissions(response.permissions || []);
       setIsAuthenticated(true);
-      
+
       // Save to localStorage (AuthService already handles this, but we keep it for consistency)
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         saveToken(response.token);
         saveUser(response.user);
       }
-      
+
       toast.success("Registrierung erfolgreich!");
     } catch (err) {
       const apiError = err as ApiError;
-      const errorMessage = apiError.message || 'Registrierung fehlgeschlagen';
+      const errorMessage = apiError.message || "Registrierung fehlgeschlagen";
       setError(errorMessage);
-      
+
       // Handle validation errors
       if (apiError.errors) {
         Object.entries(apiError.errors).forEach(([field, messages]) => {
@@ -83,26 +83,26 @@ export function useAuth(): UseAuthReturn {
   const login = useCallback(async (data: LoginInput): Promise<void> => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await AuthService.login(data);
       setToken(response.token);
       setUser(response.user);
       setPermissions(response.permissions || []);
       setIsAuthenticated(true);
-      
+
       // Save to localStorage (AuthService already handles this, but we keep it for consistency)
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         saveToken(response.token);
         saveUser(response.user);
       }
-      
+
       toast.success("Anmeldung erfolgreich!");
     } catch (err) {
       const apiError = err as ApiError;
-      const errorMessage = apiError.message || 'Anmeldung fehlgeschlagen';
+      const errorMessage = apiError.message || "Anmeldung fehlgeschlagen";
       setError(errorMessage);
-      
+
       // Handle validation errors
       if (apiError.errors) {
         Object.entries(apiError.errors).forEach(([field, messages]) => {
@@ -120,35 +120,35 @@ export function useAuth(): UseAuthReturn {
   const logout = useCallback(async (): Promise<void> => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       await AuthService.logout();
-      
+
       // Clear state and localStorage
       setToken(null);
       setUser(null);
       setPermissions([]);
       setIsAuthenticated(false);
-      
+
       // Clear localStorage (AuthService already handles this, but we keep it for consistency)
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         clearAuth();
       }
-      
+
       toast.success("Erfolgreich abgemeldet");
     } catch (err) {
       const apiError = err as ApiError;
-      const errorMessage = apiError.message || 'Fehler beim Abmelden';
+      const errorMessage = apiError.message || "Fehler beim Abmelden";
       setError(errorMessage);
       toast.error(errorMessage);
-      
+
       // Even if logout fails on server, clear local state
       setToken(null);
       setUser(null);
       setPermissions([]);
       setIsAuthenticated(false);
-      
-      if (typeof window !== 'undefined') {
+
+      if (typeof window !== "undefined") {
         clearAuth();
       }
     } finally {
@@ -173,4 +173,4 @@ export function useAuth(): UseAuthReturn {
     logout,
     clearError,
   };
-} 
+}

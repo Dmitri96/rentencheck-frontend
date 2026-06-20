@@ -1,16 +1,16 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import Link from "next/link"
-import { 
-  Calculator, 
-  FileText, 
-  Users, 
-  TrendingUp, 
-  Shield, 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import Link from "next/link";
+import {
+  Calculator,
+  FileText,
+  Users,
+  TrendingUp,
+  Shield,
   Clock,
   CheckCircle,
-  Star 
-} from "lucide-react"
+  Star,
+} from "lucide-react";
 
 export default function Home() {
   return (
@@ -51,23 +51,23 @@ export default function Home() {
             RENTENBLICK.de
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-8">
-            Die professionelle Lösung für Rentenberater. Erstellen Sie detaillierte Rentenchecks, 
+            Die professionelle Lösung für Rentenberater. Erstellen Sie detaillierte Rentenchecks,
             verwalten Sie Ihre Mandanten und optimieren Sie Ihre Beratungsqualität.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
             <Link href="/register">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="px-8 py-4 text-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-xl hover:shadow-2xl transition-all duration-200"
               >
                 Kostenlos starten
               </Button>
             </Link>
             <Link href="/login">
-              <Button 
-                variant="outline" 
-                size="lg" 
+              <Button
+                variant="outline"
+                size="lg"
                 className="px-8 py-4 text-lg border-2 hover:bg-gray-50"
               >
                 Bereits registriert? Anmelden
@@ -112,8 +112,8 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Rentencheck-Rechner</h3>
                 <p className="text-gray-600">
-                  Präzise Berechnungen der Rentenlücke und individueller Vorsorgebedarf 
-                  für jeden Mandanten.
+                  Präzise Berechnungen der Rentenlücke und individueller Vorsorgebedarf für jeden
+                  Mandanten.
                 </p>
               </CardContent>
             </Card>
@@ -125,8 +125,8 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">PDF-Berichte</h3>
                 <p className="text-gray-600">
-                  Professionelle, gebrandete PDF-Berichte für Ihre Mandanten 
-                  mit allen wichtigen Kennzahlen.
+                  Professionelle, gebrandete PDF-Berichte für Ihre Mandanten mit allen wichtigen
+                  Kennzahlen.
                 </p>
               </CardContent>
             </Card>
@@ -138,8 +138,8 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Mandantenverwaltung</h3>
                 <p className="text-gray-600">
-                  Zentrale Verwaltung aller Mandanten mit Verlaufsdokumentation 
-                  und Terminerinnerungen.
+                  Zentrale Verwaltung aller Mandanten mit Verlaufsdokumentation und
+                  Terminerinnerungen.
                 </p>
               </CardContent>
             </Card>
@@ -151,8 +151,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Trend-Analysen</h3>
                 <p className="text-gray-600">
-                  Übersichtliche Dashboards und Auswertungen für bessere 
-                  Beratungsentscheidungen.
+                  Übersichtliche Dashboards und Auswertungen für bessere Beratungsentscheidungen.
                 </p>
               </CardContent>
             </Card>
@@ -164,8 +163,8 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Datenschutz</h3>
                 <p className="text-gray-600">
-                  DSGVO-konforme Datenhaltung und höchste Sicherheitsstandards 
-                  für sensible Mandantendaten.
+                  DSGVO-konforme Datenhaltung und höchste Sicherheitsstandards für sensible
+                  Mandantendaten.
                 </p>
               </CardContent>
             </Card>
@@ -177,8 +176,8 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">Zeitersparnis</h3>
                 <p className="text-gray-600">
-                  Automatisierte Berechnungen und vorgefertigte Templates sparen 
-                  wertvolle Beratungszeit.
+                  Automatisierte Berechnungen und vorgefertigte Templates sparen wertvolle
+                  Beratungszeit.
                 </p>
               </CardContent>
             </Card>
@@ -195,13 +194,13 @@ export default function Home() {
                 Bereit für professionelle Rentenberatung?
               </h2>
               <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-                Starten Sie noch heute und erstellen Sie Ihren ersten Rentencheck. 
-                Kostenlose Registrierung ohne Vertragsbindung.
+                Starten Sie noch heute und erstellen Sie Ihren ersten Rentencheck. Kostenlose
+                Registrierung ohne Vertragsbindung.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/register">
-                  <Button 
-                    size="lg" 
+                  <Button
+                    size="lg"
                     variant="secondary"
                     className="px-8 py-4 text-lg bg-white text-blue-600 hover:bg-gray-50 shadow-lg"
                   >
@@ -209,8 +208,8 @@ export default function Home() {
                   </Button>
                 </Link>
                 <Link href="/login">
-                  <Button 
-                    size="lg" 
+                  <Button
+                    size="lg"
                     variant="outline"
                     className="px-8 py-4 text-lg border-2 border-white text-white hover:bg-white/10"
                   >
@@ -238,15 +237,23 @@ export default function Home() {
                 © 2024 RENTENBLICK.de - Professionelle Rentenberatungssoftware
               </p>
               <div className="flex items-center justify-center space-x-6 text-sm">
-                <Link href="#" className="hover:text-white transition-colors">Datenschutz</Link>
-                <Link href="#" className="hover:text-white transition-colors">Impressum</Link>
-                <Link href="#" className="hover:text-white transition-colors">AGB</Link>
-                <Link href="#" className="hover:text-white transition-colors">Kontakt</Link>
+                <Link href="#" className="hover:text-white transition-colors">
+                  Datenschutz
+                </Link>
+                <Link href="#" className="hover:text-white transition-colors">
+                  Impressum
+                </Link>
+                <Link href="#" className="hover:text-white transition-colors">
+                  AGB
+                </Link>
+                <Link href="#" className="hover:text-white transition-colors">
+                  Kontakt
+                </Link>
               </div>
             </div>
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }

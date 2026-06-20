@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,12 +11,12 @@ import {
   Tooltip,
   Legend,
   Filler,
-} from "chart.js"
-import { Line } from "react-chartjs-2"
-import annotationPlugin from "chartjs-plugin-annotation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+import annotationPlugin from "chartjs-plugin-annotation";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 ChartJS.register(
   CategoryScale,
@@ -28,46 +28,47 @@ ChartJS.register(
   Legend,
   Filler,
   annotationPlugin,
-)
+);
 
 interface ChartData {
-  year: number
-  age: number
-  desiredRent: number
-  actualPension: number
-  rentalIncome: number
-  privatePension: number
-  totalIncome: number
-  gap: number
+  year: number;
+  age: number;
+  desiredRent: number;
+  actualPension: number;
+  rentalIncome: number;
+  privatePension: number;
+  totalIncome: number;
+  gap: number;
 }
 
 export default function PensionGapChartJS() {
-  const [currentAge, setCurrentAge] = useState(30)
-  const [retirementAge, setRetirementAge] = useState(67)
-  const [lifeExpectancy, setLifeExpectancy] = useState(85)
-  const [currentRent, setCurrentRent] = useState(1500)
-  const [currentPension, setCurrentPension] = useState(1600)
-  const [rentalIncome, setRentalIncome] = useState(400)
-  const [privatePension, setPrivatePension] = useState(300)
-  const [inflationRate, setInflationRate] = useState(2.0)
-  const [pensionGrowthRate, setPensionGrowthRate] = useState(1.5)
-  const [rentalGrowthRate, setRentalGrowthRate] = useState(2.5)
-  const [privatePensionGrowthRate, setPrivatePensionGrowthRate] = useState(3.0)
+  const [currentAge, setCurrentAge] = useState(30);
+  const [retirementAge, setRetirementAge] = useState(67);
+  const [lifeExpectancy, setLifeExpectancy] = useState(85);
+  const [currentRent, setCurrentRent] = useState(1500);
+  const [currentPension, setCurrentPension] = useState(1600);
+  const [rentalIncome, setRentalIncome] = useState(400);
+  const [privatePension, setPrivatePension] = useState(300);
+  const [inflationRate, setInflationRate] = useState(2.0);
+  const [pensionGrowthRate, setPensionGrowthRate] = useState(1.5);
+  const [rentalGrowthRate, setRentalGrowthRate] = useState(2.5);
+  const [privatePensionGrowthRate, setPrivatePensionGrowthRate] = useState(3.0);
 
   const generateChartData = (): ChartData[] => {
-    const data: ChartData[] = []
-    const currentYear = new Date().getFullYear()
+    const data: ChartData[] = [];
+    const currentYear = new Date().getFullYear();
 
     for (let age = currentAge; age <= lifeExpectancy; age++) {
-      const yearsFromNow = age - currentAge
-      const year = currentYear + yearsFromNow
+      const yearsFromNow = age - currentAge;
+      const year = currentYear + yearsFromNow;
 
-      const desiredRent = currentRent * Math.pow(1 + inflationRate / 100, yearsFromNow)
-      const actualPension = currentPension * Math.pow(1 + pensionGrowthRate / 100, yearsFromNow)
-      const currentRentalIncome = rentalIncome * Math.pow(1 + rentalGrowthRate / 100, yearsFromNow)
-      const currentPrivatePension = privatePension * Math.pow(1 + privatePensionGrowthRate / 100, yearsFromNow)
-      const totalIncome = actualPension + currentRentalIncome + currentPrivatePension
-      const gap = Math.max(0, desiredRent - totalIncome)
+      const desiredRent = currentRent * Math.pow(1 + inflationRate / 100, yearsFromNow);
+      const actualPension = currentPension * Math.pow(1 + pensionGrowthRate / 100, yearsFromNow);
+      const currentRentalIncome = rentalIncome * Math.pow(1 + rentalGrowthRate / 100, yearsFromNow);
+      const currentPrivatePension =
+        privatePension * Math.pow(1 + privatePensionGrowthRate / 100, yearsFromNow);
+      const totalIncome = actualPension + currentRentalIncome + currentPrivatePension;
+      const gap = Math.max(0, desiredRent - totalIncome);
 
       data.push({
         year,
@@ -78,17 +79,19 @@ export default function PensionGapChartJS() {
         privatePension: Math.round(currentPrivatePension),
         totalIncome: Math.round(totalIncome),
         gap: Math.round(gap),
-      })
+      });
     }
 
-    return data
-  }
+    return data;
+  };
 
-  const chartData = generateChartData()
-  const totalGap = chartData.filter((d) => d.age >= retirementAge).reduce((sum, d) => sum + d.gap, 0)
+  const chartData = generateChartData();
+  const totalGap = chartData
+    .filter((d) => d.age >= retirementAge)
+    .reduce((sum, d) => sum + d.gap, 0);
 
-  const ages = chartData.map((d) => d.age)
-  const retirementIndex = ages.indexOf(retirementAge)
+  const ages = chartData.map((d) => d.age);
+  const retirementIndex = ages.indexOf(retirementAge);
 
   const chartConfig = {
     type: "line" as const,
@@ -155,13 +158,13 @@ export default function PensionGapChartJS() {
         tooltip: {
           callbacks: {
             afterBody: (context: any) => {
-              const dataIndex = context[0].dataIndex
-              const data = chartData[dataIndex]
+              const dataIndex = context[0].dataIndex;
+              const data = chartData[dataIndex];
               return [
                 `Year: ${data.year}`,
                 `Total Income: €${data.totalIncome.toLocaleString()}`,
                 `Gap: €${data.gap.toLocaleString()}`,
-              ]
+              ];
             },
           },
         },
@@ -228,7 +231,7 @@ export default function PensionGapChartJS() {
         },
       },
     },
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -353,13 +356,17 @@ export default function PensionGapChartJS() {
             <div className="text-2xl font-bold text-orange-600">
               €{chartData.find((d) => d.age === retirementAge)?.gap.toLocaleString() || 0}
             </div>
-            <p className="text-xs text-muted-foreground">Monthly shortfall at age {retirementAge}</p>
+            <p className="text-xs text-muted-foreground">
+              Monthly shortfall at age {retirementAge}
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Monthly Income at Retirement</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Monthly Income at Retirement
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
@@ -374,7 +381,9 @@ export default function PensionGapChartJS() {
       <Card>
         <CardHeader>
           <CardTitle>Chart.js Pension Gap Visualization</CardTitle>
-          <CardDescription>Enhanced version with better annotation support and custom text positioning</CardDescription>
+          <CardDescription>
+            Enhanced version with better annotation support and custom text positioning
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[500px]">
@@ -383,5 +392,5 @@ export default function PensionGapChartJS() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

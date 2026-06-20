@@ -1,5 +1,5 @@
-import { CreateClientForm } from "@/components/dashboard/create-client-form"
+import { CreateClientForm } from "@/components/dashboard/create-client-form";
 
 export default function NewClientPage() {
-  return <CreateClientForm />
+  return <CreateClientForm />;
 }

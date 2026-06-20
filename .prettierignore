@@ -1,0 +1,8 @@
+node_modules
+.next
+.git
+public
+bun.lock
+package-lock.json
+*.min.js
+*.min.css

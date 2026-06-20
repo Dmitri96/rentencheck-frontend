@@ -69,11 +69,7 @@ const formatNumber = (value: number) => {
 /**
  * Hook to fetch pension calculation data from backend using dynamic admin parameters
  */
-function usePensionCalculation(
-  clientId?: number,
-  rentencheckId?: number,
-  desiredPension?: number,
-) {
+function usePensionCalculation(clientId?: number, rentencheckId?: number, desiredPension?: number) {
   const [pensionData, setPensionData] = useState<PensionData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -85,10 +81,7 @@ function usePensionCalculation(
       setLoading(true);
       setError(null);
       try {
-        const response = await RentencheckService.getPensionCalculation(
-          clientId,
-          rentencheckId,
-        );
+        const response = await RentencheckService.getPensionCalculation(clientId, rentencheckId);
         const backendData = response.pension_data;
 
         // Transform backend data to our clean interface
@@ -98,8 +91,7 @@ function usePensionCalculation(
           lifeExpectancy: backendData.lifeExpectancy,
           inflationRate: backendData.inflationRate,
           statutoryPensionGross: backendData.statutoryPensionGross,
-          statutoryPensionAfterInsurance:
-            backendData.statutoryPensionAfterInsurance,
+          statutoryPensionAfterInsurance: backendData.statutoryPensionAfterInsurance,
           privatePensionToday: backendData.privatePensionToday,
           bavRiesterToday: backendData.bavRiesterToday,
           currentPensionGap: Math.max(
@@ -149,9 +141,7 @@ export function PensionChart({ data, desiredPension }: PensionChartProps) {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
-          <p className="text-sm text-gray-600">
-            Berechnung mit aktuellen Admin-Parametern...
-          </p>
+          <p className="text-sm text-gray-600">Berechnung mit aktuellen Admin-Parametern...</p>
         </div>
       </div>
     );
@@ -170,10 +160,7 @@ export function PensionChart({ data, desiredPension }: PensionChartProps) {
 /**
  * Create fallback pension data when backend calculation is not available
  */
-function createFallbackPensionData(
-  data: Rentencheck,
-  desiredPension: number,
-): PensionData {
+function createFallbackPensionData(data: Rentencheck, desiredPension: number): PensionData {
   const currentAge = data.step_2_data?.currentAge || 30;
   const retirementAge = data.step_2_data?.retirementAge || 67;
   const lifeExpectancy = 85; // Realistic German life expectancy
@@ -194,12 +181,10 @@ function createFallbackPensionData(
   // Simple fallback calculations
   const statutoryPensionGross = 800; // Simplified fallback
   const statutoryPensionAfterInsurance =
-    statutoryPensionGross *
-    (1 - fallbackParameters.social_insurance.total_insurance_rate / 100);
+    statutoryPensionGross * (1 - fallbackParameters.social_insurance.total_insurance_rate / 100);
   const privatePensionToday = 200; // Simplified fallback
   const bavRiesterToday = 150; // Simplified fallback
-  const totalAvailable =
-    statutoryPensionAfterInsurance + privatePensionToday + bavRiesterToday;
+  const totalAvailable = statutoryPensionAfterInsurance + privatePensionToday + bavRiesterToday;
 
   return {
     currentAge,
@@ -219,11 +204,7 @@ function createFallbackPensionData(
 /**
  * Render the pension chart with calculated data
  */
-function renderChart(
-  pensionData: PensionData,
-  desiredPension: number,
-  rootData?: Rentencheck,
-) {
+function renderChart(pensionData: PensionData, desiredPension: number, rootData?: Rentencheck) {
   const {
     currentAge,
     retirementAge,
@@ -242,14 +223,10 @@ function renderChart(
   const yearsToRetirement = retirementAge - currentAge;
   const totalAvailablePension =
     statutoryPensionAfterInsurance + privatePensionToday + bavRiesterToday;
-  const gapAtRetirement =
-    currentPensionGap * Math.pow(1 + INFLATION_RATE, yearsToRetirement);
+  const gapAtRetirement = currentPensionGap * Math.pow(1 + INFLATION_RATE, yearsToRetirement);
 
   // Generate years array for chart
-  const years = Array.from(
-    { length: lifeExpectancy - currentAge + 1 },
-    (_, i) => currentAge + i,
-  );
+  const years = Array.from({ length: lifeExpectancy - currentAge + 1 }, (_, i) => currentAge + i);
   // Build per-age series using inflation projection (keeps single source of truth)
   const series = years.map((age) => {
     const yearsFromNow = age - currentAge;
@@ -265,8 +242,7 @@ function renderChart(
     const statutory =
       age < currentAge
         ? 0
-        : statutoryAtCurrentAge *
-          Math.pow(1 + pensionIncreaseRate, age - currentAge);
+        : statutoryAtCurrentAge * Math.pow(1 + pensionIncreaseRate, age - currentAge);
 
     // BAV (neu): Berufsständische Versorgungswerke + Zusatzversorgung öffentlicher Dienst (ab Rentenbeginn, konstant)
     const bavNeuAtRetirement =
@@ -298,10 +274,8 @@ function renderChart(
     .reduce((sum, d) => sum + d.gap * 12, 0);
 
   // KPIs für Kacheln
-  const monthlyGapAtRetirement =
-    retirementIndex >= 0 ? series[retirementIndex].gap : 0;
-  const totalIncomeAtRetirement =
-    retirementIndex >= 0 ? series[retirementIndex].totalIncome : 0;
+  const monthlyGapAtRetirement = retirementIndex >= 0 ? series[retirementIndex].gap : 0;
+  const totalIncomeAtRetirement = retirementIndex >= 0 ? series[retirementIndex].totalIncome : 0;
 
   // Chart data configuration (stacked cumulative areas like the new Chart.js demo)
   const chartData = {
@@ -481,9 +455,7 @@ function renderChart(
             </div>
             <div>
               <span className="block font-medium">Kapitalrendite:</span>
-              <span>
-                {parameters.economic_assumptions.investment_return_rate}%
-              </span>
+              <span>{parameters.economic_assumptions.investment_return_rate}%</span>
             </div>
           </div>
         </div>
@@ -492,16 +464,14 @@ function renderChart(
       {/* KPI-Kacheln */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="rounded-xl border p-4 bg-white">
-let
-          <div className="text-2xl font-bold text-red-600">
-            {formatNumber(totalGap)}
+          let
+          <div className="text-2xl font-bold text-red-600">{formatNumber(totalGap)}</div>
+          <div className="text-xs text-gray-500 mt-1">
+            Summe aller Ruhestandsjahre, 12 Monate pro Jahr
           </div>
-          <div className="text-xs text-gray-500 mt-1">Summe aller Ruhestandsjahre, 12 Monate pro Jahr</div>
         </div>
         <div className="rounded-xl border p-4 bg-white">
-          <div className="text-sm text-gray-600 mb-1">
-            Monatliche Lücke zum Rentenbeginn
-          </div>
+          <div className="text-sm text-gray-600 mb-1">Monatliche Lücke zum Rentenbeginn</div>
           <div className="text-2xl font-bold text-orange-600">
             {formatNumber(monthlyGapAtRetirement)}
           </div>
@@ -516,9 +486,7 @@ let
           <div className="text-2xl font-bold text-blue-600">
             {formatNumber(totalIncomeAtRetirement)}
           </div>
-          <div className="text-xs text-gray-500 mt-1">
-            Alle Einkommensquellen kombiniert
-          </div>
+          <div className="text-xs text-gray-500 mt-1">Alle Einkommensquellen kombiniert</div>
         </div>
       </div>
 
@@ -532,9 +500,7 @@ let
         <DisabilityIncomeDiagram
           initialSalary={rootData?.step_1_data?.currentGrossIncome ?? 4000}
           initialNetSalary={rootData?.step_1_data?.currentNetIncome}
-          disabilityPensionNetAmount={
-            rootData?.step_3_data?.disabilityPensionAmount ?? undefined
-          }
+          disabilityPensionNetAmount={rootData?.step_3_data?.disabilityPensionAmount ?? undefined}
         />
       </div>
 

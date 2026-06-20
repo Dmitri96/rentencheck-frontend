@@ -1,125 +1,119 @@
-'use client'
+"use client";
 
-import React from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useAuthContext } from '../../providers/AuthProvider'
-import { Button } from '../ui/button'
-import { Card, CardContent } from '../ui/card'
-import { 
-  LayoutDashboard, 
-  Users, 
-  FileText, 
-  Settings, 
-  LogOut,
-  UserCog,
-  Plus
-} from 'lucide-react'
-import { cn } from '../../lib/utils'
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useAuthContext } from "../../providers/AuthProvider";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
+import { LayoutDashboard, Users, FileText, Settings, LogOut, UserCog, Plus } from "lucide-react";
+import { cn } from "../../lib/utils";
 
 interface NavigationItem {
-  href: string
-  label: string
-  icon: React.ComponentType<{ className?: string }>
-  roles?: string[]
-  permissions?: string[]
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  roles?: string[];
+  permissions?: string[];
 }
 
 const Navigation = () => {
-  const { user, isAdmin, isAdvisor, logout, hasPermission } = useAuthContext()
-  const pathname = usePathname()
+  const { user, isAdmin, isAdvisor, logout, hasPermission } = useAuthContext();
+  const pathname = usePathname();
 
   const navigationItems: NavigationItem[] = [
     // Admin-only items
     {
-      href: '/dashboard/admin',
-      label: 'Admin Dashboard',
+      href: "/dashboard/admin",
+      label: "Admin Dashboard",
       icon: LayoutDashboard,
-      roles: ['admin']
+      roles: ["admin"],
     },
     {
-      href: '/dashboard/admin/advisors',
-      label: 'Berater-Verwaltung',
+      href: "/dashboard/admin/advisors",
+      label: "Berater-Verwaltung",
       icon: UserCog,
-      roles: ['admin']
+      roles: ["admin"],
     },
     {
-      href: '/dashboard/admin/pension-settings',
-      label: 'Pensionsparameter',
+      href: "/dashboard/admin/pension-settings",
+      label: "Pensionsparameter",
       icon: Settings,
-      roles: ['admin']
+      roles: ["admin"],
     },
-    
+
     // Advisor and Admin items
     {
-      href: '/dashboard',
-      label: 'Dashboard',
+      href: "/dashboard",
+      label: "Dashboard",
       icon: LayoutDashboard,
-      roles: ['financial_advisor', 'admin']
+      roles: ["financial_advisor", "admin"],
     },
     {
-      href: '/dashboard/clients',
-      label: 'Kunden',
+      href: "/dashboard/clients",
+      label: "Kunden",
       icon: Users,
-      roles: ['financial_advisor', 'admin']
+      roles: ["financial_advisor", "admin"],
     },
     {
-      href: '/dashboard/rentenchecks',
-      label: 'Rentenchecks',
+      href: "/dashboard/rentenchecks",
+      label: "Rentenchecks",
       icon: FileText,
-      roles: ['financial_advisor', 'admin']
+      roles: ["financial_advisor", "admin"],
     },
-    
+
     // Common items
     {
-      href: '/dashboard/settings',
-      label: 'Einstellungen',
-      icon: Settings
-    }
-  ]
+      href: "/dashboard/settings",
+      label: "Einstellungen",
+      icon: Settings,
+    },
+  ];
 
   const handleLogout = async () => {
     try {
-      await logout()
+      await logout();
     } catch (error) {
-      console.error('Logout error:', error)
+      console.error("Logout error:", error);
     }
-  }
+  };
 
   const isItemVisible = (item: NavigationItem): boolean => {
     // If no roles specified, show to everyone
     if (!item.roles && !item.permissions) {
-      return true
+      return true;
     }
 
     // Check role-based access
     if (item.roles) {
-      const userRoles = user?.roles || []
-      const hasRequiredRole = item.roles.some(role => userRoles.includes(role))
+      const userRoles = user?.roles || [];
+      const hasRequiredRole = item.roles.some((role) => userRoles.includes(role));
       if (!hasRequiredRole) {
-        return false
+        return false;
       }
     }
 
     // Check permission-based access
     if (item.permissions) {
-      const hasRequiredPermission = item.permissions.some(permission => hasPermission(permission))
+      const hasRequiredPermission = item.permissions.some((permission) =>
+        hasPermission(permission),
+      );
       if (!hasRequiredPermission) {
-        return false
+        return false;
       }
     }
 
-    return true
-  }
+    return true;
+  };
 
   const isActive = (href: string): boolean => {
-    if (href === '/dashboard') {
-      return pathname === '/dashboard'
+    if (href === "/dashboard") {
+      return pathname === "/dashboard";
     }
-    return pathname.startsWith(href)
-  }
+    return pathname.startsWith(href);
+  };
 
-  const visibleItems = navigationItems.filter(isItemVisible)
+  const visibleItems = navigationItems.filter(isItemVisible);
 
   return (
     <div className="w-64 bg-white border-r border-gray-200 min-h-screen">
@@ -129,14 +123,14 @@ const Navigation = () => {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium">
-                {user?.first_name?.[0] || user?.name?.[0] || 'U'}
+                {user?.first_name?.[0] || user?.name?.[0] || "U"}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-gray-900 truncate">
-                  {user?.full_name || user?.name || 'Benutzer'}
+                  {user?.full_name || user?.name || "Benutzer"}
                 </p>
                 <p className="text-sm text-gray-600 truncate">
-                  {isAdmin ? 'Administrator' : isAdvisor ? 'Finanzberater' : 'Benutzer'}
+                  {isAdmin ? "Administrator" : isAdvisor ? "Finanzberater" : "Benutzer"}
                 </p>
               </div>
             </div>
@@ -146,25 +140,25 @@ const Navigation = () => {
         {/* Navigation Items */}
         <nav className="space-y-2">
           {visibleItems.map((item) => {
-            const Icon = item.icon
-            const active = isActive(item.href)
-            
+            const Icon = item.icon;
+            const active = isActive(item.href);
+
             return (
               <Link key={item.href} href={item.href}>
                 <Button
-                  variant={active ? 'default' : 'ghost'}
+                  variant={active ? "default" : "ghost"}
                   className={cn(
-                    'w-full justify-start gap-3 h-11',
-                    active 
-                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                      : 'text-gray-700 hover:bg-gray-100'
+                    "w-full justify-start gap-3 h-11",
+                    active
+                      ? "bg-blue-600 text-white hover:bg-blue-700"
+                      : "text-gray-700 hover:bg-gray-100",
                   )}
                 >
                   <Icon className="w-5 h-5" />
                   {item.label}
                 </Button>
               </Link>
-            )
+            );
           })}
         </nav>
 
@@ -211,7 +205,7 @@ const Navigation = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Navigation 
+export default Navigation;

@@ -1,118 +1,118 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card'
-import { Button } from '../../ui/button'
-import { Input } from '../../ui/input'
-import { Label } from '../../ui/label'
-import { AdminService } from '../../../lib/services/admin-service'
-import { CreateAdvisorInput, ApiError } from '../../../types/auth'
-import { ArrowLeft, Save, Eye, EyeOff } from 'lucide-react'
-import { toast } from 'sonner'
-import Link from 'next/link'
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../ui/card";
+import { Button } from "../../ui/button";
+import { Input } from "../../ui/input";
+import { Label } from "../../ui/label";
+import { AdminService } from "../../../lib/services/admin-service";
+import { CreateAdvisorInput, ApiError } from "../../../types/auth";
+import { ArrowLeft, Save, Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
+import Link from "next/link";
 
 const CreateAdvisorForm = () => {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string[]>>({})
-  
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
+
   const [formData, setFormData] = useState<CreateAdvisorInput>({
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: '',
-    company: '',
-    password: '',
-    password_confirmation: ''
-  })
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    company: "",
+    password: "",
+    password_confirmation: "",
+  });
 
   const handleInputChange = (field: keyof CreateAdvisorInput, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
-    }))
+      [field]: value,
+    }));
 
     // Clear error for this field when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: []
-      }))
+        [field]: [],
+      }));
     }
-  }
+  };
 
   const validateForm = (): boolean => {
-    const newErrors: Record<string, string[]> = {}
+    const newErrors: Record<string, string[]> = {};
 
     // First name validation
     if (!formData.first_name.trim()) {
-      newErrors.first_name = ['Der Vorname ist erforderlich.']
+      newErrors.first_name = ["Der Vorname ist erforderlich."];
     }
 
     // Last name validation
     if (!formData.last_name.trim()) {
-      newErrors.last_name = ['Der Nachname ist erforderlich.']
+      newErrors.last_name = ["Der Nachname ist erforderlich."];
     }
 
     // Email validation
     if (!formData.email.trim()) {
-      newErrors.email = ['Die E-Mail-Adresse ist erforderlich.']
+      newErrors.email = ["Die E-Mail-Adresse ist erforderlich."];
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = ['Bitte geben Sie eine gültige E-Mail-Adresse ein.']
+      newErrors.email = ["Bitte geben Sie eine gültige E-Mail-Adresse ein."];
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = ['Das Passwort ist erforderlich.']
+      newErrors.password = ["Das Passwort ist erforderlich."];
     } else if (formData.password.length < 8) {
-      newErrors.password = ['Das Passwort muss mindestens 8 Zeichen haben.']
+      newErrors.password = ["Das Passwort muss mindestens 8 Zeichen haben."];
     }
 
     // Password confirmation validation
     if (!formData.password_confirmation) {
-      newErrors.password_confirmation = ['Die Passwort-Bestätigung ist erforderlich.']
+      newErrors.password_confirmation = ["Die Passwort-Bestätigung ist erforderlich."];
     } else if (formData.password !== formData.password_confirmation) {
-      newErrors.password_confirmation = ['Die Passwort-Bestätigung stimmt nicht überein.']
+      newErrors.password_confirmation = ["Die Passwort-Bestätigung stimmt nicht überein."];
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!validateForm()) {
-      return
+      return;
     }
 
     try {
-      setIsSubmitting(true)
-      setErrors({})
+      setIsSubmitting(true);
+      setErrors({});
 
-      const result = await AdminService.createAdvisor(formData)
-      
-      toast.success(result.message || 'Berater wurde erfolgreich erstellt')
-      router.push('/dashboard/admin/advisors')
+      const result = await AdminService.createAdvisor(formData);
+
+      toast.success(result.message || "Berater wurde erfolgreich erstellt");
+      router.push("/dashboard/admin/advisors");
     } catch (error: any) {
-      console.error('Error creating advisor:', error)
-      
+      console.error("Error creating advisor:", error);
+
       if (error.errors) {
-        setErrors(error.errors)
+        setErrors(error.errors);
       }
-      
-      toast.error(error.message || 'Fehler beim Erstellen des Beraters')
+
+      toast.error(error.message || "Fehler beim Erstellen des Beraters");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const getFieldError = (field: string): string | undefined => {
-    return errors[field]?.[0]
-  }
+    return errors[field]?.[0];
+  };
 
   return (
     <div className="container mx-auto p-6 max-w-2xl">
@@ -126,9 +126,7 @@ const CreateAdvisorForm = () => {
         </Link>
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Neuen Berater erstellen</h1>
-          <p className="text-gray-600 mt-2">
-            Erstellen Sie einen neuen Finanzberater-Account
-          </p>
+          <p className="text-gray-600 mt-2">Erstellen Sie einen neuen Finanzberater-Account</p>
         </div>
       </div>
 
@@ -136,9 +134,7 @@ const CreateAdvisorForm = () => {
       <Card>
         <CardHeader>
           <CardTitle>Berater-Informationen</CardTitle>
-          <CardDescription>
-            Geben Sie die Daten für den neuen Finanzberater ein
-          </CardDescription>
+          <CardDescription>Geben Sie die Daten für den neuen Finanzberater ein</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -152,12 +148,12 @@ const CreateAdvisorForm = () => {
                   id="first_name"
                   type="text"
                   value={formData.first_name}
-                  onChange={(e) => handleInputChange('first_name', e.target.value)}
+                  onChange={(e) => handleInputChange("first_name", e.target.value)}
                   placeholder="Max"
-                  className={getFieldError('first_name') ? 'border-red-500' : ''}
+                  className={getFieldError("first_name") ? "border-red-500" : ""}
                 />
-                {getFieldError('first_name') && (
-                  <p className="text-sm text-red-600">{getFieldError('first_name')}</p>
+                {getFieldError("first_name") && (
+                  <p className="text-sm text-red-600">{getFieldError("first_name")}</p>
                 )}
               </div>
 
@@ -169,12 +165,12 @@ const CreateAdvisorForm = () => {
                   id="last_name"
                   type="text"
                   value={formData.last_name}
-                  onChange={(e) => handleInputChange('last_name', e.target.value)}
+                  onChange={(e) => handleInputChange("last_name", e.target.value)}
                   placeholder="Mustermann"
-                  className={getFieldError('last_name') ? 'border-red-500' : ''}
+                  className={getFieldError("last_name") ? "border-red-500" : ""}
                 />
-                {getFieldError('last_name') && (
-                  <p className="text-sm text-red-600">{getFieldError('last_name')}</p>
+                {getFieldError("last_name") && (
+                  <p className="text-sm text-red-600">{getFieldError("last_name")}</p>
                 )}
               </div>
             </div>
@@ -188,12 +184,12 @@ const CreateAdvisorForm = () => {
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
+                onChange={(e) => handleInputChange("email", e.target.value)}
                 placeholder="max.mustermann@example.com"
-                className={getFieldError('email') ? 'border-red-500' : ''}
+                className={getFieldError("email") ? "border-red-500" : ""}
               />
-              {getFieldError('email') && (
-                <p className="text-sm text-red-600">{getFieldError('email')}</p>
+              {getFieldError("email") && (
+                <p className="text-sm text-red-600">{getFieldError("email")}</p>
               )}
             </div>
 
@@ -204,12 +200,12 @@ const CreateAdvisorForm = () => {
                 id="phone"
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
+                onChange={(e) => handleInputChange("phone", e.target.value)}
                 placeholder="+49 123 456789"
-                className={getFieldError('phone') ? 'border-red-500' : ''}
+                className={getFieldError("phone") ? "border-red-500" : ""}
               />
-              {getFieldError('phone') && (
-                <p className="text-sm text-red-600">{getFieldError('phone')}</p>
+              {getFieldError("phone") && (
+                <p className="text-sm text-red-600">{getFieldError("phone")}</p>
               )}
             </div>
 
@@ -220,12 +216,12 @@ const CreateAdvisorForm = () => {
                 id="company"
                 type="text"
                 value={formData.company}
-                onChange={(e) => handleInputChange('company', e.target.value)}
+                onChange={(e) => handleInputChange("company", e.target.value)}
                 placeholder="Musterberatung GmbH"
-                className={getFieldError('company') ? 'border-red-500' : ''}
+                className={getFieldError("company") ? "border-red-500" : ""}
               />
-              {getFieldError('company') && (
-                <p className="text-sm text-red-600">{getFieldError('company')}</p>
+              {getFieldError("company") && (
+                <p className="text-sm text-red-600">{getFieldError("company")}</p>
               )}
             </div>
 
@@ -238,11 +234,11 @@ const CreateAdvisorForm = () => {
                 <div className="relative">
                   <Input
                     id="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    onChange={(e) => handleInputChange("password", e.target.value)}
                     placeholder="Mindestens 8 Zeichen"
-                    className={getFieldError('password') ? 'border-red-500 pr-10' : 'pr-10'}
+                    className={getFieldError("password") ? "border-red-500 pr-10" : "pr-10"}
                   />
                   <Button
                     type="button"
@@ -258,8 +254,8 @@ const CreateAdvisorForm = () => {
                     )}
                   </Button>
                 </div>
-                {getFieldError('password') && (
-                  <p className="text-sm text-red-600">{getFieldError('password')}</p>
+                {getFieldError("password") && (
+                  <p className="text-sm text-red-600">{getFieldError("password")}</p>
                 )}
               </div>
 
@@ -270,11 +266,13 @@ const CreateAdvisorForm = () => {
                 <div className="relative">
                   <Input
                     id="password_confirmation"
-                    type={showPasswordConfirm ? 'text' : 'password'}
+                    type={showPasswordConfirm ? "text" : "password"}
                     value={formData.password_confirmation}
-                    onChange={(e) => handleInputChange('password_confirmation', e.target.value)}
+                    onChange={(e) => handleInputChange("password_confirmation", e.target.value)}
                     placeholder="Passwort wiederholen"
-                    className={getFieldError('password_confirmation') ? 'border-red-500 pr-10' : 'pr-10'}
+                    className={
+                      getFieldError("password_confirmation") ? "border-red-500 pr-10" : "pr-10"
+                    }
                   />
                   <Button
                     type="button"
@@ -290,8 +288,8 @@ const CreateAdvisorForm = () => {
                     )}
                   </Button>
                 </div>
-                {getFieldError('password_confirmation') && (
-                  <p className="text-sm text-red-600">{getFieldError('password_confirmation')}</p>
+                {getFieldError("password_confirmation") && (
+                  <p className="text-sm text-red-600">{getFieldError("password_confirmation")}</p>
                 )}
               </div>
             </div>
@@ -327,7 +325,7 @@ const CreateAdvisorForm = () => {
         </CardContent>
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default CreateAdvisorForm 
+export default CreateAdvisorForm;

@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, EyeOff, LogIn, ArrowRight } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { loginSchema, type LoginSchema } from "@/lib/validations/auth"
-import { useAuthContext } from "@/providers/AuthProvider"
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Eye, EyeOff, LogIn, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { loginSchema, type LoginSchema } from "@/lib/validations/auth";
+import { useAuthContext } from "@/providers/AuthProvider";
 
 export function LoginForm() {
-  const router = useRouter()
-  const { login, isLoading } = useAuthContext()
-  const [showPassword, setShowPassword] = useState(false)
+  const router = useRouter();
+  const { login, isLoading } = useAuthContext();
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -32,28 +32,28 @@ export function LoginForm() {
       password: "",
       remember_me: false,
     },
-  })
+  });
 
-  const rememberMe = watch("remember_me")
+  const rememberMe = watch("remember_me");
 
   const onSubmit = async (data: LoginSchema) => {
     try {
-      await login(data)
+      await login(data);
       // Redirect to dashboard after successful login
-      router.push("/dashboard")
+      router.push("/dashboard");
     } catch (error) {
       // Error handling is done in the useAuth hook
-      console.error("Login error:", error)
+      console.error("Login error:", error);
     }
-  }
+  };
 
   const handleTogglePassword = () => {
-    setShowPassword(!showPassword)
-  }
+    setShowPassword(!showPassword);
+  };
 
   const handleRememberMeChange = (checked: boolean) => {
-    setValue("remember_me", checked)
-  }
+    setValue("remember_me", checked);
+  };
 
   return (
     <Card className="shadow-2xl border-0 bg-white/90 backdrop-blur-sm">
@@ -62,7 +62,9 @@ export function LoginForm() {
           <LogIn className="h-6 w-6 text-blue-600" />
           Anmeldung
         </CardTitle>
-        <p className="text-gray-600 text-center mt-2">Melden Sie sich in Ihrem Berater-Account an</p>
+        <p className="text-gray-600 text-center mt-2">
+          Melden Sie sich in Ihrem Berater-Account an
+        </p>
       </CardHeader>
 
       <CardContent className="p-8">
@@ -79,9 +81,7 @@ export function LoginForm() {
               className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
               aria-invalid={errors.email ? "true" : "false"}
             />
-            {errors.email && (
-              <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
-            )}
+            {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>}
           </div>
 
           <div className="space-y-3">
@@ -123,8 +123,8 @@ export function LoginForm() {
                 Angemeldet bleiben
               </Label>
             </div>
-            <Link 
-              href="/forgot-password" 
+            <Link
+              href="/forgot-password"
               className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
             >
               Passwort vergessen?
@@ -150,7 +150,10 @@ export function LoginForm() {
         <div className="mt-8 pt-6 border-t border-gray-200">
           <p className="text-center text-gray-600">
             Noch kein Account?{" "}
-            <Link href="/register" className="text-blue-600 hover:text-blue-700 font-semibold transition-colors">
+            <Link
+              href="/register"
+              className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+            >
               Jetzt registrieren
             </Link>
           </p>
@@ -172,5 +175,5 @@ export function LoginForm() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

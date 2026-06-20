@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import ErrorBoundary from '@/components/ui/error-boundary';
-import Navigation from '@/components/dashboard/navigation';
-import { useAuthContext } from '@/providers/AuthProvider';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import ErrorBoundary from "@/components/ui/error-boundary";
+import Navigation from "@/components/dashboard/navigation";
+import { useAuthContext } from "@/providers/AuthProvider";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProtectedLayout({
@@ -18,9 +18,9 @@ export default function ProtectedLayout({
 
   useEffect(() => {
     setIsMounted(true);
-    
+
     if (!isLoading && !isAuthenticated) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [isAuthenticated, isLoading, router]);
 
@@ -57,10 +57,8 @@ export default function ProtectedLayout({
     <ErrorBoundary>
       <div className="min-h-screen bg-gray-50 flex">
         <Navigation />
-        <main className="flex-1 overflow-auto">
-          {children}
-        </main>
+        <main className="flex-1 overflow-auto">{children}</main>
       </div>
     </ErrorBoundary>
   );
-} 
+}

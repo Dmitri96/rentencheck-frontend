@@ -65,11 +65,7 @@ const ratingOptions = [
   { value: "sehr wichtig", label: "sehr wichtig" },
 ];
 
-export function ImportantAspectsStep({
-  data,
-  updateData,
-  isConfirmed,
-}: ImportantAspectsStepProps) {
+export function ImportantAspectsStep({ data, updateData, isConfirmed }: ImportantAspectsStepProps) {
   const updateAspectRating = (aspectKey: string, value: string) => {
     updateData({
       aspectRatings: {
@@ -80,9 +76,7 @@ export function ImportantAspectsStep({
   };
 
   return (
-    <div
-      className={`space-y-8 ${isConfirmed ? "opacity-60 pointer-events-none" : ""}`}
-    >
+    <div className={`space-y-8 ${isConfirmed ? "opacity-60 pointer-events-none" : ""}`}>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -105,14 +99,8 @@ export function ImportantAspectsStep({
                 {ratingOptions.map((option) => (
                   <td key={option.value} className="p-3 text-center">
                     <RadioGroup
-                      value={
-                        data.aspectRatings[
-                          aspect.key as keyof typeof data.aspectRatings
-                        ]
-                      }
-                      onValueChange={(value) =>
-                        updateAspectRating(aspect.key, value)
-                      }
+                      value={data.aspectRatings[aspect.key as keyof typeof data.aspectRatings]}
+                      onValueChange={(value) => updateAspectRating(aspect.key, value)}
                       disabled={isConfirmed}
                     >
                       <div className="flex items-center justify-center">
@@ -140,32 +128,24 @@ export function ImportantAspectsStep({
           <div className="space-y-4">
             <div>
               <p className="text-sm text-gray-700 mb-2">
-                ...die Art des Produktes und die Auswahl des Anbieters von der
-                Zustimmung des Arbeitgebers mit abhängig sind?
+                ...die Art des Produktes und die Auswahl des Anbieters von der Zustimmung des
+                Arbeitgebers mit abhängig sind?
               </p>
               <RadioGroup
                 value={data.productDependsOnEmployer}
-                onValueChange={(value) =>
-                  updateData({ productDependsOnEmployer: value })
-                }
+                onValueChange={(value) => updateData({ productDependsOnEmployer: value })}
                 disabled={isConfirmed}
                 className="flex space-x-6"
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="Ja" id="employer-ja" />
-                  <Label
-                    htmlFor="employer-ja"
-                    className="text-sm cursor-pointer"
-                  >
+                  <Label htmlFor="employer-ja" className="text-sm cursor-pointer">
                     Ja
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="Nein" id="employer-nein" />
-                  <Label
-                    htmlFor="employer-nein"
-                    className="text-sm cursor-pointer"
-                  >
+                  <Label htmlFor="employer-nein" className="text-sm cursor-pointer">
                     Nein
                   </Label>
                 </div>
@@ -174,14 +154,12 @@ export function ImportantAspectsStep({
 
             <div>
               <p className="text-sm text-gray-700 mb-2">
-                ...wegen der Nutzung von Steuervorteilen in der Sparzeit
-                Einschränkungen (z.B. nicht beleihbar) entstehen?
+                ...wegen der Nutzung von Steuervorteilen in der Sparzeit Einschränkungen (z.B. nicht
+                beleihbar) entstehen?
               </p>
               <RadioGroup
                 value={data.taxLimitationsInSavingsPhase}
-                onValueChange={(value) =>
-                  updateData({ taxLimitationsInSavingsPhase: value })
-                }
+                onValueChange={(value) => updateData({ taxLimitationsInSavingsPhase: value })}
                 disabled={isConfirmed}
                 className="flex space-x-6"
               >
@@ -202,32 +180,24 @@ export function ImportantAspectsStep({
 
             <div>
               <p className="text-sm text-gray-700 mb-2">
-                ...Ihr Rentenkonzept nur dem Zweck der Altersversorgung dient
-                (Rentenzahlung) und keine andere Verwendung zulässt?
+                ...Ihr Rentenkonzept nur dem Zweck der Altersversorgung dient (Rentenzahlung) und
+                keine andere Verwendung zulässt?
               </p>
               <RadioGroup
                 value={data.onlyForRetirement}
-                onValueChange={(value) =>
-                  updateData({ onlyForRetirement: value })
-                }
+                onValueChange={(value) => updateData({ onlyForRetirement: value })}
                 disabled={isConfirmed}
                 className="flex space-x-6"
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="Ja" id="retirement-ja" />
-                  <Label
-                    htmlFor="retirement-ja"
-                    className="text-sm cursor-pointer"
-                  >
+                  <Label htmlFor="retirement-ja" className="text-sm cursor-pointer">
                     Ja
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="Nein" id="retirement-nein" />
-                  <Label
-                    htmlFor="retirement-nein"
-                    className="text-sm cursor-pointer"
-                  >
+                  <Label htmlFor="retirement-nein" className="text-sm cursor-pointer">
                     Nein
                   </Label>
                 </div>

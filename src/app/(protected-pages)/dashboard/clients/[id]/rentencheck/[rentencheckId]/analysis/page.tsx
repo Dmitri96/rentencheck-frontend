@@ -10,10 +10,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { PensionResultsTable } from "@/components/pension-results-table";
 import { PensionChart } from "@/components/pension-chart";
-import {
-  RentencheckService,
-  type Rentencheck,
-} from "@/lib/services/rentencheck-service";
+import { RentencheckService, type Rentencheck } from "@/lib/services/rentencheck-service";
 
 /**
  * Analysis Page Component
@@ -36,10 +33,7 @@ export default function AnalysisPage() {
     const loadRentencheck = async () => {
       try {
         setLoading(true);
-        const data = await RentencheckService.getRentencheck(
-          parseInt(clientId),
-          rentencheckId,
-        );
+        const data = await RentencheckService.getRentencheck(parseInt(clientId), rentencheckId);
         setRentencheck(data.rentencheck);
       } catch (error: any) {
         console.error("Error loading rentencheck:", error);
@@ -88,9 +82,7 @@ export default function AnalysisPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              Rentencheck nicht gefunden
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Rentencheck nicht gefunden</h1>
             <p className="text-gray-600 mb-6">
               Der angeforderte Rentencheck konnte nicht geladen werden.
             </p>
@@ -112,16 +104,12 @@ export default function AnalysisPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              Analyse nicht verfügbar
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Analyse nicht verfügbar</h1>
             <p className="text-gray-600 mb-6">
               Die Analyse ist nur für abgeschlossene Rentenchecks verfügbar.
             </p>
             <div className="flex gap-4 justify-center">
-              <Link
-                href={`/dashboard/clients/${clientId}/rentencheck/${rentencheckId}`}
-              >
+              <Link href={`/dashboard/clients/${clientId}/rentencheck/${rentencheckId}`}>
                 <Button>
                   <Edit3 className="h-4 w-4 mr-2" />
                   Rentencheck fortsetzen
@@ -157,20 +145,13 @@ export default function AnalysisPage() {
                 </Button>
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  {rentencheck.title}
-                </h1>
+                <h1 className="text-3xl font-bold text-gray-900">{rentencheck.title}</h1>
                 <div className="flex items-center gap-4 mt-2">
                   <Badge className="bg-green-100 text-green-800">
-                    {rentencheck.status === "completed"
-                      ? "Abgeschlossen"
-                      : "In Bearbeitung"}
+                    {rentencheck.status === "completed" ? "Abgeschlossen" : "In Bearbeitung"}
                   </Badge>
                   <span className="text-sm text-gray-600">
-                    Erstellt:{" "}
-                    {new Date(rentencheck.created_at).toLocaleDateString(
-                      "de-DE",
-                    )}
+                    Erstellt: {new Date(rentencheck.created_at).toLocaleDateString("de-DE")}
                   </span>
                 </div>
               </div>
@@ -178,9 +159,7 @@ export default function AnalysisPage() {
 
             {/* Action Buttons */}
             <div className="flex items-center gap-3">
-              <Link
-                href={`/dashboard/clients/${clientId}/rentencheck/${rentencheckId}`}
-              >
+              <Link href={`/dashboard/clients/${clientId}/rentencheck/${rentencheckId}`}>
                 <Button variant="outline" className="flex items-center gap-2">
                   <Edit3 className="h-4 w-4" />
                   Daten bearbeiten
@@ -217,18 +196,14 @@ export default function AnalysisPage() {
         <div className="bg-white rounded-lg shadow-sm border p-6">
           {/* Analysis Results Table (single authoritative table) */}
           <div className="mb-8">
-            <PensionResultsTable
-              data={rentencheck}
-              desiredPension={desiredPension}
-            />
+            <PensionResultsTable data={rentencheck} desiredPension={desiredPension} />
           </div>
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               Rentenverlauf über die Zeit
             </h2>
             <p className="text-sm text-gray-600">
-              Visualisierung Ihrer Rentenentwicklung mit Inflation und
-              Versorgungslücke
+              Visualisierung Ihrer Rentenentwicklung mit Inflation und Versorgungslücke
             </p>
           </div>
           <PensionChart data={rentencheck} desiredPension={desiredPension} />
@@ -238,13 +213,8 @@ export default function AnalysisPage() {
         <Card className="mt-8">
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link
-                href={`/dashboard/clients/${clientId}/rentencheck/${rentencheckId}`}
-              >
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2 px-6 py-3"
-                >
+              <Link href={`/dashboard/clients/${clientId}/rentencheck/${rentencheckId}`}>
+                <Button variant="outline" className="flex items-center gap-2 px-6 py-3">
                   <Edit3 className="h-4 w-4" />
                   Daten bearbeiten
                 </Button>

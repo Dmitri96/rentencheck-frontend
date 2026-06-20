@@ -32,16 +32,11 @@ export function StatutoryPensionSection({
         <Checkbox
           id="statutoryPensionClaims"
           checked={data.statutoryPensionClaims}
-          onCheckedChange={(checked) =>
-            updateData({ statutoryPensionClaims: checked as boolean })
-          }
+          onCheckedChange={(checked) => updateData({ statutoryPensionClaims: checked as boolean })}
           disabled={isConfirmed}
           className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
         />
-        <Label
-          htmlFor="statutoryPensionClaims"
-          className="text-sm font-medium cursor-pointer"
-        >
+        <Label htmlFor="statutoryPensionClaims" className="text-sm font-medium cursor-pointer">
           Ansprüche aus gesetzlicher Rentenversicherung dasds
         </Label>
       </div>
@@ -52,10 +47,7 @@ export function StatutoryPensionSection({
           <div className="border-l-2 border-blue-200 pl-4 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label
-                  htmlFor="statutoryPensionAge"
-                  className="text-sm font-medium text-gray-700"
-                >
+                <Label htmlFor="statutoryPensionAge" className="text-sm font-medium text-gray-700">
                   Im Alter von
                 </Label>
                 <Input
@@ -85,8 +77,7 @@ export function StatutoryPensionSection({
                   value={data.statutoryPensionAmount || ""}
                   onChange={(e) =>
                     updateData({
-                      statutoryPensionAmount:
-                        Number.parseFloat(e.target.value) || 0,
+                      statutoryPensionAmount: Number.parseFloat(e.target.value) || 0,
                     })
                   }
                   placeholder="0"
@@ -112,8 +103,7 @@ export function StatutoryPensionSection({
                   onChange={(e) =>
                     updateData({
                       // field is added on the form model; cast to any for forward compatibility
-                      disabilityPensionAmount:
-                        Number.parseFloat(e.target.value) || 0,
+                      disabilityPensionAmount: Number.parseFloat(e.target.value) || 0,
                     } as any)
                   }
                   placeholder="0"

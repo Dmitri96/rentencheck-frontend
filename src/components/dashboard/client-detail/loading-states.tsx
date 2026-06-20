@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Loader2 } from "lucide-react"
-import Link from "next/link"
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export function ClientLoadingState() {
   return (
@@ -16,7 +16,7 @@ export function ClientLoadingState() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 export function ClientErrorState() {
@@ -26,12 +26,14 @@ export function ClientErrorState() {
         <CardContent className="p-12 text-center">
           <div className="text-6xl mb-4">❌</div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Mandant nicht gefunden</h3>
-          <p className="text-gray-600 mb-6">Der angeforderte Mandant konnte nicht geladen werden.</p>
+          <p className="text-gray-600 mb-6">
+            Der angeforderte Mandant konnte nicht geladen werden.
+          </p>
           <Link href="/dashboard">
             <Button>Zurück zum Dashboard</Button>
           </Link>
         </CardContent>
       </Card>
     </div>
-  )
-} 
+  );
+}

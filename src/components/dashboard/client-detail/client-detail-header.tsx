@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, Settings, LogOut } from "lucide-react"
-import Link from "next/link"
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Settings, LogOut } from "lucide-react";
+import Link from "next/link";
 
 interface ClientDetailHeaderProps {
-  onLogout: () => void
+  onLogout: () => void;
 }
 
 export function ClientDetailHeader({ onLogout }: ClientDetailHeaderProps) {
@@ -34,9 +34,9 @@ export function ClientDetailHeader({ onLogout }: ClientDetailHeaderProps) {
               <Settings className="h-4 w-4" />
               Einstellungen
             </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               className="flex items-center gap-2 text-red-600"
               onClick={onLogout}
             >
@@ -47,5 +47,5 @@ export function ClientDetailHeader({ onLogout }: ClientDetailHeaderProps) {
         </div>
       </div>
     </header>
-  )
-} 
+  );
+}

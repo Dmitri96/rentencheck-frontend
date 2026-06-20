@@ -19,40 +19,52 @@ client-detail/
 ## 🧩 Components Overview
 
 ### ClientDetailHeader
+
 **Purpose**: Top navigation with back button, logo, and user actions
+
 - ✅ **Single Responsibility**: Navigation and user actions only
 - 📝 **Props**: `onLogout` function
 - 🎨 **Style**: Sticky header with backdrop blur
 
-### ClientInfoSection  
+### ClientInfoSection
+
 **Purpose**: Client name, status badge, and primary action buttons
+
 - ✅ **Single Responsibility**: Client identity and main actions
 - 📝 **Props**: `client` object, `clientId` string
 - 🎨 **Style**: Large avatar, name, status, and CTA buttons
 
 ### ClientContactCard
+
 **Purpose**: Display client's contact information
+
 - ✅ **Single Responsibility**: Contact details only
 - 📝 **Props**: `client` object
 - 🎨 **Style**: Card with icons and clean layout
 - 🔧 **Features**: Conditional rendering for optional fields
 
 ### ClientStatsCard
+
 **Purpose**: Show client statistics and metrics
+
 - ✅ **Single Responsibility**: Statistical data display
 - 📝 **Props**: `client` object, `rentenchecks` array
 - 🎨 **Style**: Card with key-value pairs
 - 📊 **Metrics**: Total, completed, and draft rentenchecks
 
 ### RentenchecksCard
+
 **Purpose**: List all rentenchecks with actions and states
+
 - ✅ **Single Responsibility**: Rentencheck management
 - 📝 **Props**: `clientId`, `rentenchecks` array, `loading` boolean
 - 🎨 **Style**: Card with dynamic content
 - 🔧 **Features**: Loading, empty, and populated states
 
 ### LoadingStates
+
 **Purpose**: Reusable loading and error state components
+
 - ✅ **Single Responsibility**: State management display
 - 📝 **Components**: `ClientLoadingState`, `ClientErrorState`
 - 🎨 **Style**: Centered cards with appropriate messaging
@@ -67,30 +79,30 @@ import {
   ClientStatsCard,
   RentenchecksCard,
   ClientLoadingState,
-  ClientErrorState
-} from "./client-detail"
+  ClientErrorState,
+} from "./client-detail";
 
 function ClientDetailView({ clientId }: { clientId: string }) {
   // ... data loading logic
 
-  if (loading) return <ClientLoadingState />
-  if (!client) return <ClientErrorState />
+  if (loading) return <ClientLoadingState />;
+  if (!client) return <ClientErrorState />;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <ClientDetailHeader onLogout={handleLogout} />
-      
+
       <div className="container mx-auto px-6 py-8">
         <ClientInfoSection client={client} clientId={clientId} />
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-6">
             <ClientContactCard client={client} />
             <ClientStatsCard client={client} rentenchecks={rentenchecks} />
           </div>
-          
+
           <div className="lg:col-span-2">
-            <RentenchecksCard 
+            <RentenchecksCard
               clientId={clientId}
               rentenchecks={rentenchecks}
               loading={rentenchecksLoading}
@@ -99,7 +111,7 @@ function ClientDetailView({ clientId }: { clientId: string }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 ```
 
@@ -109,7 +121,7 @@ The components use shared utility functions from `@/lib/utils/client-utils`:
 
 - `getClientStatusColor()` - Client status styling
 - `getClientStatusText()` - Client status text
-- `getRentencheckStatusColor()` - Rentencheck status styling  
+- `getRentencheckStatusColor()` - Rentencheck status styling
 - `getRentencheckStatusText()` - Rentencheck status text
 - `formatDate()` - German date formatting
 - `formatDatetime()` - German datetime formatting
@@ -131,4 +143,4 @@ The components use shared utility functions from `@/lib/utils/client-utils`:
 - Add accessibility (a11y) improvements
 - Create Storybook stories for each component
 - Add unit tests for individual components
-- Implement prop validation with TypeScript strict mode 
+- Implement prop validation with TypeScript strict mode

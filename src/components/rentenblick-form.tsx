@@ -167,14 +167,8 @@ const steps = [
 
 export interface RentenblickFormProps {
   initialData?: Partial<RentenblickData>;
-  onStepSave?: (
-    step: number,
-    stepData: Partial<RentenblickData>,
-  ) => Promise<void>;
-  onAutoSave?: (
-    step: number,
-    stepData: Partial<RentenblickData>,
-  ) => Promise<void>;
+  onStepSave?: (step: number, stepData: Partial<RentenblickData>) => Promise<void>;
+  onAutoSave?: (step: number, stepData: Partial<RentenblickData>) => Promise<void>;
   onComplete?: () => Promise<void>;
   onDownloadPdf?: () => Promise<void>;
   completedSteps?: number[];
@@ -191,8 +185,7 @@ export function RentenblickForm({
   saving = false,
 }: RentenblickFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
-  const [confirmedSteps, setConfirmedSteps] =
-    useState<number[]>(completedSteps);
+  const [confirmedSteps, setConfirmedSteps] = useState<number[]>(completedSteps);
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [formData, setFormData] = useState<RentenblickData>({
@@ -269,8 +262,7 @@ export function RentenblickForm({
           // In the admin UI, life_expectancy is the target age at end of pension
           provisionDuration: p.demographics?.life_expectancy ?? undefined,
           // Sum rate provided by backend for convenience
-          healthInsuranceContribution:
-            p.social_insurance?.total_insurance_rate ?? undefined,
+          healthInsuranceContribution: p.social_insurance?.total_insurance_rate ?? undefined,
           statutoryPensionAge: p.demographics?.retirement_age,
           professionalProvisionAge: p.demographics?.retirement_age,
           publicServiceProvisionAge: p.demographics?.retirement_age,
@@ -280,9 +272,7 @@ export function RentenblickForm({
         // Apply defaults without overwriting user-provided initialData unnecessarily
         setFormData((prev) => ({
           ...prev,
-          ...Object.fromEntries(
-            Object.entries(mappedDefaults).filter(([, v]) => v !== undefined),
-          ),
+          ...Object.fromEntries(Object.entries(mappedDefaults).filter(([, v]) => v !== undefined)),
         }));
       } catch (err) {
         console.error(err);
@@ -356,11 +346,7 @@ export function RentenblickForm({
         );
       case 2:
         return (
-          <ExpectationsStep
-            data={formData}
-            updateData={updateFormData}
-            isConfirmed={isConfirmed}
-          />
+          <ExpectationsStep data={formData} updateData={updateFormData} isConfirmed={isConfirmed} />
         );
       case 3:
         return (
@@ -380,11 +366,7 @@ export function RentenblickForm({
         );
       case 5:
         return (
-          <ConclusionStep
-            data={formData}
-            updateData={updateFormData}
-            isConfirmed={isConfirmed}
-          />
+          <ConclusionStep data={formData} updateData={updateFormData} isConfirmed={isConfirmed} />
         );
       default:
         return null;
@@ -406,17 +388,14 @@ export function RentenblickForm({
               Ihre Rentenbedarfsanalyse
             </CardTitle>
             <p className="text-green-700 mt-2">
-              Basierend auf Ihren Angaben haben wir eine umfassende Analyse
-              Ihrer Altersvorsorge erstellt.
+              Basierend auf Ihren Angaben haben wir eine umfassende Analyse Ihrer Altersvorsorge
+              erstellt.
             </p>
           </CardHeader>
         </Card>
 
         {/* Results Content */}
-        <PensionResultsOverview
-          data={formData}
-          desiredPension={formData.pensionWishCurrentValue}
-        />
+        <PensionResultsOverview data={formData} desiredPension={formData.pensionWishCurrentValue} />
 
         {/* Action Buttons */}
         <Card>
@@ -491,9 +470,7 @@ export function RentenblickForm({
                   >
                     {step.title}
                   </div>
-                  <div className="text-xs text-gray-500 max-w-24">
-                    {step.description}
-                  </div>
+                  <div className="text-xs text-gray-500 max-w-24">{step.description}</div>
                 </div>
               </div>
               {index < steps.length - 1 && (
@@ -521,33 +498,23 @@ export function RentenblickForm({
                   {isCurrentStepConfirmed && (
                     <div className="flex items-center gap-2">
                       <Lock className="w-5 h-5 text-green-600" />
-                      <span className="text-sm text-green-600 font-medium">
-                        Bestätigt
-                      </span>
+                      <span className="text-sm text-green-600 font-medium">Bestätigt</span>
                     </div>
                   )}
                 </CardTitle>
-                <p className="text-gray-600 mt-1">
-                  {steps[currentStep - 1].description}
-                </p>
+                <p className="text-gray-600 mt-1">{steps[currentStep - 1].description}</p>
               </div>
             </div>
             <div className="hidden md:block text-right">
-              <div className="text-sm font-medium text-gray-500 mb-1">
-                Fortschritt
-              </div>
-              <div className="text-2xl font-bold text-blue-600">
-                {Math.round(progress)}%
-              </div>
+              <div className="text-sm font-medium text-gray-500 mb-1">Fortschritt</div>
+              <div className="text-2xl font-bold text-blue-600">{Math.round(progress)}%</div>
             </div>
           </div>
           <Progress value={progress} className="mt-4 h-2" />
         </CardHeader>
 
         <CardContent className="p-8">
-          <div className="transition-all duration-500 ease-in-out">
-            {renderStep()}
-          </div>
+          <div className="transition-all duration-500 ease-in-out">{renderStep()}</div>
 
           <div className="flex justify-between items-center pt-8 mt-8 border-t border-gray-100">
             <Button
