@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useContext } from "react";
+import React, { createContext, ReactNode, useContext, useMemo } from "react";
 import { LoginInput, RegisterInput, User } from "@/types/auth";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -36,15 +36,20 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps): React.ReactElement {
   const auth = useAuth();
 
-  // Enhanced context value with role-based helpers
-  const contextValue: AuthContextType = {
-    ...auth,
-    isAdmin: auth.user?.is_admin ?? false,
-    isAdvisor: auth.user?.is_advisor ?? false,
-    hasPermission: (permission: string) => auth.permissions.includes(permission),
-    hasAnyPermission: (permissions: string[]) =>
-      permissions.some((permission) => auth.permissions.includes(permission)),
-  };
+  // Memoize the context value so identity-only consumers don't re-render on
+  // every parent render. Previously this object was rebuilt every render and
+  // every auth consumer re-rendered cascadingly (audit finding).
+  const contextValue = useMemo<AuthContextType>(
+    () => ({
+      ...auth,
+      isAdmin: auth.user?.is_admin ?? false,
+      isAdvisor: auth.user?.is_advisor ?? false,
+      hasPermission: (permission: string) => auth.permissions.includes(permission),
+      hasAnyPermission: (permissions: string[]) =>
+        permissions.some((permission) => auth.permissions.includes(permission)),
+    }),
+    [auth],
+  );
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
