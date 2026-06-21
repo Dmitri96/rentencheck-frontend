@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { LoginInput, RegisterInput, User, ApiError } from "@/types/auth";
 import { clearAuth, getToken, getUser, saveToken, saveUser } from "@/lib/storage";
 import { AuthService } from "@/lib/services/auth-service";
+import { ensureCsrfCookie, resetCsrfCookieCache } from "@/lib/api";
 import { toast } from "sonner";
 
 export interface UseAuthReturn {
@@ -48,6 +49,7 @@ export function useAuth(): UseAuthReturn {
     setError(null);
 
     try {
+      await ensureCsrfCookie(); // Sanctum SPA — warm XSRF-TOKEN cookie before mutation
       const response = await AuthService.register(data);
       setToken(response.token);
       setUser(response.user);
@@ -85,6 +87,7 @@ export function useAuth(): UseAuthReturn {
     setError(null);
 
     try {
+      await ensureCsrfCookie(); // Sanctum SPA — warm XSRF-TOKEN cookie before mutation
       const response = await AuthService.login(data);
       setToken(response.token);
       setUser(response.user);
@@ -134,6 +137,7 @@ export function useAuth(): UseAuthReturn {
       if (typeof window !== "undefined") {
         clearAuth();
       }
+      resetCsrfCookieCache(); // next login warms a fresh XSRF-TOKEN
 
       toast.success("Erfolgreich abgemeldet");
     } catch (err) {
