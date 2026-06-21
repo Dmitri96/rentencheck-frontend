@@ -4,1925 +4,1669 @@
  */
 
 export interface paths {
-  "/profile": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": {
-              user: components["schemas"]["User"];
-              permissions: unknown[];
-            };
-          };
+    "/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        401: components["responses"]["AuthenticationException"];
-      };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            user: components["schemas"]["User"];
+                            permissions: unknown[];
+                        };
+                    };
+                };
+                401: components["responses"]["AuthenticationException"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/admin/dashboard": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/admin/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin.dashboard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get admin dashboard overview with statistics and recent activity */
-    get: operations["admin.dashboard"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/admin/advisors": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/admin/advisors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin.getAdvisors"];
+        put?: never;
+        post: operations["admin.createAdvisor"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get paginated list of financial advisors with filtering and statistics */
-    get: operations["admin.getAdvisors"];
-    put?: never;
-    /** Create a new financial advisor with role assignment */
-    post: operations["admin.createAdvisor"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/admin/advisors/{advisorId}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/admin/advisors/{advisorId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin.getAdvisorDetails"];
+        put?: never;
+        post?: never;
+        delete: operations["admin.deleteAdvisor"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get detailed advisor information with analytics and monthly statistics */
-    get: operations["admin.getAdvisorDetails"];
-    put?: never;
-    post?: never;
-    /** Delete an advisor (only if no clients associated) */
-    delete: operations["admin.deleteAdvisor"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/admin/advisors/{advisorId}/status": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/admin/advisors/{advisorId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["admin.updateAdvisorStatus"];
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Update advisor status (active/blocked) */
-    patch: operations["admin.updateAdvisorStatus"];
-    trace?: never;
-  };
-  "/auth/register": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/auth/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Register a new user */
+        post: operations["auth.register"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /** Register a new user */
-    post: operations["auth.register"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/auth/login": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Login user and create token */
+        post: operations["auth.login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /** Login user and create token */
-    post: operations["auth.login"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/auth/user": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/auth/user": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get authenticated user information */
+        get: operations["auth.user"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get authenticated user information */
-    get: operations["auth.user"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/auth/logout": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Logout user (revoke token) */
+        post: operations["auth.logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /** Logout user (revoke token) */
-    post: operations["auth.logout"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/clients": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/clients": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["clients.index"];
+        put?: never;
+        post: operations["clients.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Display a listing of clients based on user role */
-    get: operations["clients.index"];
-    put?: never;
-    /** Store a newly created client */
-    post: operations["clients.store"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/clients/{client}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/clients/{client}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["clients.show"];
+        put: operations["clients.update"];
+        post?: never;
+        delete: operations["clients.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Display the specified client */
-    get: operations["clients.show"];
-    /** Update the specified client */
-    put: operations["clients.update"];
-    post?: never;
-    /** Remove the specified client (soft delete by marking as inactive) */
-    delete: operations["clients.destroy"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/files/{fileId}/download": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/files/{fileId}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download a file with security checks */
+        get: operations["file.download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Download a file with security checks */
-    get: operations["file.download"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/admin/pension-settings": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/admin/pension-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["pensionSettings.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get all pension settings grouped by category */
-    get: operations["pensionSettings.index"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/admin/pension-settings/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/admin/pension-settings/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["pensionSettings.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    /** Update a specific pension setting */
-    put: operations["pensionSettings.update"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/admin/pension-settings/bulk-update": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/admin/pension-settings/bulk-update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["pensionSettings.bulkUpdate"];
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Bulk update multiple settings */
-    patch: operations["pensionSettings.bulkUpdate"];
-    trace?: never;
-  };
-  "/admin/pension-settings/reset-defaults": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/admin/pension-settings/reset-defaults": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["pensionSettings.resetToDefaults"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /** Reset settings to default values */
-    post: operations["pensionSettings.resetToDefaults"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/pension-parameters": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/pension-parameters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Advisor-readable: chart components need tax brackets / insurance rates to render */
+        get: operations["pensionSettings.getParameters"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get current pension calculation parameters for frontend */
-    get: operations["pensionSettings.getParameters"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/clients/{clientId}/rentenchecks": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/clients/{clientId}/rentenchecks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["rentencheck.index"];
+        put?: never;
+        post: operations["rentencheck.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get all rentenchecks for a specific client */
-    get: operations["rentencheck.index"];
-    put?: never;
-    /** Create a new rentencheck for a client */
-    post: operations["rentencheck.store"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/clients/{clientId}/rentenchecks/{rentencheckId}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/clients/{clientId}/rentenchecks/{rentencheckId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["rentencheck.show"];
+        put?: never;
+        post?: never;
+        delete: operations["rentencheck.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get a specific rentencheck with comprehensive contract data */
-    get: operations["rentencheck.show"];
-    put?: never;
-    post?: never;
-    /** Delete a rentencheck */
-    delete: operations["rentencheck.destroy"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/clients/{clientId}/rentenchecks/{rentencheckId}/calculation": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/clients/{clientId}/rentenchecks/{rentencheckId}/calculation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["rentencheck.getPensionCalculation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get calculated pension data for visualization using dynamic admin parameters */
-    get: operations["rentencheck.getPensionCalculation"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/clients/{clientId}/rentenchecks/{rentencheckId}/step/{step}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/clients/{clientId}/rentenchecks/{rentencheckId}/step/{step}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["rentencheck.updateStep"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    /** Update step data for a rentencheck with comprehensive contract handling */
-    put: operations["rentencheck.updateStep"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/clients/{clientId}/rentenchecks/{rentencheckId}/step/{step}/complete": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/clients/{clientId}/rentenchecks/{rentencheckId}/step/{step}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["rentencheck.markStepCompleted"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    /** Manually mark a step as completed */
-    put: operations["rentencheck.markStepCompleted"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/clients/{clientId}/rentenchecks/{rentencheckId}/complete": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/clients/{clientId}/rentenchecks/{rentencheckId}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["rentencheck.complete"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    /** Complete a rentencheck */
-    put: operations["rentencheck.complete"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/clients/{clientId}/rentenchecks/{rentencheckId}/pdf": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/clients/{clientId}/rentenchecks/{rentencheckId}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["rentencheck.downloadPdf"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Generate and download PDF for a rentencheck */
-    get: operations["rentencheck.downloadPdf"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: {
-    /** AdvisorDetailResource */
-    AdvisorDetailResource: {
-      advisor: {
-        id: string;
-        name: string;
-        first_name: string;
-        last_name: string;
-        email: string;
-        phone: string;
-        company: string;
-        status: string;
-        created_at: string;
-      };
-      statistics: string;
-      monthly_stats: string;
-      recent_clients: string;
-    };
-    /**
-     * BulkUpdatePensionSettingsRequest
-     * @description Bulk Update Pension Settings Request
-     *
-     *     Handles validation for bulk updating multiple pension settings
-     */
-    BulkUpdatePensionSettingsRequest: {
-      settings: {
-        id: number;
-        value: number;
-      }[];
-    };
-    /** ClientResource */
-    ClientResource: {
-      id: string;
-      first_name: string;
-      last_name: string;
-      full_name: string;
-      email: string;
-      phone: string;
-      street: string;
-      city: string;
-      postal_code: string;
-      birth_date: string;
-      age: string;
-      formatted_address: string;
-      is_active: string;
-      notes: string;
-      created_at: string;
-      updated_at: string;
-    };
-    /** CreateAdvisorRequest */
-    CreateAdvisorRequest: {
-      first_name: string;
-      last_name: string;
-      /** Format: email */
-      email: string;
-      phone?: string | null;
-      company?: string | null;
-      password: string;
-      password_confirmation: string;
-    };
-    /** DashboardOverviewResource */
-    DashboardOverviewResource: {
-      overview: {
-        total_advisors: string;
-        active_advisors: string;
-        blocked_advisors: string;
-        total_clients: string;
-        total_rentenchecks: string;
-        completed_rentenchecks: string;
-        completion_rate: string;
-      };
-      recent_activity: string;
-    };
-    /** File */
-    File: string[];
-    /** LoginRequest */
-    LoginRequest: {
-      /** Format: email */
-      email: string;
-      password: string;
-      remember_me?: boolean | null;
-    };
-    /** RegisterRequest */
-    RegisterRequest: {
-      first_name: string;
-      last_name: string;
-      /** Format: email */
-      email: string;
-      phone?: string | null;
-      company?: string | null;
-      /** @enum {string} */
-      plan: "free" | "basic" | "premium" | "vip";
-      password: string;
-      password_confirmation: string;
-      accept_terms: boolean;
-      accept_privacy: boolean;
-      newsletter?: boolean | null;
-    };
-    /** Rentencheck */
-    Rentencheck: string[];
-    /** StoreClientRequest */
-    StoreClientRequest: {
-      first_name: string;
-      last_name: string;
-      /** Format: email */
-      email: string;
-      phone?: string | null;
-      street?: string | null;
-      city?: string | null;
-      postal_code?: string | null;
-      /** Format: date-time */
-      birth_date?: string | null;
-      notes?: string | null;
-    };
-    /** StoreRentencheckRequest */
-    StoreRentencheckRequest: {
-      title?: string | null;
-      notes?: string | null;
-    };
-    /** UpdateAdvisorStatusRequest */
-    UpdateAdvisorStatusRequest: {
-      /** @enum {string} */
-      status: "active" | "blocked";
-    };
-    /**
-     * UpdatePensionSettingRequest
-     * @description Update Pension Setting Request
-     *
-     *     Handles validation for updating individual pension settings
-     */
-    UpdatePensionSettingRequest: {
-      value: number;
-      description?: string;
-      description_de?: string;
-    };
-    /** User */
-    User: string[];
-    /** UserResource */
-    UserResource: {
-      id: string;
-      name: string;
-      first_name: string;
-      last_name: string;
-      full_name: string;
-      email: string;
-      phone: string;
-      company: string;
-      plan: string;
-      status: string;
-      newsletter: string;
-      roles?: unknown[];
-      is_admin: boolean;
-      is_advisor: boolean;
-      is_active: boolean;
-      is_blocked: boolean;
-      email_verified_at: string;
-      created_at: string;
-      updated_at: string;
-    };
-  };
-  responses: {
-    /** @description Validation error */
-    ValidationException: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        "application/json": {
-          /** @description Errors overview. */
-          message: string;
-          /** @description A detailed description of each field that failed validation. */
-          errors: {
-            [key: string]: string[];
-          };
+    schemas: {
+        /** AdvisorDetailResource */
+        AdvisorDetailResource: {
+            advisor: {
+                id: string;
+                name: string;
+                first_name: string;
+                last_name: string;
+                email: string;
+                phone: string;
+                company: string;
+                status: string;
+                created_at: string;
+            };
+            statistics: string;
+            monthly_stats: string;
+            recent_clients: string;
         };
-      };
-    };
-    /** @description Unauthenticated */
-    AuthenticationException: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        "application/json": {
-          /** @description Error overview. */
-          message: string;
+        /** AdvisorResource */
+        AdvisorResource: {
+            id: string;
+            name: string;
+            first_name: string;
+            last_name: string;
+            email: string;
+            phone: string;
+            company: string;
+            status: string;
+            created_at: string;
+            last_login: string;
+            /** @description Placeholder - track separately if needed */
+            statistics: {
+                total_clients: string;
+                total_rentenchecks: string;
+                completed_rentenchecks: string;
+                completion_rate: number;
+            };
         };
-      };
-    };
-    /** @description Authorization error */
-    AuthorizationException: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        "application/json": {
-          /** @description Error overview. */
-          message: string;
+        /**
+         * BulkUpdatePensionSettingsRequest
+         * @description Bulk Update Pension Settings Request
+         *
+         *     Handles validation for bulk updating multiple pension settings
+         */
+        BulkUpdatePensionSettingsRequest: {
+            settings: {
+                id: number;
+                value: number;
+            }[];
         };
-      };
-    };
-    /** @description Not found */
-    ModelNotFoundException: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        "application/json": {
-          /** @description Error overview. */
-          message: string;
+        /** ClientResource */
+        ClientResource: {
+            id: string;
+            first_name: string;
+            last_name: string;
+            full_name: string;
+            email: string;
+            phone: string;
+            street: string;
+            city: string;
+            postal_code: string;
+            birth_date: string;
+            age: string;
+            formatted_address: string;
+            is_active: string;
+            notes: string;
+            created_at: string;
+            updated_at: string;
         };
-      };
+        /** CreateAdvisorRequest */
+        CreateAdvisorRequest: {
+            first_name: string;
+            last_name: string;
+            /** Format: email */
+            email: string;
+            phone?: string | null;
+            company?: string | null;
+            password: string;
+            password_confirmation: string;
+        };
+        /** DashboardOverviewResource */
+        DashboardOverviewResource: {
+            overview: {
+                total_advisors: string;
+                active_advisors: string;
+                blocked_advisors: string;
+                total_clients: string;
+                total_rentenchecks: string;
+                completed_rentenchecks: string;
+                completion_rate: string;
+            };
+            recent_activity: string;
+        };
+        /** File */
+        File: string[];
+        /** LoginRequest */
+        LoginRequest: {
+            /** Format: email */
+            email: string;
+            password: string;
+            remember_me?: boolean | null;
+        };
+        /** RegisterRequest */
+        RegisterRequest: {
+            first_name: string;
+            last_name: string;
+            /** Format: email */
+            email: string;
+            phone?: string | null;
+            company?: string | null;
+            /** @enum {string} */
+            plan: "free" | "basic" | "premium" | "vip";
+            password: string;
+            password_confirmation: string;
+            accept_terms: boolean;
+            accept_privacy: boolean;
+            newsletter?: boolean | null;
+        };
+        /** StoreClientRequest */
+        StoreClientRequest: {
+            first_name: string;
+            last_name: string;
+            /** Format: email */
+            email: string;
+            phone?: string | null;
+            street?: string | null;
+            city?: string | null;
+            postal_code?: string | null;
+            /** Format: date-time */
+            birth_date?: string | null;
+            notes?: string | null;
+        };
+        /** StoreRentencheckRequest */
+        StoreRentencheckRequest: {
+            title?: string | null;
+            notes?: string | null;
+        };
+        /** UpdateAdvisorStatusRequest */
+        UpdateAdvisorStatusRequest: {
+            /** @enum {string} */
+            status: "active" | "blocked";
+        };
+        /**
+         * UpdatePensionSettingRequest
+         * @description Update Pension Setting Request
+         *
+         *     Handles validation for updating individual pension settings
+         */
+        UpdatePensionSettingRequest: {
+            value: number;
+            description?: string;
+            description_de?: string;
+        };
+        /** User */
+        User: string[];
+        /** UserResource */
+        UserResource: {
+            id: string;
+            name: string;
+            first_name: string;
+            last_name: string;
+            full_name: string;
+            email: string;
+            phone: string;
+            company: string;
+            plan: string;
+            status: string;
+            newsletter: string;
+            roles?: unknown[];
+            is_admin: boolean;
+            is_advisor: boolean;
+            is_active: boolean;
+            is_blocked: boolean;
+            email_verified_at: string;
+            created_at: string;
+            updated_at: string;
+        };
     };
-  };
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: {
+        /** @description Validation error */
+        ValidationException: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @description Errors overview. */
+                    message: string;
+                    /** @description A detailed description of each field that failed validation. */
+                    errors: {
+                        [key: string]: string[];
+                    };
+                };
+            };
+        };
+        /** @description Unauthenticated */
+        AuthenticationException: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @description Error overview. */
+                    message: string;
+                };
+            };
+        };
+        /** @description Authorization error */
+        AuthorizationException: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @description Error overview. */
+                    message: string;
+                };
+            };
+        };
+        /** @description Not found */
+        ModelNotFoundException: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @description Error overview. */
+                    message: string;
+                };
+            };
+        };
+    };
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  "admin.dashboard": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description `DashboardOverviewResource` */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            data: components["schemas"]["DashboardOverviewResource"];
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Fehler beim Laden des Dashboards.";
-            error: string | "Ein unerwarteter Fehler ist aufgetreten.";
-          };
-        };
-      };
-    };
-  };
-  "admin.getAdvisors": {
-    parameters: {
-      query?: {
-        status?: "all" | "active" | "blocked";
-        search?: string;
-        sort_by?: "created_at" | "name" | "email" | "status";
-        sort_order?: "asc" | "desc";
-        per_page?: number;
-        page?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Array of items */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            data: string[];
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      403: components["responses"]["AuthorizationException"];
-      422: components["responses"]["ValidationException"];
-    };
-  };
-  "admin.createAdvisor": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateAdvisorRequest"];
-      };
-    };
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Berater wurde erfolgreich erstellt.";
-            advisor: {
-              id: string;
-              name: string;
-              email: string;
-              status: string;
-            };
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      403: components["responses"]["AuthorizationException"];
-      422: components["responses"]["ValidationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Fehler beim Erstellen des Beraters.";
-            error: string | "Ein unerwarteter Fehler ist aufgetreten.";
-          };
-        };
-      };
-    };
-  };
-  "admin.getAdvisorDetails": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID of advisor to get details for */
-        advisorId: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description `AdvisorDetailResource` */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            data: components["schemas"]["AdvisorDetailResource"];
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Fehler beim Laden der Berater-Details.";
-            error: string | "Ein unerwarteter Fehler ist aufgetreten.";
-          };
-        };
-      };
-    };
-  };
-  "admin.deleteAdvisor": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID of advisor to delete */
-        advisorId: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Berater wurde erfolgreich gelöscht.";
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            message: string;
-            /** @constant */
-            error: "Advisor has clients";
-          };
-        };
-      };
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Fehler beim Löschen des Beraters.";
-            error: string | "Ein unerwarteter Fehler ist aufgetreten.";
-          };
-        };
-      };
-    };
-  };
-  "admin.updateAdvisorStatus": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID of advisor to update */
-        advisorId: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateAdvisorStatusRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            message: string;
-            advisor: {
-              id: string;
-              name: string;
-              email: string;
-              status: string;
-            };
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      403: components["responses"]["AuthorizationException"];
-      422: components["responses"]["ValidationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Fehler beim Aktualisieren des Berater-Status.";
-            error: string | "Ein unerwarteter Fehler ist aufgetreten.";
-          };
-        };
-      };
-    };
-  };
-  "auth.register": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["RegisterRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            user: components["schemas"]["UserResource"];
-            token: string;
-            /** @constant */
-            message: "Registrierung erfolgreich";
-          };
-        };
-      };
-      422: components["responses"]["ValidationException"];
-    };
-  };
-  "auth.login": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["LoginRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            user: components["schemas"]["UserResource"];
-            token: string;
-            /** @constant */
-            message: "Anmeldung erfolgreich";
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      422: components["responses"]["ValidationException"];
-    };
-  };
-  "auth.user": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            user: components["schemas"]["UserResource"];
-            permissions: unknown[];
-            /** @constant */
-            message: "Benutzerinformationen erfolgreich abgerufen";
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-    };
-  };
-  "auth.logout": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Erfolgreich abgemeldet";
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-    };
-  };
-  "clients.index": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Paginated set of `ClientResource` */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            data: components["schemas"]["ClientResource"][];
-            links: {
-              first: string | null;
-              last: string | null;
-              prev: string | null;
-              next: string | null;
-            };
-            meta: {
-              current_page: number;
-              from: number | null;
-              last_page: number;
-              /** @description Generated paginator links. */
-              links: {
-                url: string | null;
-                label: string;
-                active: boolean;
-              }[];
-              /** @description Base path for paginator generated URLs. */
-              path: string | null;
-              /** @description Number of items shown per page. */
-              per_page: number;
-              /** @description Number of the last item in the slice. */
-              to: number | null;
-              /** @description Total number of items being paginated. */
-              total: number;
-            };
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-    };
-  };
-  "clients.store": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["StoreClientRequest"];
-      };
-    };
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            client: components["schemas"]["ClientResource"];
-            /** @constant */
-            message: "Mandant erfolgreich angelegt";
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      422: components["responses"]["ValidationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Ein Fehler ist beim Anlegen des Mandanten aufgetreten";
-            /** @constant */
-            error: "Interner Serverfehler";
-          };
-        };
-      };
-    };
-  };
-  "clients.show": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description The client ID */
-        client: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            client: components["schemas"]["ClientResource"];
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      404: components["responses"]["ModelNotFoundException"];
-    };
-  };
-  "clients.update": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description The client ID */
-        client: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["StoreClientRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            client: components["schemas"]["ClientResource"];
-            /** @constant */
-            message: "Mandant erfolgreich aktualisiert";
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      404: components["responses"]["ModelNotFoundException"];
-      422: components["responses"]["ValidationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Ein Fehler ist beim Aktualisieren des Mandanten aufgetreten";
-            /** @constant */
-            error: "Interner Serverfehler";
-          };
-        };
-      };
-    };
-  };
-  "clients.destroy": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description The client ID */
-        client: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Mandant erfolgreich deaktiviert";
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      404: components["responses"]["ModelNotFoundException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Ein Fehler ist beim Deaktivieren des Mandanten aufgetreten";
-            /** @constant */
-            error: "Interner Serverfehler";
-          };
-        };
-      };
-    };
-  };
-  "file.download": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        fileId: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": string;
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Zugriff verweigert";
-          };
-        };
-      };
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Datei nicht gefunden";
-          };
-        };
-      };
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Fehler beim Herunterladen der Datei";
-          };
-        };
-      };
-    };
-  };
-  "pensionSettings.index": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": string;
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      403: components["responses"]["AuthorizationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            success: boolean;
-            /** @constant */
-            message: "Fehler beim Verarbeiten der Anfrage. Bitte versuchen Sie es erneut.";
-          };
-        };
-      };
-    };
-  };
-  "pensionSettings.update": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdatePensionSettingRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": string;
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      403: components["responses"]["AuthorizationException"];
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            success: boolean;
-            /** @constant */
-            message: "Einstellung nicht gefunden.";
-          };
-        };
-      };
-      422: components["responses"]["ValidationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            success: boolean;
-            /** @constant */
-            message: "Fehler beim Verarbeiten der Anfrage. Bitte versuchen Sie es erneut.";
-          };
-        };
-      };
-    };
-  };
-  "pensionSettings.bulkUpdate": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["BulkUpdatePensionSettingsRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": string;
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      403: components["responses"]["AuthorizationException"];
-      422: components["responses"]["ValidationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            success: boolean;
-            /** @constant */
-            message: "Fehler beim Verarbeiten der Anfrage. Bitte versuchen Sie es erneut.";
-          };
-        };
-      };
-    };
-  };
-  "pensionSettings.resetToDefaults": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": string;
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      403: components["responses"]["AuthorizationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            success: boolean;
-            /** @constant */
-            message: "Fehler beim Verarbeiten der Anfrage. Bitte versuchen Sie es erneut.";
-          };
-        };
-      };
-    };
-  };
-  "pensionSettings.getParameters": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": string;
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            success: boolean;
-            /** @constant */
-            message: "Fehler beim Verarbeiten der Anfrage. Bitte versuchen Sie es erneut.";
-          };
-        };
-      };
-    };
-  };
-  "rentencheck.index": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        clientId: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            data: components["schemas"]["Rentencheck"][];
-            client: string;
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Fehler beim Laden der Rentenchecks";
-          };
-        };
-      };
-    };
-  };
-  "rentencheck.store": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        clientId: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: {
-      content: {
-        "application/json": components["schemas"]["StoreRentencheckRequest"];
-      };
-    };
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            rentencheck: components["schemas"]["Rentencheck"];
-            /** @constant */
-            message: "Rentencheck erfolgreich erstellt";
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      422: components["responses"]["ValidationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Fehler beim Erstellen des Rentenchecks";
-          };
-        };
-      };
-    };
-  };
-  "rentencheck.show": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        clientId: number;
-        rentencheckId: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            rentencheck: string;
-            contracts: {
-              payoutContracts: unknown[];
-              pensionContracts: unknown[];
-              additionalIncome: unknown[];
-            };
-            /** @description Assume 10 years of additional income */
-            pension_totals: {
-              payout_total: number;
-              pension_monthly_total: number;
-              additional_income_annual: number;
-              total_estimated_value: string;
-            };
-            client: string;
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Fehler beim Laden des Rentenchecks";
-          };
-        };
-      };
-    };
-  };
-  "rentencheck.destroy": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        clientId: number;
-        rentencheckId: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Rentencheck erfolgreich gelöscht";
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Fehler beim Löschen des Rentenchecks";
-          };
-        };
-      };
-    };
-  };
-  "rentencheck.getPensionCalculation": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        clientId: number;
-        rentencheckId: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            pension_data: {
-              currentAge: number;
-              inflationRate: number;
-              retirementAge: number;
-              /** @constant */
-              lifeExpectancy: 85;
-              desiredPensionToday: number;
-              desiredPensionRetirement: number;
-              desiredPensionLifeExpectancy: number;
-              legalPensionToday: number;
-              legalPensionRetirement: number;
-              statutoryPensionGross: number;
-              statutoryPensionAfterInsurance: number;
-              statutoryPensionPurchasingPower: number;
-              privatePensionToday: number;
-              privatePensionRetirement: number;
-              bavRiesterToday: number;
-              bavRiesterRetirement: number;
-              parameters_used: {
-                economic_assumptions: {
-                  inflation_rate: number;
-                  pension_increase_rate: number;
-                  investment_return_rate: number;
+    "admin.dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `DashboardOverviewResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
                 };
-                social_insurance: {
-                  health_insurance_rate: number;
-                  additional_health_insurance_rate: number;
-                  care_insurance_rate: number;
-                  total_insurance_rate: string;
-                  health_insurance_exemption_bav: number;
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DashboardOverviewResource"];
+                    };
                 };
-                tax_system: {
-                  rates: {
-                    stufe_1: number;
-                    stufe_2: number;
-                    stufe_3: number;
-                    stufe_4: number;
-                    stufe_5: number;
-                  };
-                  thresholds: {
-                    threshold_1: number;
-                    threshold_2: number;
-                    threshold_3: number;
-                    threshold_4: number;
-                  };
-                  solidarity_surcharge_rate: number;
-                  solidarity_surcharge_threshold: number;
-                };
-                regional_taxes: {
-                  church_tax_bavaria_bw: number;
-                  church_tax_other_states: number;
-                };
-                demographics: {
-                  retirement_age: number;
-                  life_expectancy: number;
-                };
-              };
             };
-            /** @description Assume 10 years of additional income */
-            pension_totals: {
-              payout_total: number;
-              pension_monthly_total: number;
-              additional_income_annual: number;
-              total_estimated_value: string;
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "admin.getAdvisors": {
+        parameters: {
+            query?: {
+                status?: "all" | "active" | "blocked";
+                search?: string;
+                sort_by?: "created_at" | "name" | "email" | "status";
+                sort_order?: "asc" | "desc";
+                per_page?: number;
+                page?: number;
             };
-            client: string;
-            /** @constant */
-            message: "Rentenberechnung erfolgreich durchgeführt";
-          };
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      401: components["responses"]["AuthenticationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `AdvisorResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AdvisorResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
         };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Fehler bei der Rentenberechnung";
-          };
-        };
-      };
     };
-  };
-  "rentencheck.updateStep": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        clientId: number;
-        rentencheckId: number;
-        step: number;
-      };
-      cookie?: never;
+    "admin.createAdvisor": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAdvisorRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            advisor: {
+                                id: string;
+                                name: string;
+                                email: string;
+                                status: string;
+                            };
+                        };
+                        /** @constant */
+                        message: "Berater wurde erfolgreich erstellt.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
     };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    "admin.getAdvisorDetails": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                advisorId: number;
+            };
+            cookie?: never;
         };
-        content: {
-          "application/json":
-            | {
-                rentencheck: components["schemas"]["Rentencheck"];
-                message: string;
-              }
-            | {
-                rentencheck: components["schemas"]["Rentencheck"];
-                contracts_created: number;
-                message: string;
-                contract_warnings: unknown[];
-              };
+        requestBody?: never;
+        responses: {
+            /** @description `AdvisorDetailResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AdvisorDetailResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
         };
-      };
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            message: string;
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      422: components["responses"]["ValidationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json":
-            | {
-                /** @constant */
-                message: "Fehler beim Speichern des Schritts";
-              }
-            | {
-                message: string;
-              };
-        };
-      };
     };
-  };
-  "rentencheck.markStepCompleted": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        clientId: number;
-        rentencheckId: number;
-        step: number;
-      };
-      cookie?: never;
+    "admin.deleteAdvisor": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                advisorId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: number;
+                        };
+                        /** @constant */
+                        message: "Berater wurde erfolgreich gelöscht.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
     };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    "admin.updateAdvisorStatus": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                advisorId: number;
+            };
+            cookie?: never;
         };
-        content: {
-          "application/json": {
-            rentencheck: components["schemas"]["Rentencheck"];
-            message: string;
-          };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAdvisorStatusRequest"];
+            };
         };
-      };
-      400: {
-        headers: {
-          [name: string]: unknown;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            advisor: {
+                                id: string;
+                                name: string;
+                                email: string;
+                                status: string;
+                            };
+                        };
+                        message: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
         };
-        content: {
-          "application/json": {
-            message: string;
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Fehler beim Markieren des Schritts";
-          };
-        };
-      };
     };
-  };
-  "rentencheck.complete": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        clientId: number;
-        rentencheckId: number;
-      };
-      cookie?: never;
+    "auth.register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        user: components["schemas"]["UserResource"];
+                        token: string;
+                        /** @constant */
+                        message: "Registrierung erfolgreich";
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
     };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    "auth.login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": {
-            rentencheck: components["schemas"]["Rentencheck"] | null;
-            pdf_file: components["schemas"]["File"];
-            /** @constant */
-            message: "Rentencheck erfolgreich abgeschlossen und PDF erstellt";
-          };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginRequest"];
+            };
         };
-      };
-      400: {
-        headers: {
-          [name: string]: unknown;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        user: components["schemas"]["UserResource"];
+                        token: string;
+                        /** @constant */
+                        message: "Anmeldung erfolgreich";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
         };
-        content: {
-          "application/json": {
-            message: string;
-          };
-        };
-      };
-      401: components["responses"]["AuthenticationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Fehler beim Abschließen des Rentenchecks";
-          };
-        };
-      };
     };
-  };
-  "rentencheck.downloadPdf": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        clientId: number;
-        rentencheckId: number;
-      };
-      cookie?: never;
+    "auth.user": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        user: components["schemas"]["UserResource"];
+                        permissions: unknown[];
+                        /** @constant */
+                        message: "Benutzerinformationen erfolgreich abgerufen";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
     };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    "auth.logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": string;
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        message: "Erfolgreich abgemeldet";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
         };
-      };
-      401: components["responses"]["AuthenticationException"];
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @constant */
-            message: "Fehler beim Erstellen des PDFs";
-          };
-        };
-      };
     };
-  };
+    "clients.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `ClientResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ClientResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "clients.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreClientRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ClientResource"];
+                        /** @constant */
+                        message: "Mandant erfolgreich angelegt";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "clients.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The client ID */
+                client: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ClientResource"];
+                        message: null;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "clients.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The client ID */
+                client: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreClientRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ClientResource"];
+                        /** @constant */
+                        message: "Mandant erfolgreich aktualisiert";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "clients.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The client ID */
+                client: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                        };
+                        /** @constant */
+                        message: "Mandant erfolgreich deaktiviert";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "file.download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fileId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        message: "Zugriff verweigert";
+                    };
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        message: "Datei nicht gefunden";
+                    };
+                };
+            };
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        message: "Fehler beim Herunterladen der Datei";
+                    };
+                };
+            };
+        };
+    };
+    "pensionSettings.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "pensionSettings.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePensionSettingRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "pensionSettings.bulkUpdate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkUpdatePensionSettingsRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "pensionSettings.resetToDefaults": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "pensionSettings.getParameters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "rentencheck.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                clientId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            data: unknown[];
+                            client: string;
+                        };
+                        message: null;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "rentencheck.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                clientId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["StoreRentencheckRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            rentencheck: string[];
+                        };
+                        /** @constant */
+                        message: "Rentencheck erfolgreich erstellt";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "rentencheck.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                clientId: number;
+                rentencheckId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            rentencheck: string;
+                            contracts: {
+                                payoutContracts: unknown[];
+                                pensionContracts: unknown[];
+                                additionalIncome: unknown[];
+                            };
+                            /** @description Assume 10 years of additional income */
+                            pension_totals: {
+                                payout_total: number;
+                                pension_monthly_total: number;
+                                additional_income_annual: number;
+                                total_estimated_value: string;
+                            };
+                            client: string;
+                        };
+                        message: null;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "rentencheck.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                clientId: number;
+                rentencheckId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: number;
+                        };
+                        /** @constant */
+                        message: "Rentencheck erfolgreich gelöscht";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "rentencheck.getPensionCalculation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                clientId: number;
+                rentencheckId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            pension_data: {
+                                currentAge: number;
+                                inflationRate: number;
+                                retirementAge: number;
+                                /** @constant */
+                                lifeExpectancy: 85;
+                                desiredPensionToday: number;
+                                desiredPensionRetirement: number;
+                                desiredPensionLifeExpectancy: number;
+                                legalPensionToday: number;
+                                legalPensionRetirement: number;
+                                statutoryPensionGross: number;
+                                statutoryPensionAfterInsurance: number;
+                                statutoryPensionPurchasingPower: number;
+                                privatePensionToday: number;
+                                privatePensionRetirement: number;
+                                bavRiesterToday: number;
+                                bavRiesterRetirement: number;
+                                parameters_used: {
+                                    economic_assumptions: {
+                                        inflation_rate: number;
+                                        pension_increase_rate: number;
+                                        investment_return_rate: number;
+                                    };
+                                    social_insurance: {
+                                        health_insurance_rate: number;
+                                        additional_health_insurance_rate: number;
+                                        care_insurance_rate: number;
+                                        total_insurance_rate: string;
+                                        health_insurance_exemption_bav: number;
+                                    };
+                                    tax_system: {
+                                        rates: {
+                                            stufe_1: number;
+                                            stufe_2: number;
+                                            stufe_3: number;
+                                            stufe_4: number;
+                                            stufe_5: number;
+                                        };
+                                        thresholds: {
+                                            threshold_1: number;
+                                            threshold_2: number;
+                                            threshold_3: number;
+                                            threshold_4: number;
+                                        };
+                                        solidarity_surcharge_rate: number;
+                                        solidarity_surcharge_threshold: number;
+                                    };
+                                    regional_taxes: {
+                                        church_tax_bavaria_bw: number;
+                                        church_tax_other_states: number;
+                                    };
+                                    demographics: {
+                                        retirement_age: number;
+                                        life_expectancy: number;
+                                    };
+                                };
+                            };
+                            /** @description Assume 10 years of additional income */
+                            pension_totals: {
+                                payout_total: number;
+                                pension_monthly_total: number;
+                                additional_income_annual: number;
+                                total_estimated_value: string;
+                            };
+                            client: string;
+                        };
+                        /** @constant */
+                        message: "Rentenberechnung erfolgreich durchgeführt";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "rentencheck.updateStep": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                clientId: number;
+                rentencheckId: number;
+                step: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            rentencheck: string[];
+                        };
+                        message: string;
+                    } | {
+                        data: {
+                            rentencheck: string[];
+                            contracts_created: number;
+                            contract_warnings: unknown[];
+                        };
+                        message: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "rentencheck.markStepCompleted": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                clientId: number;
+                rentencheckId: number;
+                step: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            rentencheck: string[];
+                        };
+                        message: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "rentencheck.complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                clientId: number;
+                rentencheckId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            rentencheck: string[];
+                            pdf_file: components["schemas"]["File"];
+                        };
+                        /** @constant */
+                        message: "Rentencheck erfolgreich abgeschlossen und PDF erstellt";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "rentencheck.downloadPdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                clientId: number;
+                rentencheckId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
 }
