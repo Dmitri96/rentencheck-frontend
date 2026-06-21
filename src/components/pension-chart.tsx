@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,8 +14,8 @@ import { Filler } from "chart.js";
 import annotationPlugin from "chartjs-plugin-annotation";
 import type { Rentencheck } from "@/lib/services/rentencheck-service";
 import { DisabilityIncomeDiagram } from "@/components/disability-income-diagram";
-import { RentencheckService } from "@/lib/services/rentencheck-service";
 import { PensionResultsTable } from "@/components/pension-results-table";
+import { usePensionCalculation, type PensionData } from "@/features/pension";
 
 ChartJS.register(
   CategoryScale,
@@ -34,96 +34,12 @@ interface PensionChartProps {
   desiredPension: number;
 }
 
-interface PensionData {
-  currentAge: number;
-  retirementAge: number;
-  lifeExpectancy: number;
-  inflationRate: number;
-  statutoryPensionGross: number;
-  statutoryPensionAfterInsurance: number;
-  privatePensionToday: number;
-  bavRiesterToday: number;
-  currentPensionGap: number;
-  parameters: {
-    economic_assumptions: {
-      inflation_rate: number;
-      investment_return_rate: number;
-      pension_increase_rate?: number;
-    };
-    social_insurance: {
-      health_insurance_rate: number;
-      care_insurance_rate: number;
-      total_insurance_rate: number;
-    };
-  };
-  isBackendCalculation: boolean;
-}
-
 const formatNumber = (value: number) => {
   return `${value.toLocaleString("de-DE", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })} €`;
 };
-
-/**
- * Hook to fetch pension calculation data from backend using dynamic admin parameters
- */
-function usePensionCalculation(clientId?: number, rentencheckId?: number, desiredPension?: number) {
-  const [pensionData, setPensionData] = useState<PensionData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!clientId || !rentencheckId || !desiredPension) return;
-
-    const fetchCalculation = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await RentencheckService.getPensionCalculation(clientId, rentencheckId);
-        const backendData = response.pension_data;
-
-        // Transform backend data to our clean interface
-        const cleanData: PensionData = {
-          currentAge: backendData.currentAge,
-          retirementAge: backendData.retirementAge,
-          lifeExpectancy: backendData.lifeExpectancy,
-          inflationRate: backendData.inflationRate,
-          statutoryPensionGross: backendData.statutoryPensionGross,
-          statutoryPensionAfterInsurance: backendData.statutoryPensionAfterInsurance,
-          privatePensionToday: backendData.privatePensionToday,
-          bavRiesterToday: backendData.bavRiesterToday,
-          currentPensionGap: Math.max(
-            0,
-            desiredPension -
-              (backendData.statutoryPensionAfterInsurance +
-                backendData.privatePensionToday +
-                backendData.bavRiesterToday),
-          ),
-          parameters: backendData.parameters_used,
-          isBackendCalculation: true,
-        };
-
-        setPensionData(cleanData);
-        console.log(
-          "✅ Using Backend Calculation with Dynamic Admin Parameters:",
-          cleanData.parameters,
-        );
-      } catch (err) {
-        console.warn("Backend calculation failed, will use fallback:", err);
-        setError(err instanceof Error ? err.message : "Unbekannter Fehler");
-        setPensionData(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCalculation();
-  }, [clientId, rentencheckId, desiredPension]);
-
-  return { pensionData, loading, error };
-}
 
 export function PensionChart({ data, desiredPension }: PensionChartProps) {
   const clientId = data.client_id;
@@ -314,6 +230,7 @@ function renderChart(pensionData: PensionData, desiredPension: number, rootData?
   // Custom hover ruler plugin: draws a thin vertical line at the hovered x position
   const hoverLinePlugin = {
     id: "hoverLine",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     afterDatasetsDraw(chart: any) {
       const { ctx } = chart;
       const active = chart.getActiveElements?.() || [];
@@ -334,6 +251,7 @@ function renderChart(pensionData: PensionData, desiredPension: number, rootData?
   };
 
   // Chart options
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const options: any = {
     responsive: true,
     maintainAspectRatio: false,
@@ -361,10 +279,12 @@ function renderChart(pensionData: PensionData, desiredPension: number, rootData?
         padding: 10,
         titleFont: { weight: "600" },
         callbacks: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           title: (items: any[]) => {
             const age = items?.[0]?.label;
             return `Alter ${age}`;
           },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           afterBody: (context: any) => {
             const i = context[0].dataIndex;
             const d = series[i];
@@ -419,6 +339,7 @@ function renderChart(pensionData: PensionData, desiredPension: number, rootData?
       y: {
         title: { display: true, text: "Monatlicher Betrag (€)" },
         ticks: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           callback: (value: any) => "€" + Number(value).toLocaleString(),
         },
       },

@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ApiService } from "@/lib/api-service";
+import { get, set } from "@/lib/utils/object-access";
 
 type SettingRow = {
   id: number;
@@ -53,17 +54,6 @@ type PensionParameters = {
     life_expectancy: number;
   };
 };
-
-function get(obj: any, path: string): any {
-  return path.split(".").reduce((acc, key) => (acc ? acc[key] : undefined), obj);
-}
-
-function set(obj: any, path: string, value: any) {
-  const keys = path.split(".");
-  const last = keys.pop() as string;
-  const parent = keys.reduce((acc: any, key: string) => (acc[key] ||= {}), obj);
-  parent[last] = value;
-}
 
 export function PensionSettingsPanel() {
   const [loading, setLoading] = useState(true);
@@ -138,9 +128,11 @@ export function PensionSettingsPanel() {
         "demographics",
       ];
       categories.forEach((cat) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const list = (settingsRows as any)[cat] as SettingRow[] | undefined;
         if (!Array.isArray(list)) return;
         list.forEach((row) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const path = rowToPath(cat as any, row.key);
           if (!path) return;
           const before = get(parameters, path);
