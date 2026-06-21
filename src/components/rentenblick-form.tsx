@@ -1,48 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import {
-  ChevronLeft,
-  ChevronRight,
-  CheckCircle,
-  Lock,
-  Edit3,
-  BarChart3,
-  FileText,
-} from "lucide-react";
+import { BarChart3, CheckCircle, ChevronLeft, ChevronRight, Edit3, Lock } from "lucide-react";
 import { PersonalFinancialStep } from "./form-steps/personal-financial-step";
 import { ExpectationsStep } from "./form-steps/expectations-step";
 import { ContractOverviewStep } from "./form-steps/contract-overview-step";
 import { ImportantAspectsStep } from "./form-steps/important-aspects-step";
 import { ConclusionStep } from "./form-steps/conclusion-step";
-import { PensionResultsOverview } from "./pension-results-overview";
-import { toast } from "sonner";
-import ApiService from "@/lib/api-service";
-
-// Narrow type for the admin "current_parameters" response used for mapping defaults
-type PensionParameters = {
-  economic_assumptions?: {
-    inflation_rate?: number;
-    pension_increase_rate?: number;
-    investment_return_rate?: number;
-  };
-  social_insurance?: {
-    health_insurance_rate?: number;
-    additional_health_insurance_rate?: number;
-    care_insurance_rate?: number;
-    total_insurance_rate?: number;
-    health_insurance_exemption_bav?: number;
-  };
-  tax_system?: unknown; // not needed for the form defaults
-  regional_taxes?: unknown; // not needed for the form defaults
-  demographics?: {
-    retirement_age?: number;
-    life_expectancy?: number;
-  };
-};
+import { RentenblickResults, useRentenblickForm } from "@/features/rentenchecks";
 
 export interface RentenblickData {
   // Step 1: Personal and Financial Information
@@ -167,14 +134,27 @@ const steps = [
 
 export interface RentenblickFormProps {
   initialData?: Partial<RentenblickData>;
-  onStepSave?: (step: number, stepData: Partial<RentenblickData>) => Promise<void>;
-  onAutoSave?: (step: number, stepData: Partial<RentenblickData>) => Promise<void>;
+  onStepSave?: (stepId: number, data: RentenblickData) => Promise<void>;
+  onAutoSave?: (data: RentenblickData) => Promise<void>;
   onComplete?: () => Promise<void>;
   onDownloadPdf?: () => Promise<void>;
   completedSteps?: number[];
   saving?: boolean;
 }
 
+/**
+ * Rentenblick wizard shell.
+ *
+ * All state + side effects live in `useRentenblickForm` (extracted from this
+ * file — used to be 630 LOC). The shell is pure rendering glue:
+ *   - stepper (top)
+ *   - one of 5 step components (middle)
+ *   - prev/next/confirm/edit/finish nav (bottom)
+ *   - <RentenblickResults> when showResults is true
+ *
+ * If you're adding a new step, change `steps` + the switch in renderStep
+ * and update RentenblickData. State plumbing is already taken care of.
+ */
 export function RentenblickForm({
   initialData = {},
   onStepSave,
@@ -184,153 +164,28 @@ export function RentenblickForm({
   completedSteps = [],
   saving = false,
 }: RentenblickFormProps) {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [confirmedSteps, setConfirmedSteps] = useState<number[]>(completedSteps);
-  const [loading, setLoading] = useState(false);
-  const [showResults, setShowResults] = useState(false);
-  const [formData, setFormData] = useState<RentenblickData>({
-    profession: "",
-    currentGrossIncome: 0,
-    hasToChurchTax: false,
-    currentNetIncome: 0,
-    maritalStatus: "Ledig",
-    assetSeparation: "Nein",
-    healthInsurance: "Gesetzlich/PflichtV",
-    healthInsuranceContribution: 0,
-    currentAge: 30,
-    retirementAge: 67,
-    pensionWishCurrentValue: 0,
-    guaranteedAmount: 0,
-    provisionDuration: 92,
-    assumedInflation: 0,
-    statutoryPensionClaims: false,
-    statutoryPensionAge: 0,
-    statutoryPensionAmount: 0,
-    disabilityPensionAmount: 0,
-    professionalProvisionWorks: false,
-    professionalProvisionAge: 0,
-    professionalProvisionAmount: 0,
-    publicServiceAdditionalProvision: false,
-    publicServiceProvisionAge: 0,
-    publicServiceProvisionAmount: 0,
-    civilServiceProvision: false,
-    civilServiceProvisionAge: 0,
-    civilServiceProvisionAmount: 0,
-    payoutContracts: [],
-    pensionContracts: [],
-    additionalIncome: [],
-    aspectRatings: {
-      availabilityDuringSavings: "",
-      flexibilityInRetirement: "",
-      capitalOrAnnuityChoice: "",
-      childBenefits: "",
-      initialPaymentOption: "",
-      taxSavingsInSavingsPhase: "",
-      lowTaxInPayoutPhase: "",
-      protectionAgainstDisability: "",
-      survivorBenefits: "",
-      deathBenefitsOutsideFamily: "",
-      protectionAgainstThirdParties: "",
-    },
-    productDependsOnEmployer: "",
-    taxLimitationsInSavingsPhase: "",
-    onlyForRetirement: "",
-    finalNotes: "",
-    date: "25.05.2025",
-    location: "",
-    ...initialData,
+  const {
+    currentStep,
+    confirmedSteps,
+    showResults,
+    formData,
+    progress,
+    isCurrentStepConfirmed,
+    updateFormData,
+    confirmStep,
+    editStep,
+    nextStep,
+    prevStep,
+    generatePDF,
+    backToForm,
+  } = useRentenblickForm({
+    initialData,
+    completedSteps,
+    onStepSave,
+    onComplete,
   });
 
-  useEffect(() => {
-    setConfirmedSteps(completedSteps);
-  }, [completedSteps]);
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const res = await ApiService.get("/pension-parameters");
-        if (!res.data?.success) throw new Error("API Fehler");
-
-        // Public parameters endpoint returns the parameters in `data`
-        const p = (res.data.data || {}) as PensionParameters;
-
-        // Map only values that actually exist in this form
-        const mappedDefaults: Partial<RentenblickData> = {
-          assumedInflation: p.economic_assumptions?.inflation_rate ?? undefined,
-          retirementAge: p.demographics?.retirement_age ?? undefined,
-          // In the admin UI, life_expectancy is the target age at end of pension
-          provisionDuration: p.demographics?.life_expectancy ?? undefined,
-          // Sum rate provided by backend for convenience
-          healthInsuranceContribution: p.social_insurance?.total_insurance_rate ?? undefined,
-          statutoryPensionAge: p.demographics?.retirement_age,
-          professionalProvisionAge: p.demographics?.retirement_age,
-          publicServiceProvisionAge: p.demographics?.retirement_age,
-          civilServiceProvisionAge: p.demographics?.retirement_age,
-        };
-
-        // Apply defaults without overwriting user-provided initialData unnecessarily
-        setFormData((prev) => ({
-          ...prev,
-          ...Object.fromEntries(Object.entries(mappedDefaults).filter(([, v]) => v !== undefined)),
-        }));
-      } catch (err) {
-        console.error(err);
-        toast.error("Fehler beim Laden der Einstellungen");
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
-  const updateFormData = (data: Partial<RentenblickData>) => {
-    setFormData((prev) => ({ ...prev, ...data }));
-  };
-
-  const confirmStep = async (stepId: number) => {
-    if (!confirmedSteps.includes(stepId)) {
-      setConfirmedSteps([...confirmedSteps, stepId]);
-
-      if (onStepSave) {
-        await onStepSave(stepId, formData);
-      }
-    }
-  };
-
-  const editStep = (stepId: number) => {
-    setConfirmedSteps(confirmedSteps.filter((id) => id !== stepId));
-  };
-
-  const nextStep = () => {
-    if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const generatePDF = async () => {
-    try {
-      await confirmStep(currentStep); // Confirm current step first
-
-      // Complete the form and show results
-      setShowResults(true);
-
-      if (onComplete) {
-        await onComplete();
-      }
-    } catch (error) {
-      console.error("Error completing form:", error);
-    }
-  };
-
-  const backToForm = () => {
-    setShowResults(false);
-  };
+  void onAutoSave; // reserved for phase-11 autosave; intentionally not wired today
 
   const renderStep = () => {
     const isConfirmed = confirmedSteps.includes(currentStep);
@@ -373,66 +228,14 @@ export function RentenblickForm({
     }
   };
 
-  const progress = (currentStep / steps.length) * 100;
-  const isCurrentStepConfirmed = confirmedSteps.includes(currentStep);
-
-  // Show results overview if form is completed
   if (showResults) {
     return (
-      <div className="space-y-6">
-        {/* Results Header */}
-        <Card className="shadow-lg border-0 bg-gradient-to-r from-green-50 to-emerald-50">
-          <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold text-green-800 flex items-center justify-center gap-3">
-              <BarChart3 className="h-8 w-8" />
-              Ihre Rentenbedarfsanalyse
-            </CardTitle>
-            <p className="text-green-700 mt-2">
-              Basierend auf Ihren Angaben haben wir eine umfassende Analyse Ihrer Altersvorsorge
-              erstellt.
-            </p>
-          </CardHeader>
-        </Card>
-
-        {/* Results Content */}
-        <PensionResultsOverview data={formData} desiredPension={formData.pensionWishCurrentValue} />
-
-        {/* Action Buttons */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button
-                onClick={backToForm}
-                variant="outline"
-                className="flex items-center gap-2 px-6 py-3"
-              >
-                <Edit3 className="h-4 w-4" />
-                Daten bearbeiten
-              </Button>
-
-              {onDownloadPdf && (
-                <Button
-                  onClick={onDownloadPdf}
-                  disabled={saving}
-                  className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-                >
-                  {saving ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Lädt...
-                    </>
-                  ) : (
-                    <>
-                      <FileText className="h-5 w-5" />
-                      PDF-Bericht herunterladen
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <RentenblickResults
+        data={formData}
+        saving={saving}
+        onEdit={backToForm}
+        onDownloadPdf={onDownloadPdf}
+      />
     );
   }
 
