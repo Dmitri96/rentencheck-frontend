@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { Rentencheck } from "@/lib/services/rentencheck-service";
+import { aggregateIncomeSources } from "../utils/income-aggregator";
 
 interface PensionResultsOverviewProps {
   data: Rentencheck;
@@ -63,109 +64,15 @@ export function PensionResultsOverview({ data, desiredPension }: PensionResultsO
   };
 
   /**
-   * Prepare income sources for table display using backend data
+   * Build display rows by running the shared aggregator then applying local
+   * tax/deduction rates specific to this overview component.
    */
-  const prepareIncomeData = () => {
-    const incomeRows: Array<{
-      source: string;
-      grossAmount: number;
-      incomeTax: number;
-      churchTax: number;
-      solidarityTax: number;
-      afterTax: number;
-      healthInsurance: number;
-      afterHealthInsurance: number;
-      purchasingPower: number;
-    }> = [];
-
-    // Extract contract data from backend structure
-    const payoutContracts = data.step_3_data?.payoutContracts || [];
-    const pensionContracts = data.step_3_data?.pensionContracts || [];
-    const additionalIncome = data.step_3_data?.additionalIncome || [];
-
-    // Statutory pension (TODO: Add these fields to backend if needed)
-    // if (data.step_3_data?.statutoryPensionClaims && data.step_3_data?.statutoryPensionAmount) {
-    //     incomeRows.push({
-    //         source: "Gesetzl. Versorgung",
-    //         ...calculateNetAmounts(Number(data.step_3_data.statutoryPensionAmount))
-    //     })
-    // }
-
-    // Professional provision works (TODO: Add these fields to backend if needed)
-    // if (data.step_3_data?.professionalProvisionWorks && data.step_3_data?.professionalProvisionAmount) {
-    //     incomeRows.push({
-    //         source: "Berufsständ. Versorgung",
-    //         ...calculateNetAmounts(Number(data.step_3_data.professionalProvisionAmount))
-    //     })
-    // }
-
-    // Payout contracts grouped by type
-    type ContractItem = { contractType?: string; guaranteedAmount?: string | number };
-    const contractsByType = (payoutContracts as ContractItem[]).reduce(
-      (acc: Record<string, ContractItem[]>, contract: ContractItem) => {
-        const type = contract.contractType || "Sonstige";
-        if (!acc[type]) acc[type] = [];
-        acc[type].push(contract);
-        return acc;
-      },
-      {} as Record<string, ContractItem[]>,
-    );
-
-    Object.entries(contractsByType).forEach(([type, contracts]) => {
-      const totalAmount = contracts.reduce((sum, contract) => {
-        // Convert lump sum to monthly pension (simplified calculation)
-        const monthlyEquivalent = (Number(contract.guaranteedAmount) || 0) / 240; // 20 years = 240 months
-        return sum + monthlyEquivalent;
-      }, 0);
-
-      if (totalAmount > 0) {
-        incomeRows.push({
-          source: type,
-          ...calculateNetAmounts(totalAmount),
-        });
-      }
-    });
-
-    // Pension contracts
-    type PensionContractItem = { contractType?: string; monthlyAmount?: string | number };
-    (pensionContracts as PensionContractItem[]).forEach(
-      (contract: PensionContractItem, index: number) => {
-        const monthlyAmount = Number(contract.monthlyAmount) || 0;
-        if (monthlyAmount > 0) {
-          incomeRows.push({
-            source: contract.contractType || `Rentenvertrag ${index + 1}`,
-            ...calculateNetAmounts(monthlyAmount),
-          });
-        }
-      },
-    );
-
-    // Additional income
-    type AdditionalIncomeItem = { amount?: string | number; frequency?: string; type?: string };
-    (additionalIncome as AdditionalIncomeItem[]).forEach(
-      (income: AdditionalIncomeItem, index: number) => {
-        let monthlyAmount = Number(income.amount) || 0;
-
-        // Convert to monthly amount based on frequency
-        if (income.frequency === "Jährlich") {
-          monthlyAmount = monthlyAmount / 12;
-        } else if (income.frequency === "Einmalig") {
-          monthlyAmount = monthlyAmount / 240; // Spread over 20 years
-        }
-
-        if (monthlyAmount > 0) {
-          incomeRows.push({
-            source: income.type || `Zusatzeinkommen ${index + 1}`,
-            ...calculateNetAmounts(monthlyAmount),
-          });
-        }
-      },
-    );
-
-    return incomeRows;
-  };
-
-  const incomeData = prepareIncomeData();
+  const incomeData = aggregateIncomeSources(data.step_3_data ?? null).map(
+    ({ label, monthlyGross }) => ({
+      source: label,
+      ...calculateNetAmounts(monthlyGross),
+    }),
+  );
 
   // Calculate totals
   const totals = incomeData.reduce(

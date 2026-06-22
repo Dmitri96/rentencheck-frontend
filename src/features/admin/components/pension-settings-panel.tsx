@@ -1,163 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { api } from "@/lib/api";
-import { get, set } from "@/lib/utils/object-access";
+import { usePensionSettings } from "../hooks/use-pension-settings";
 
-type SettingRow = {
-  id: number;
-  key: string;
-  value: number | string;
-  unit: string;
-  description_de: string;
-};
-
-export type SettingsPayload = {
-  social_insurance: SettingRow[];
-  economic_assumptions: SettingRow[];
-  tax_brackets: SettingRow[];
-  tax_thresholds: SettingRow[];
-  regional_taxes: SettingRow[];
-  demographics?: SettingRow[];
-};
-
-type PensionParameters = {
-  economic_assumptions: {
-    inflation_rate: number;
-    pension_increase_rate: number;
-    investment_return_rate: number;
-  };
-  social_insurance: {
-    health_insurance_rate: number;
-    additional_health_insurance_rate: number;
-    care_insurance_rate: number;
-    total_insurance_rate: number;
-    health_insurance_exemption_bav: number;
-  };
-  tax_system: {
-    rates: Record<string, number>;
-    thresholds: Record<string, number>;
-    solidarity_surcharge_rate: number;
-    solidarity_surcharge_threshold: number;
-  };
-  regional_taxes?: {
-    church_tax_bavaria_bw: number;
-    church_tax_other_states: number;
-  };
-  demographics?: {
-    retirement_age: number;
-    life_expectancy: number;
-  };
-};
+export type { SettingsPayload } from "../hooks/use-pension-settings";
 
 export function PensionSettingsPanel() {
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [settingsRows, setSettingsRows] = useState<SettingsPayload | null>(null);
-  const [parameters, setParameters] = useState<PensionParameters | null>(null);
-  const [form, setForm] = useState<PensionParameters | null>(null);
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const { data: rawData, error } = await api.GET("/admin/pension-settings");
-        if (error) throw new Error("API Fehler");
-
-        const rows = rawData.data.settings as unknown as SettingsPayload;
-        setSettingsRows(rows);
-
-        const p = rawData.data.current_parameters as PensionParameters;
-        setParameters(p);
-        setForm(p);
-      } catch (err) {
-        console.error(err);
-        toast.error("Fehler beim Laden der Einstellungen");
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
-
-  const handleChange = (path: string, raw: string) => {
-    if (!form) return;
-    const value = parseFloat(raw);
-    const next = structuredClone(form);
-    set(next, path, value);
-    setForm(next);
-  };
-
-  const rowToPath = (
-    category: keyof SettingsPayload | "demographics",
-    key: string,
-  ): string | null => {
-    if (category === "economic_assumptions") return `economic_assumptions.${key}`;
-    if (category === "social_insurance") return `social_insurance.${key}`;
-    if (category === "tax_brackets") {
-      const m = key.match(/^tax_rate_(stufe_\d)$/);
-      return m ? `tax_system.rates.${m[1]}` : null;
-    }
-    if (category === "tax_thresholds") {
-      const m = key.match(/^tax_threshold_(\d)$/);
-      return m ? `tax_system.thresholds.threshold_${m[1]}` : null;
-    }
-    if (category === "regional_taxes") return `regional_taxes.${key}`;
-    if (category === "demographics") return `demographics.${key}`;
-    return null;
-  };
-
-  const handleSave = async () => {
-    if (!form || !parameters || !settingsRows) return;
-    try {
-      setSaving(true);
-      const changes: { id: number; value: number }[] = [];
-      const categories: (keyof SettingsPayload | "demographics")[] = [
-        "economic_assumptions",
-        "social_insurance",
-        "tax_brackets",
-        "tax_thresholds",
-        "regional_taxes",
-        "demographics",
-      ];
-      categories.forEach((cat) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const list = (settingsRows as any)[cat] as SettingRow[] | undefined;
-        if (!Array.isArray(list)) return;
-        list.forEach((row) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const path = rowToPath(cat as any, row.key);
-          if (!path) return;
-          const before = get(parameters, path);
-          const after = get(form, path);
-          if (typeof after === "number" && !Number.isNaN(after) && before !== after) {
-            changes.push({ id: row.id, value: after });
-          }
-        });
-      });
-
-      if (changes.length === 0) {
-        toast.info("Keine Änderungen");
-        return;
-      }
-      const { error: bulkError } = await api.PATCH("/admin/pension-settings/bulk-update", {
-        body: { settings: changes },
-      });
-      if (bulkError) throw new Error("Speichern fehlgeschlagen");
-      toast.success("Einstellungen gespeichert");
-      setParameters(form);
-    } catch (err) {
-      console.error(err);
-      toast.error("Fehler beim Speichern");
-    } finally {
-      setSaving(false);
-    }
-  };
+  const { loading, saving, form, handleChange, handleSave, handleReset } = usePensionSettings();
 
   if (loading || !form) {
     return <div className="p-8 text-center text-gray-600">Einstellungen werden geladen...</div>;
@@ -453,7 +306,7 @@ export function PensionSettingsPanel() {
           </div>
 
           <div className="mt-6 flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setForm(parameters!)}>
+            <Button variant="outline" onClick={handleReset}>
               Zurücksetzen
             </Button>
             <Button onClick={handleSave} disabled={saving}>

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -16,6 +15,7 @@ import {
   type ChartOptions,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { GERMAN_TAX_2024 } from "../constants/german-tax-2024";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -28,28 +28,23 @@ interface DisabilityIncomeProps {
 }
 
 function calculateNetFromGross(grossSalary: number): number {
-  // Simplified German tax calculation for 2024
-  const socialSecurityRate = 0.2025; // ~20.25% (pension, unemployment, health, care insurance)
+  const { socialSecurityRate, incomeTaxBrackets, solidaritySurchargeRate } = GERMAN_TAX_2024;
   const taxableIncome = grossSalary - grossSalary * socialSecurityRate;
-
-  // Progressive income tax (simplified)
-  let incomeTax = 0;
   const yearlyTaxable = taxableIncome * 12;
 
-  if (yearlyTaxable <= 10908) {
-    incomeTax = 0;
-  } else if (yearlyTaxable <= 15999) {
-    incomeTax = (yearlyTaxable - 10908) * 0.14;
-  } else if (yearlyTaxable <= 62809) {
-    incomeTax = 713 + (yearlyTaxable - 15999) * 0.24;
-  } else if (yearlyTaxable <= 277825) {
-    incomeTax = 11934 + (yearlyTaxable - 62809) * 0.42;
-  } else {
-    incomeTax = 102130 + (yearlyTaxable - 277825) * 0.45;
+  let annualIncomeTax = 0;
+  for (const bracket of incomeTaxBrackets) {
+    if (yearlyTaxable <= bracket.upTo) {
+      if ("baseAmount" in bracket) {
+        annualIncomeTax =
+          bracket.baseAmount + (yearlyTaxable - bracket.baseThreshold) * bracket.rate;
+      }
+      break;
+    }
   }
 
-  const monthlyIncomeTax = incomeTax / 12;
-  const solidarityTax = monthlyIncomeTax * 0.055; // 5.5% solidarity surcharge
+  const monthlyIncomeTax = annualIncomeTax / 12;
+  const solidarityTax = monthlyIncomeTax * solidaritySurchargeRate;
 
   const netSalary =
     grossSalary - grossSalary * socialSecurityRate - monthlyIncomeTax - solidarityTax;
@@ -96,10 +91,6 @@ export function DisabilityIncomeDiagram({
   const krankengeldGross = Math.round(monthlySalary * 0.7); // 70% of gross salary
   const krankengeld90PercentNet = Math.round(monthlyNetSalary * 0.9); // 90% of net salary
   const krankengeldNet = Math.min(krankengeldGross, krankengeld90PercentNet); // Actual net amount received
-
-  // Krankengeld is subject to social security contributions but not income tax
-  const socialSecurityRate = 0.2025;
-  const krankengeldNetAdjusted = Math.round(krankengeldNet * (1 - socialSecurityRate));
 
   // Erwerbsminderungsrente: use provided net amount if available, otherwise estimate
   const estimatedEmrGross = Math.round(monthlySalary * 0.35); // ~35% typical disability pension

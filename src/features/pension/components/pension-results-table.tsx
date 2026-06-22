@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import type { Rentencheck } from "@/lib/services/rentencheck-service";
 import { RentencheckService } from "@/lib/services/rentencheck-service";
+import { aggregateIncomeSources } from "../utils/income-aggregator";
 
 interface PensionResultsTableProps {
   data: Rentencheck;
@@ -121,71 +122,12 @@ export function PensionResultsTable({ data, desiredPension }: PensionResultsTabl
       };
     };
 
-    const items: IncomeRowComputed[] = [];
-
-    // 1. Gesetzliche Versorgung (inkl. Beamtenversorgung in Summe)
-    if (data.step_3_data?.statutoryPensionClaims) {
-      const statutory = Number(data.step_3_data?.statutoryPensionAmount || 0);
-      const civilService = Number(data.step_3_data?.civilServiceProvisionAmount || 0);
-      const legalTotal = statutory + civilService;
-      if (legalTotal > 0) {
-        items.push(compute("Gesetzl. Versorgung (inkl. Rentensteigerung)", legalTotal, 100, 100));
-      }
-    }
-
-    // 2. BAV (neu) aus Feldern Berufsständische Versorgungswerke + Zusatzversorgung Öffentlicher Dienst
-    const bavNeuTotal =
-      Number(data.step_3_data?.professionalProvisionAmount || 0) +
-      Number(data.step_3_data?.publicServiceProvisionAmount || 0);
-    if (bavNeuTotal > 0) {
-      items.push(compute("BAV (neu)", bavNeuTotal, 100, 100));
-    }
-
-    // 3. Rentenverträge (Basis, BAV, Riester, Privat)
-    const pensionContracts: Array<{ contractType?: string; monthlyAmount?: number | string }> =
-      data.step_3_data?.pensionContracts || [];
-    const groupedByType = pensionContracts.reduce<Record<string, number>>((acc, c) => {
-      const type = c.contractType || "Sonstige Rente";
-      const amount = Number(c.monthlyAmount) || 0;
-      acc[type] = (acc[type] || 0) + amount;
-      return acc;
-    }, {});
-
-    Object.entries(groupedByType).forEach(([type, amount]) => {
-      // Default shares 100%/100%; adjust here if needed per type
-      items.push(compute(type, amount, 100, 100));
-    });
-
-    // 4. Auszahlungsverträge (Einmalbetrag -> Monatsäquivalent)
-    const payoutContracts: Array<{ guaranteedAmount?: number | string }> =
-      data.step_3_data?.payoutContracts || [];
-    if (payoutContracts.length > 0) {
-      const monthly = payoutContracts.reduce((sum: number, c) => {
-        const guaranteed = Number(c.guaranteedAmount) || 0;
-        return sum + guaranteed / 240; // 20 Jahre -> 240 Monate
-      }, 0);
-      if (monthly > 0) items.push(compute("Auszahlungsverträge (äquiv. mtl.)", monthly, 100, 100));
-    }
-
-    // 5. Zusatzeinkommen
-    const additionalIncome: Array<{
-      amount?: number | string;
-      frequency?: string;
-      type?: string;
-    }> = data.step_3_data?.additionalIncome || [];
-    if (additionalIncome.length > 0) {
-      const groupedIncome = additionalIncome.reduce<Record<string, number>>((acc, i) => {
-        let monthly = Number(i.amount) || 0;
-        if (i.frequency === "Jährlich") monthly = monthly / 12;
-        if (i.frequency === "Einmalig") monthly = monthly / 240;
-        const label = i.type || "Zusatzeinkommen";
-        acc[label] = (acc[label] || 0) + monthly;
-        return acc;
-      }, {});
-      Object.entries(groupedIncome).forEach(([label, amount]) =>
-        items.push(compute(label, amount, 100, 100)),
-      );
-    }
+    // Delegate income source enumeration to the shared aggregator so both result
+    // views (overview + table) use the same traversal logic.
+    const sources = aggregateIncomeSources(data.step_3_data ?? null);
+    const items: IncomeRowComputed[] = sources.map(({ label, monthlyGross }) =>
+      compute(label, monthlyGross, 100, 100),
+    );
 
     return items;
   }, [data, parameters]);

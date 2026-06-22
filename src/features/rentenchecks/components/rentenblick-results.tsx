@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart3, Edit3, FileText } from "lucide-react";
-import { PensionResultsOverview } from "@/features/pension/components/pension-results-overview";
+import { PensionResultsOverview } from "@/features/pension";
 import type { Rentencheck, RentencheckData } from "@/lib/services/rentencheck-service";
 
 type RentenblickResultsProps = {
