@@ -277,18 +277,24 @@ export const useContractManagement = (
         setState((prev) => ({ ...prev, editingContract: { type, index } }));
 
         switch (type) {
-          case "payout":
-            setPayoutForm(data.payoutContracts[index]);
+          case "payout": {
+            const payout = data.payoutContracts[index];
+            if (payout) setPayoutForm(payout);
             setState((prev) => ({ ...prev, showPayoutForm: true }));
             break;
-          case "pension":
-            setPensionForm(data.pensionContracts[index]);
+          }
+          case "pension": {
+            const pension = data.pensionContracts[index];
+            if (pension) setPensionForm(pension);
             setState((prev) => ({ ...prev, showPensionForm: true }));
             break;
-          case "income":
-            setIncomeForm(data.additionalIncome[index]);
+          }
+          case "income": {
+            const income = data.additionalIncome[index];
+            if (income) setIncomeForm(income);
             setState((prev) => ({ ...prev, showIncomeForm: true }));
             break;
+          }
           default:
             throw new Error("Ungültiger Vertragstyp für Bearbeitung");
         }

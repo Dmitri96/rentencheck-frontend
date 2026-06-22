@@ -39,13 +39,11 @@ jobs:
       - name: Prettier (format check)
         run: bun run format:check
 
-      - name: ESLint (informational; phase 7/8 will tighten gate)
+      - name: ESLint
         run: bun run lint
-        continue-on-error: true
 
-      - name: TypeScript (informational; phase 7/8 will tighten gate)
+      - name: TypeScript
         run: bun run typecheck
-        continue-on-error: true
 
-      - name: Next.js build (hard gate)
+      - name: Next.js build
         run: bun run build

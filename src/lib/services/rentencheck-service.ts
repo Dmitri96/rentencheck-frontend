@@ -1,4 +1,4 @@
-import { ApiService } from "../api-service";
+import { api } from "@/lib/api";
 
 /**
  * Response shape for GET /clients/{clientId}/rentenchecks/{rentencheckId}/calculation.
@@ -202,16 +202,60 @@ export interface RentencheckListResponse {
   };
 }
 
+// TODO Wave 3C: rentencheck schema types are very loose (rentencheck: string[], client: string).
+// These casts unwrap the real runtime shape until backend Resource annotations land.
+function unwrapRentencheckResponse(raw: unknown): RentencheckResponse {
+  const payload = raw as {
+    data?: {
+      rentencheck?: unknown;
+      contracts?: unknown;
+      client?: unknown;
+    };
+    rentencheck?: unknown;
+    contracts?: unknown;
+    client?: unknown;
+    message?: string;
+  };
+
+  // Some endpoints wrap in `data`, others return fields directly.
+  const inner = payload.data ?? payload;
+
+  return {
+    rentencheck: (inner.rentencheck ?? inner) as Rentencheck,
+    contracts: inner.contracts as RentencheckResponse["contracts"],
+    client: (inner.client ?? {}) as RentencheckResponse["client"],
+    message: payload.message ?? "",
+  };
+}
+
+function unwrapRentencheckListResponse(raw: unknown): RentencheckListResponse {
+  const payload = raw as {
+    data?: { data?: unknown[]; client?: unknown };
+    message?: string;
+  };
+
+  const inner = payload.data ?? { data: [], client: {} };
+
+  return {
+    data: ((inner.data as unknown[]) ?? []) as Rentencheck[],
+    client: (inner.client ?? {}) as RentencheckListResponse["client"],
+  };
+}
+
 export class RentencheckService {
-  private static baseUrl = "/clients";
   private static pendingDraftCreations = new Map<number, Promise<RentencheckResponse>>();
 
   /**
    * Get all rentenchecks for a specific client
    */
   static async getRentenchecks(clientId: number): Promise<RentencheckListResponse> {
-    const response = await ApiService.get(`${this.baseUrl}/${clientId}/rentenchecks`);
-    return response.data;
+    const { data, error } = await api.GET("/clients/{clientId}/rentenchecks", {
+      params: { path: { clientId } },
+    });
+
+    if (error) throw error;
+
+    return unwrapRentencheckListResponse(data);
   }
 
   /**
@@ -221,10 +265,13 @@ export class RentencheckService {
     clientId: number,
     rentencheckId: number,
   ): Promise<RentencheckResponse> {
-    const response = await ApiService.get(
-      `${this.baseUrl}/${clientId}/rentenchecks/${rentencheckId}`,
-    );
-    return response.data;
+    const { data, error } = await api.GET("/clients/{clientId}/rentenchecks/{rentencheckId}", {
+      params: { path: { clientId, rentencheckId } },
+    });
+
+    if (error) throw error;
+
+    return unwrapRentencheckResponse(data);
   }
 
   /**
@@ -232,10 +279,19 @@ export class RentencheckService {
    */
   static async createRentencheck(
     clientId: number,
-    data: { title?: string; notes?: string } = {},
+    rentencheckData: { title?: string; notes?: string } = {},
   ): Promise<RentencheckResponse> {
-    const response = await ApiService.post(`${this.baseUrl}/${clientId}/rentenchecks`, data);
-    return response.data;
+    const { data, error } = await api.POST("/clients/{clientId}/rentenchecks", {
+      params: { path: { clientId } },
+      body: {
+        title: rentencheckData.title,
+        notes: rentencheckData.notes,
+      },
+    });
+
+    if (error) throw error;
+
+    return unwrapRentencheckResponse(data);
   }
 
   /**
@@ -247,9 +303,18 @@ export class RentencheckService {
     step: number,
     stepData: Partial<RentencheckData>,
   ): Promise<RentencheckResponse> {
-    const url = `${this.baseUrl}/${clientId}/rentenchecks/${rentencheckId}/step/${step}`;
-    const response = await ApiService.put(url, stepData);
-    return response.data;
+    const { data, error } = await api.PUT(
+      "/clients/{clientId}/rentenchecks/{rentencheckId}/step/{step}",
+      {
+        params: { path: { clientId, rentencheckId, step } },
+        // TODO Wave 3C: schema marks requestBody as `never`; body accepted at runtime.
+        body: stepData as never,
+      },
+    );
+
+    if (error) throw error;
+
+    return unwrapRentencheckResponse(data);
   }
 
   /**
@@ -259,10 +324,16 @@ export class RentencheckService {
     clientId: number,
     rentencheckId: number,
   ): Promise<RentencheckResponse> {
-    const response = await ApiService.put(
-      `${this.baseUrl}/${clientId}/rentenchecks/${rentencheckId}/complete`,
+    const { data, error } = await api.PUT(
+      "/clients/{clientId}/rentenchecks/{rentencheckId}/complete",
+      {
+        params: { path: { clientId, rentencheckId } },
+      },
     );
-    return response.data;
+
+    if (error) throw error;
+
+    return unwrapRentencheckResponse(data);
   }
 
   /**
@@ -272,10 +343,13 @@ export class RentencheckService {
     clientId: number,
     rentencheckId: number,
   ): Promise<{ message: string }> {
-    const response = await ApiService.delete(
-      `${this.baseUrl}/${clientId}/rentenchecks/${rentencheckId}`,
-    );
-    return response.data;
+    const { data, error } = await api.DELETE("/clients/{clientId}/rentenchecks/{rentencheckId}", {
+      params: { path: { clientId, rentencheckId } },
+    });
+
+    if (error) throw error;
+
+    return { message: data.message };
   }
 
   /**
@@ -286,44 +360,59 @@ export class RentencheckService {
     rentencheckId: number,
     step: number,
   ): Promise<RentencheckResponse> {
-    const response = await ApiService.put(
-      `${this.baseUrl}/${clientId}/rentenchecks/${rentencheckId}/step/${step}/complete`,
+    const { data, error } = await api.PUT(
+      "/clients/{clientId}/rentenchecks/{rentencheckId}/step/{step}/complete",
+      {
+        params: { path: { clientId, rentencheckId, step } },
+      },
     );
-    return response.data;
+
+    if (error) throw error;
+
+    return unwrapRentencheckResponse(data);
   }
 
   /**
-   * Download PDF for a rentencheck
+   * Download PDF for a rentencheck. Uses native fetch since the response is
+   * a binary blob, not JSON — openapi-fetch only parses JSON responses.
    */
   static async downloadPdf(clientId: number, rentencheckId: number): Promise<void> {
-    try {
-      const response = await ApiService.get(
-        `${this.baseUrl}/${clientId}/rentenchecks/${rentencheckId}/pdf`,
-        {
-          responseType: "blob",
-          headers: {
-            Accept: "application/pdf",
-          },
+    const baseUrl =
+      process.env.NEXT_PUBLIC_API_URL ??
+      (typeof window !== "undefined"
+        ? `${window.location.origin}/api`
+        : "http://localhost:8000/api");
+
+    const xsrfMatch =
+      typeof document !== "undefined"
+        ? document.cookie.split("; ").find((row) => row.startsWith("XSRF-TOKEN="))
+        : undefined;
+    const xsrfToken = xsrfMatch ? decodeURIComponent(xsrfMatch.split("=")[1] ?? "") : "";
+
+    const response = await fetch(
+      `${baseUrl}/clients/${clientId}/rentenchecks/${rentencheckId}/pdf`,
+      {
+        credentials: "include",
+        headers: {
+          Accept: "application/pdf",
+          ...(xsrfToken ? { "X-XSRF-TOKEN": xsrfToken } : {}),
         },
-      );
+      },
+    );
 
-      // Create download link
-      const blob = new Blob([response.data], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-
-      const filename = `Rentencheck_${rentencheckId}.pdf`;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error downloading PDF:", error);
+    if (!response.ok) {
       throw new Error("Fehler beim Herunterladen des PDFs");
     }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Rentencheck_${rentencheckId}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   }
 
   /**
@@ -331,50 +420,58 @@ export class RentencheckService {
    *
    * Shape comes from backend `PensionCalculator::analyze()`. The full
    * OpenAPI-generated type lands in Wave 3C once backend Resource classes
-   * gain `#[OA\Property]` annotations; until then the shape lives here
-   * mirrored from the calculator's contract.
+   * gain `#[OA\Property]` annotations.
    */
   static async getPensionCalculation(
     clientId: number,
     rentencheckId: number,
   ): Promise<PensionCalculationResponse> {
-    const response = await ApiService.get(
-      `${this.baseUrl}/${clientId}/rentenchecks/${rentencheckId}/calculation`,
+    const { data, error } = await api.GET(
+      "/clients/{clientId}/rentenchecks/{rentencheckId}/calculation",
+      {
+        params: { path: { clientId, rentencheckId } },
+      },
     );
-    return response.data;
+
+    if (error) throw error;
+
+    // TODO Wave 3C: schema types pension_data fields loosely; cast to typed shape.
+    const payload = data as unknown as {
+      data: {
+        pension_data: PensionCalculationData;
+        pension_totals: Record<string, unknown>;
+        client: Record<string, unknown>;
+      };
+      message: string;
+    };
+
+    return {
+      pension_data: payload.data.pension_data,
+      pension_totals: payload.data.pension_totals,
+      client: payload.data.client,
+      message: payload.message,
+    };
   }
 
   /**
-   * Get or create a draft rentencheck for a client
-   * This is useful for the "START" button to either continue existing draft or create new
+   * Get or create a draft rentencheck for a client.
+   * Deduplicates concurrent calls so only one creation request fires per client.
    */
   static async getOrCreateDraftRentencheck(clientId: number): Promise<RentencheckResponse> {
-    // Check if there's already a pending creation for this client
-    const existingPromise = this.pendingDraftCreations.get(clientId);
-    if (existingPromise) {
-      console.log(
-        "🔄 getOrCreateDraftRentencheck: Returning existing pending promise for clientId:",
-        clientId,
-      );
-      return existingPromise;
-    }
+    const existing = this.pendingDraftCreations.get(clientId);
+    if (existing) return existing;
 
-    // Create new promise and store it
-    const promise = this._getOrCreateDraftRentencheckInternal(clientId);
+    const promise = this._getOrCreateDraftInternal(clientId);
     this.pendingDraftCreations.set(clientId, promise);
 
     try {
-      const result = await promise;
-      return result;
+      return await promise;
     } finally {
-      // Clean up the pending promise
       this.pendingDraftCreations.delete(clientId);
     }
   }
 
-  private static async _getOrCreateDraftRentencheckInternal(
-    clientId: number,
-  ): Promise<RentencheckResponse> {
+  private static async _getOrCreateDraftInternal(clientId: number): Promise<RentencheckResponse> {
     try {
       const listResponse = await this.getRentenchecks(clientId);
       const existingDraft = listResponse.data.find((r) => r.status === "draft");
@@ -393,7 +490,7 @@ export class RentencheckService {
   }
 
   /**
-   * Auto-save step data (fire and forget)
+   * Auto-save step data (fire and forget — failure is non-fatal)
    */
   static async autoSaveStep(
     clientId: number,
@@ -405,7 +502,6 @@ export class RentencheckService {
       await this.updateStep(clientId, rentencheckId, step, stepData);
     } catch (error) {
       console.warn("Auto-save failed:", error);
-      // Don't throw error for auto-save failures
     }
   }
 }

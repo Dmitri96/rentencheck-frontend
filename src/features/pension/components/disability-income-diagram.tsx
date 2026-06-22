@@ -203,7 +203,7 @@ export function DisabilityIncomeDiagram({
         callbacks: {
           label: (context) => {
             const datasetLabel = context.dataset.label;
-            const value = context.parsed.y;
+            const value = context.parsed.y ?? 0;
             if (datasetLabel === "Netto (verfügbar)") {
               return `Netto: €${value.toLocaleString()}`;
             } else {
@@ -225,10 +225,12 @@ export function DisabilityIncomeDiagram({
               totalWithInsuranceNet,
             ];
 
+            const gross = grossAmounts[index] ?? 0;
+            const net = netAmounts[index] ?? 0;
             return [
-              `Brutto: €${grossAmounts[index].toLocaleString()}`,
-              `Netto: €${netAmounts[index].toLocaleString()}`,
-              `Abzüge: €${(grossAmounts[index] - netAmounts[index]).toLocaleString()}`,
+              `Brutto: €${gross.toLocaleString()}`,
+              `Netto: €${net.toLocaleString()}`,
+              `Abzüge: €${(gross - net).toLocaleString()}`,
             ];
           },
         },

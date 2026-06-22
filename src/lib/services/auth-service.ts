@@ -1,36 +1,98 @@
-import { ApiService } from "../api-service";
-import { AuthResponse, LoginInput, RegisterInput, User, ApiError } from "@/types/auth";
-import { AxiosError } from "axios";
+import { api, ensureCsrfCookie } from "@/lib/api";
+import type { ApiError, AuthResponse, LoginInput, RegisterInput, User } from "@/types/auth";
+import type { components } from "@/lib/api/schema";
+
+// TODO Wave 3C: backend UserResource has loose string-typed fields; narrow here until annotations land.
+type UserResource = components["schemas"]["UserResource"];
+
+function mapUserResource(resource: UserResource): User {
+  return {
+    id: Number(resource.id),
+    name: resource.name,
+    first_name: resource.first_name,
+    last_name: resource.last_name,
+    full_name: resource.full_name,
+    email: resource.email,
+    phone: resource.phone || undefined,
+    company: resource.company || undefined,
+    plan: resource.plan,
+    status: resource.status as User["status"],
+    newsletter: resource.newsletter === "1" || resource.newsletter === "true",
+    roles: resource.roles?.map(String) ?? [],
+    is_admin: resource.is_admin,
+    is_advisor: resource.is_advisor,
+    is_active: resource.is_active,
+    is_blocked: resource.is_blocked,
+    email_verified_at: resource.email_verified_at || undefined,
+    created_at: resource.created_at || undefined,
+    updated_at: resource.updated_at || undefined,
+  };
+}
 
 /**
- * Authentication Service — network layer only.
- * State management (who is logged in) lives in useAuth via TanStack Query ['me'].
- * This service never reads or writes localStorage.
+ * Authentication service — thin facade over the typed openapi-fetch client.
+ * State management lives in useAuth via TanStack Query ['me'].
+ * Never reads or writes localStorage.
  */
 export class AuthService {
   /**
    * Login user with email and password.
-   * Returns the full auth response; the caller (useAuth) decides what to do with it.
+   * Warms the CSRF cookie first (Sanctum SPA requirement).
    */
   static async login(credentials: LoginInput): Promise<AuthResponse> {
-    try {
-      const response = await ApiService.post<AuthResponse>("/auth/login", credentials);
-      return response.data;
-    } catch (error) {
-      throw this.handleAuthError(error as AxiosError);
+    await ensureCsrfCookie();
+
+    const { data, error } = await api.POST("/auth/login", {
+      body: {
+        email: credentials.email,
+        password: credentials.password,
+        remember_me: credentials.remember_me,
+      },
+    });
+
+    if (error) {
+      throw this.normaliseError(error as ApiError);
     }
+
+    return {
+      user: mapUserResource(data.user),
+      // Token is still issued by backend but frontend uses session cookies.
+      token: data.token,
+      message: data.message,
+    };
   }
 
   /**
    * Register a new user account.
    */
   static async register(userData: RegisterInput): Promise<AuthResponse> {
-    try {
-      const response = await ApiService.post<AuthResponse>("/auth/register", userData);
-      return response.data;
-    } catch (error) {
-      throw this.handleAuthError(error as AxiosError);
+    await ensureCsrfCookie();
+
+    const { data, error } = await api.POST("/auth/register", {
+      body: {
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        email: userData.email,
+        phone: userData.phone,
+        company: userData.company,
+        plan: userData.plan as "free" | "basic" | "premium" | "vip",
+        password: userData.password,
+        password_confirmation: userData.password_confirmation,
+        accept_terms: userData.accept_terms,
+        accept_privacy: userData.accept_privacy,
+        newsletter: userData.newsletter,
+      },
+    });
+
+    if (error) {
+      throw this.normaliseError(error as ApiError);
     }
+
+    return {
+      user: mapUserResource(data.user),
+      token: data.token,
+      message: data.message,
+    };
   }
 
   /**
@@ -38,10 +100,10 @@ export class AuthService {
    */
   static async logout(): Promise<void> {
     try {
-      await ApiService.post("/auth/logout");
-    } catch (error) {
-      // Log and swallow — the caller still clears local cache regardless
-      console.error("Logout error:", error);
+      await api.POST("/auth/logout", {});
+    } catch (err) {
+      // Swallow — caller still clears local cache regardless
+      console.error("Logout error:", err);
     }
   }
 
@@ -50,39 +112,20 @@ export class AuthService {
    * Used by the ['me'] TanStack Query to bootstrap auth state on page load.
    */
   static async getCurrentUser(): Promise<User> {
-    try {
-      const response = await ApiService.get<{ user: User }>("/auth/user");
-      return response.data.user;
-    } catch (error) {
-      throw this.handleAuthError(error as AxiosError);
+    const { data, error } = await api.GET("/auth/user");
+
+    if (error) {
+      throw this.normaliseError(error as ApiError);
     }
+
+    return mapUserResource(data.user);
   }
 
-  /**
-   * Handle authentication errors and normalise them into ApiError shape.
-   */
-  private static handleAuthError(error: AxiosError): ApiError {
-    const data = (error.response?.data ?? {}) as {
-      message?: string;
-      errors?: Record<string, string[]>;
+  private static normaliseError(error: ApiError): ApiError {
+    return {
+      message: error.message ?? "Ein unerwarteter Fehler ist aufgetreten",
+      errors: error.errors,
     };
-
-    if (error.response?.status === 422) {
-      return {
-        message: data.message ?? "Validierungsfehler",
-        errors: data.errors ?? {},
-      };
-    }
-
-    if (error.response?.status === 401) {
-      return { message: "Ungültige Anmeldedaten" };
-    }
-
-    if (error.response?.status === 429) {
-      return { message: "Zu viele Anmeldeversuche. Bitte versuchen Sie es später erneut." };
-    }
-
-    return { message: data.message ?? "Ein unerwarteter Fehler ist aufgetreten" };
   }
 }
 

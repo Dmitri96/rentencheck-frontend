@@ -178,7 +178,7 @@ function renderChart(pensionData: PensionData, desiredPension: number, rootData?
   // Yearly and cumulative gap (start cumulation at retirement age)
   const yearlyGapSeries = series.map((d) => (d.age >= retirementAge ? d.gap * 12 : 0));
   const cumulativeGapSeries = yearlyGapSeries.reduce((acc: number[], val, idx) => {
-    const prev = idx > 0 ? acc[idx - 1] : 0;
+    const prev = idx > 0 ? (acc[idx - 1] ?? 0) : 0;
     acc[idx] = prev + val;
     return acc;
   }, [] as number[]);
@@ -190,8 +190,9 @@ function renderChart(pensionData: PensionData, desiredPension: number, rootData?
     .reduce((sum, d) => sum + d.gap * 12, 0);
 
   // KPIs für Kacheln
-  const monthlyGapAtRetirement = retirementIndex >= 0 ? series[retirementIndex].gap : 0;
-  const totalIncomeAtRetirement = retirementIndex >= 0 ? series[retirementIndex].totalIncome : 0;
+  const monthlyGapAtRetirement = retirementIndex >= 0 ? (series[retirementIndex]?.gap ?? 0) : 0;
+  const totalIncomeAtRetirement =
+    retirementIndex >= 0 ? (series[retirementIndex]?.totalIncome ?? 0) : 0;
 
   // Chart data configuration (stacked cumulative areas like the new Chart.js demo)
   const chartData = {
@@ -288,13 +289,14 @@ function renderChart(pensionData: PensionData, desiredPension: number, rootData?
           afterBody: (context: any) => {
             const i = context[0].dataIndex;
             const d = series[i];
+            if (!d) return [];
             const lines = [
               `Gesamte Einnahmen: €${Math.round(d.totalIncome).toLocaleString()}`,
               `Lücke (monatlich): €${Math.round(d.gap).toLocaleString()}`,
             ];
             if (d.age >= retirementAge) {
-              const yearlyGap = Math.round(yearlyGapSeries[i]);
-              const cumGap = Math.round(cumulativeGapSeries[i]);
+              const yearlyGap = Math.round(yearlyGapSeries[i] ?? 0);
+              const cumGap = Math.round(cumulativeGapSeries[i] ?? 0);
               lines.push(`Lücke pro Jahr: €${yearlyGap.toLocaleString()}`);
               lines.push(`Kumulierte Lücke bis Alter ${d.age}: €${cumGap.toLocaleString()}`);
             }

@@ -34,9 +34,7 @@ export interface CreateClientInput {
   notes?: string;
 }
 
-export interface UpdateClientInput extends CreateClientInput {
-  // Same as CreateClientInput for now, but allows for future differences
-}
+export type UpdateClientInput = CreateClientInput;
 
 // Frontend form data now matches backend API format exactly
 export interface ClientFormData {

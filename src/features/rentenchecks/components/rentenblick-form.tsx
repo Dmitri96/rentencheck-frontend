@@ -207,10 +207,13 @@ export function RentenblickForm({
         <CardHeader className="pb-6 bg-gradient-to-r from-slate-50 to-blue-50 rounded-t-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="text-3xl">{steps[currentStep - 1].icon}</div>
+              {/* steps is a fixed-length array; currentStep is always 1-5 */}
+              { }
+              <div className="text-3xl">{steps[currentStep - 1]!.icon}</div>
               <div>
                 <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                  {currentStep}. {steps[currentStep - 1].title}
+                  { }
+                  {currentStep}. {steps[currentStep - 1]!.title}
                   {isCurrentStepConfirmed && (
                     <div className="flex items-center gap-2">
                       <Lock className="w-5 h-5 text-green-600" />
@@ -218,7 +221,8 @@ export function RentenblickForm({
                     </div>
                   )}
                 </CardTitle>
-                <p className="text-gray-600 mt-1">{steps[currentStep - 1].description}</p>
+                { }
+                <p className="text-gray-600 mt-1">{steps[currentStep - 1]!.description}</p>
               </div>
             </div>
             <div className="hidden md:block text-right">

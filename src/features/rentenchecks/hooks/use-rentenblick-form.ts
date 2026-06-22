@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import ApiService from "@/lib/api-service";
+import { api } from "@/lib/api";
 import type { RentencheckData } from "@/lib/services/rentencheck-service";
 
 // Narrow type for the admin "current_parameters" response used for mapping defaults
@@ -124,10 +124,14 @@ export function useRentenblickForm({
     const load = async () => {
       try {
         setLoading(true);
-        const res = await ApiService.get("/pension-parameters");
-        if (!res.data?.success) throw new Error("API Fehler");
+        // TODO Wave 3C: /pension-parameters schema typed as `string`; real shape is object.
+        const { data: rawData, error } = await api.GET("/pension-parameters");
+        if (error) throw new Error("API Fehler");
 
-        const p = (res.data.data || {}) as PensionParameters;
+        const res = rawData as unknown as { success?: boolean; data?: PensionParameters };
+        if (!res.success) throw new Error("API Fehler");
+
+        const p = (res.data ?? {}) as PensionParameters;
 
         const mappedDefaults: Partial<RentencheckData> = {
           assumedInflation: p.economic_assumptions?.inflation_rate ?? undefined,
