@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Settings, LogOut, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useAuthContext } from "@/providers/AuthProvider";
-import { RentenblickForm } from "@/components/rentenblick-form";
+import { useAuthContext } from "@/providers/auth-provider";
+import { RentenblickForm } from "@/features/rentenchecks/components/rentenblick-form";
 import {
   RentencheckService,
   type Rentencheck,

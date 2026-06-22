@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { ZodError } from "zod";
 import { toast } from "sonner";
 import {
   PayoutContractSchema,
@@ -9,7 +10,7 @@ import {
   type PensionContractData,
   type AdditionalIncomeData,
 } from "@/lib/validations/contract-schemas";
-import type { RentenblickData } from "@/components/rentenblick-form";
+import type { RentenblickData } from "@/features/rentenchecks/components/rentenblick-form";
 
 /**
  * Contract management state interface
@@ -26,7 +27,7 @@ interface ContractManagementState {
 /**
  * Hook return interface providing all contract management functionality
  */
-interface UseContractManagementReturn {
+export interface UseContractManagementReturn {
   // State
   state: ContractManagementState;
 
@@ -150,33 +151,37 @@ export const useContractManagement = (
    * Validates contract data using Zod schemas
    * Returns validation result and sets errors in state for UI display
    */
-  const validateContract = useCallback((type: string, formData: any) => {
-    try {
-      let schema;
-      switch (type) {
-        case "payout":
-          schema = PayoutContractSchema;
-          break;
-        case "pension":
-          schema = PensionContractSchema;
-          break;
-        case "income":
-          schema = AdditionalIncomeSchema;
-          break;
-        default:
-          throw new Error("Ungültiger Vertragstyp");
-      }
+  const validateContract = useCallback(
+    (type: string, formData: PayoutContractData | PensionContractData | AdditionalIncomeData) => {
+      try {
+        let schema;
+        switch (type) {
+          case "payout":
+            schema = PayoutContractSchema;
+            break;
+          case "pension":
+            schema = PensionContractSchema;
+            break;
+          case "income":
+            schema = AdditionalIncomeSchema;
+            break;
+          default:
+            throw new Error("Ungültiger Vertragstyp");
+        }
 
-      schema.parse(formData);
-      setState((prev) => ({ ...prev, validationErrors: {} }));
-      return { success: true, data: formData };
-    } catch (error: any) {
-      const errors = formatValidationErrors(error);
-      setState((prev) => ({ ...prev, validationErrors: errors }));
-      toast.error("Bitte korrigieren Sie die Eingabefehler");
-      return { success: false, errors };
-    }
-  }, []);
+        schema.parse(formData);
+        setState((prev) => ({ ...prev, validationErrors: {} }));
+        return { success: true, data: formData };
+      } catch (error: unknown) {
+        const zodError = error instanceof ZodError ? error : new ZodError([]);
+        const errors = formatValidationErrors(zodError);
+        setState((prev) => ({ ...prev, validationErrors: errors }));
+        toast.error("Bitte korrigieren Sie die Eingabefehler");
+        return { success: false, errors };
+      }
+    },
+    [],
+  );
 
   /**
    * Adds a new payout contract with validation and error handling

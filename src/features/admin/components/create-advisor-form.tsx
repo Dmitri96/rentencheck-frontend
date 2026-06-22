@@ -2,12 +2,12 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../ui/card";
-import { Button } from "../../ui/button";
-import { Input } from "../../ui/input";
-import { Label } from "../../ui/label";
-import { AdminService } from "../../../lib/services/admin-service";
-import { CreateAdvisorInput, ApiError } from "../../../types/auth";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { AdminService } from "@/lib/services/admin-service";
+import { CreateAdvisorInput } from "@/types/auth";
 import { ArrowLeft, Save, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -97,14 +97,15 @@ const CreateAdvisorForm = () => {
 
       toast.success(result.message || "Berater wurde erfolgreich erstellt");
       router.push("/dashboard/admin/advisors");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating advisor:", error);
 
-      if (error.errors) {
-        setErrors(error.errors);
+      const apiError = error as { errors?: Record<string, string[]>; message?: string };
+      if (apiError.errors) {
+        setErrors(apiError.errors);
       }
 
-      toast.error(error.message || "Fehler beim Erstellen des Beraters");
+      toast.error(apiError.message || "Fehler beim Erstellen des Beraters");
     } finally {
       setIsSubmitting(false);
     }

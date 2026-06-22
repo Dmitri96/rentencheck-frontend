@@ -1,4 +1,4 @@
-import { ClientDetailView } from "@/components/dashboard/client-detail-view";
+import { ClientDetailView } from "@/features/clients/components/client-detail-view";
 
 // Next.js 15 made dynamic route `params` a Promise. Resolve it server-side
 // before handing the typed id to the client component.

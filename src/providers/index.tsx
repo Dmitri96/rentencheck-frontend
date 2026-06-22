@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { AuthProvider } from "@/providers/AuthProvider";
-import { QueryProvider } from "@/providers/QueryProvider";
+import { AuthProvider } from "@/providers/auth-provider";
+import { QueryProvider } from "@/providers/query-provider";
 
 interface ProvidersProps {
   children: React.ReactNode;

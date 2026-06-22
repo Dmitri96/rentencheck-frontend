@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../ui/card";
-import { Button } from "../../ui/button";
-import { AdminService } from "../../../lib/services/admin-service";
-import { AdminDashboardData } from "../../../types/auth";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { AdminService } from "@/lib/services/admin-service";
+import { AdminDashboardData } from "@/types/auth";
 import {
   Users,
   UserCheck,
@@ -31,9 +31,11 @@ const AdminDashboard = () => {
       setIsLoading(true);
       const data = await AdminService.getDashboard();
       setDashboardData(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error loading dashboard data:", error);
-      toast.error(error.message || "Fehler beim Laden der Dashboard-Daten");
+      toast.error(
+        (error as { message?: string }).message || "Fehler beim Laden der Dashboard-Daten",
+      );
     } finally {
       setIsLoading(false);
     }

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import ApiService from "@/lib/api-service";
-import type { RentenblickData } from "@/components/rentenblick-form";
+import type { RentenblickData } from "@/features/rentenchecks/components/rentenblick-form";
 
 // Narrow type for the admin "current_parameters" response used for mapping defaults
 type PensionParameters = {
@@ -153,7 +153,6 @@ export function useRentenblickForm({
     };
     load();
     // Defaults load is mount-only; deliberately no dependency list change.
-     
   }, []);
 
   const updateFormData = useCallback((data: Partial<RentenblickData>) => {

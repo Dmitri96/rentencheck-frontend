@@ -1,5 +1,5 @@
-import AdminDashboard from "../../../../components/dashboard/admin/admin-dashboard";
-import RoleGuard from "../../../../components/auth/role-guard";
+import AdminDashboard from "@/features/admin/components/admin-dashboard";
+import RoleGuard from "@/features/auth/components/role-guard";
 
 export default function AdminDashboardPage() {
   return (

@@ -13,13 +13,15 @@ import {
 } from "@/components/ui/select";
 import { Plus, Trash2, Edit, Save, X } from "lucide-react";
 import type { RentenblickData } from "../../rentenblick-form";
+import type { UseContractManagementReturn } from "@/hooks/use-contract-management";
+import type { AdditionalIncomeData } from "@/lib/validations/contract-schemas";
 
 /**
  * Props interface for the Additional Income Section component
  */
 interface AdditionalIncomeSectionProps {
   data: RentenblickData;
-  contractManagement: any;
+  contractManagement: UseContractManagementReturn;
   isConfirmed: boolean;
 }
 
@@ -27,9 +29,9 @@ interface AdditionalIncomeSectionProps {
  * Additional Income Form Component - Extracted for proper memoization
  */
 interface IncomeFormProps {
-  incomeForm: any;
-  setIncomeForm: (form: any) => void;
-  state: any;
+  incomeForm: AdditionalIncomeData;
+  setIncomeForm: (form: AdditionalIncomeData) => void;
+  state: UseContractManagementReturn["state"];
   handleSaveEditContract: () => void;
   handleAddIncomeEntry: () => void;
   handleCancelEdit: () => void;

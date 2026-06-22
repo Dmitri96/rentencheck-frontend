@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Edit3, Download, FileText, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { PensionResultsTable } from "@/components/pension-results-table";
-import { PensionChart } from "@/components/pension-chart";
+import { PensionResultsTable } from "@/features/pension/components/pension-results-table";
+import { PensionChart } from "@/features/pension/components/pension-chart";
 import { RentencheckService, type Rentencheck } from "@/lib/services/rentencheck-service";
 
 /**
@@ -35,7 +35,7 @@ export default function AnalysisPage() {
         setLoading(true);
         const data = await RentencheckService.getRentencheck(parseInt(clientId), rentencheckId);
         setRentencheck(data.rentencheck);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Error loading rentencheck:", error);
         toast.error("Fehler beim Laden der Rentencheck-Daten");
         router.push(`/dashboard/clients/${clientId}`);
@@ -54,7 +54,7 @@ export default function AnalysisPage() {
       setDownloading(true);
       await RentencheckService.downloadPdf(parseInt(clientId), rentencheckId);
       toast.success("PDF wird heruntergeladen...");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error downloading PDF:", error);
       toast.error("Fehler beim Herunterladen des PDFs");
     } finally {

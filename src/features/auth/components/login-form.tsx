@@ -12,7 +12,7 @@ import { Eye, EyeOff, LogIn, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { loginSchema, type LoginSchema } from "@/lib/validations/auth";
-import { useAuthContext } from "@/providers/AuthProvider";
+import { useAuthContext } from "@/providers/auth-provider";
 
 export function LoginForm() {
   const router = useRouter();

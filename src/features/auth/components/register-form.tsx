@@ -19,7 +19,7 @@ import { Eye, EyeOff, UserPlus, ArrowRight, Check } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { registerSchema, type RegisterSchema } from "@/lib/validations/auth";
-import { useAuthContext } from "@/providers/AuthProvider";
+import { useAuthContext } from "@/providers/auth-provider";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -76,7 +76,7 @@ export function RegisterForm() {
   };
 
   const handleCheckboxChange = (field: keyof RegisterSchema, checked: boolean) => {
-    setValue(field, checked as any);
+    setValue(field, checked as RegisterSchema[typeof field]);
   };
 
   const plans = [

@@ -1,12 +1,13 @@
 /**
  * Auth feature public surface.
  *
- * Other features must import from this barrel only. Reaching into
- * `@/features/auth/components/...` from another feature is enforced-blocked
+ * All cross-feature consumers must import from this barrel.
+ * Reaching into @/features/auth/components/* from another feature is blocked
  * (phase 8 adds eslint-plugin-boundaries).
- *
- * Phase 8 moves the existing src/components/auth/* and src/components/forms/{Login,Register}Form
- * into this feature folder and exports them from here.
  */
-export { PermissionGuard } from "@/components/auth/permission-guard";
-export { useAuthContext, AuthProvider } from "@/providers/AuthProvider";
+export { LoginForm } from "./components/login-form";
+export { RegisterForm } from "./components/register-form";
+export { AuthLayout } from "./components/auth-layout";
+export { default as RoleGuard } from "./components/role-guard";
+export { PermissionGuard } from "./components/permission-guard";
+export { useAuthContext, AuthProvider } from "@/providers/auth-provider";

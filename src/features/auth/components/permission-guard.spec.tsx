@@ -2,11 +2,11 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { PermissionGuard } from "./permission-guard";
 
-vi.mock("@/providers/AuthProvider", () => ({
+vi.mock("@/providers/auth-provider", () => ({
   useAuthContext: vi.fn(),
 }));
 
-import { useAuthContext } from "@/providers/AuthProvider";
+import { useAuthContext } from "@/providers/auth-provider";
 
 const mockAuth = (perms: string[]) => {
   vi.mocked(useAuthContext).mockReturnValue({

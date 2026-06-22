@@ -1,13 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../ui/card";
-import { Button } from "../../ui/button";
-import { Input } from "../../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
-import { Badge } from "../../ui/badge";
-import { AdminService } from "../../../lib/services/admin-service";
-import { Advisor } from "../../../types/auth";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { AdminService } from "@/lib/services/admin-service";
+import { Advisor } from "@/types/auth";
 import {
   Search,
   Filter,
@@ -27,7 +33,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,7 +43,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../../ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 
 interface PaginatedResponse<T> {
   data: T[];
@@ -87,9 +93,9 @@ const AdvisorManagement = () => {
         sort_order: "desc",
       });
       setAdvisors(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error loading advisors:", error);
-      toast.error(error.message || "Fehler beim Laden der Berater");
+      toast.error((error as { message?: string }).message || "Fehler beim Laden der Berater");
     } finally {
       setIsLoading(false);
     }
@@ -105,9 +111,11 @@ const AdvisorManagement = () => {
 
       // Reload advisors to reflect changes
       loadAdvisors();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error updating advisor status:", error);
-      toast.error(error.message || "Fehler beim Aktualisieren des Status");
+      toast.error(
+        (error as { message?: string }).message || "Fehler beim Aktualisieren des Status",
+      );
     } finally {
       setActionLoading(null);
     }
@@ -126,9 +134,9 @@ const AdvisorManagement = () => {
       loadAdvisors();
       setShowDeleteDialog(false);
       setSelectedAdvisor(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting advisor:", error);
-      toast.error(error.message || "Fehler beim Löschen des Beraters");
+      toast.error((error as { message?: string }).message || "Fehler beim Löschen des Beraters");
     } finally {
       setActionLoading(null);
     }
@@ -183,7 +191,10 @@ const AdvisorManagement = () => {
               </div>
             </div>
             <div className="sm:w-48">
-              <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
+              <Select
+                value={statusFilter}
+                onValueChange={(value: "all" | "active" | "blocked") => setStatusFilter(value)}
+              >
                 <SelectTrigger>
                   <Filter className="w-4 h-4 mr-2" />
                   <SelectValue placeholder="Status filtern" />

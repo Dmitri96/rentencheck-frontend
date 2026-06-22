@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ClientService } from "@/lib/services/client-service";
 import { RentencheckService, type Rentencheck } from "@/lib/services/rentencheck-service";
-import { useAuthContext } from "@/providers/AuthProvider";
+import { useAuthContext } from "@/providers/auth-provider";
 import type { Client } from "@/types";
 import {
   ClientDetailHeader,

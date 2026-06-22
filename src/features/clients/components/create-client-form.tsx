@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ClientService } from "@/lib/services/client-service";
 import { createClientSchema, type CreateClientFormInput } from "@/lib/validations/client";
-import { useAuthContext } from "@/providers/AuthProvider";
+import { useAuthContext } from "@/providers/auth-provider";
 
 export function CreateClientForm() {
   const router = useRouter();
@@ -65,9 +65,15 @@ export function CreateClientForm() {
     } catch (error: unknown) {
       console.error("Error creating client:", error);
 
-      // Handle validation errors
-      if (error.response?.status === 422 && error.response?.data?.errors) {
-        const serverErrors = error.response.data.errors;
+      // Handle validation errors from the API response
+      const apiError = error as {
+        response?: {
+          status?: number;
+          data?: { errors?: Record<string, string[]>; message?: string };
+        };
+      };
+      if (apiError.response?.status === 422 && apiError.response?.data?.errors) {
+        const serverErrors = apiError.response.data.errors;
         Object.keys(serverErrors).forEach((field) => {
           const messages = serverErrors[field];
           if (Array.isArray(messages) && messages.length > 0) {
@@ -76,7 +82,8 @@ export function CreateClientForm() {
         });
       } else {
         toast.error(
-          error.response?.data?.message || "Ein Fehler ist beim Anlegen des Mandanten aufgetreten",
+          apiError.response?.data?.message ||
+            "Ein Fehler ist beim Anlegen des Mandanten aufgetreten",
         );
       }
     } finally {

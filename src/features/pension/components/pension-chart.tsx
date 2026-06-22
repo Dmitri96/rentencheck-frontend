@@ -13,8 +13,8 @@ import { Line } from "react-chartjs-2";
 import { Filler } from "chart.js";
 import annotationPlugin from "chartjs-plugin-annotation";
 import type { Rentencheck } from "@/lib/services/rentencheck-service";
-import { DisabilityIncomeDiagram } from "@/components/disability-income-diagram";
-import { PensionResultsTable } from "@/components/pension-results-table";
+import { DisabilityIncomeDiagram } from "./disability-income-diagram";
+import { PensionResultsTable } from "./pension-results-table";
 import { usePensionCalculation, type PensionData } from "@/features/pension";
 
 ChartJS.register(

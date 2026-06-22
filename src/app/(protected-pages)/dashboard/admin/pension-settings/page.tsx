@@ -1,5 +1,5 @@
-import { PensionSettingsPanel } from "../../../../../components/admin/pension-settings-panel";
-import RoleGuard from "../../../../../components/auth/role-guard";
+import { PensionSettingsPanel } from "@/features/admin/components/pension-settings-panel";
+import RoleGuard from "@/features/auth/components/role-guard";
 
 export default function PensionSettingsPage() {
   return (

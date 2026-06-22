@@ -100,14 +100,15 @@ export function PensionResultsOverview({ data, desiredPension }: PensionResultsO
     // }
 
     // Payout contracts grouped by type
-    const contractsByType = payoutContracts.reduce(
-      (acc: Record<string, any[]>, contract: any) => {
+    type ContractItem = { contractType?: string; guaranteedAmount?: string | number };
+    const contractsByType = (payoutContracts as ContractItem[]).reduce(
+      (acc: Record<string, ContractItem[]>, contract: ContractItem) => {
         const type = contract.contractType || "Sonstige";
         if (!acc[type]) acc[type] = [];
         acc[type].push(contract);
         return acc;
       },
-      {} as Record<string, any[]>,
+      {} as Record<string, ContractItem[]>,
     );
 
     Object.entries(contractsByType).forEach(([type, contracts]) => {
@@ -126,34 +127,40 @@ export function PensionResultsOverview({ data, desiredPension }: PensionResultsO
     });
 
     // Pension contracts
-    pensionContracts.forEach((contract: any, index: number) => {
-      const monthlyAmount = Number(contract.monthlyAmount) || 0;
-      if (monthlyAmount > 0) {
-        incomeRows.push({
-          source: contract.contractType || `Rentenvertrag ${index + 1}`,
-          ...calculateNetAmounts(monthlyAmount),
-        });
-      }
-    });
+    type PensionContractItem = { contractType?: string; monthlyAmount?: string | number };
+    (pensionContracts as PensionContractItem[]).forEach(
+      (contract: PensionContractItem, index: number) => {
+        const monthlyAmount = Number(contract.monthlyAmount) || 0;
+        if (monthlyAmount > 0) {
+          incomeRows.push({
+            source: contract.contractType || `Rentenvertrag ${index + 1}`,
+            ...calculateNetAmounts(monthlyAmount),
+          });
+        }
+      },
+    );
 
     // Additional income
-    additionalIncome.forEach((income: any, index: number) => {
-      let monthlyAmount = Number(income.amount) || 0;
+    type AdditionalIncomeItem = { amount?: string | number; frequency?: string; type?: string };
+    (additionalIncome as AdditionalIncomeItem[]).forEach(
+      (income: AdditionalIncomeItem, index: number) => {
+        let monthlyAmount = Number(income.amount) || 0;
 
-      // Convert to monthly amount based on frequency
-      if (income.frequency === "Jährlich") {
-        monthlyAmount = monthlyAmount / 12;
-      } else if (income.frequency === "Einmalig") {
-        monthlyAmount = monthlyAmount / 240; // Spread over 20 years
-      }
+        // Convert to monthly amount based on frequency
+        if (income.frequency === "Jährlich") {
+          monthlyAmount = monthlyAmount / 12;
+        } else if (income.frequency === "Einmalig") {
+          monthlyAmount = monthlyAmount / 240; // Spread over 20 years
+        }
 
-      if (monthlyAmount > 0) {
-        incomeRows.push({
-          source: income.type || `Zusatzeinkommen ${index + 1}`,
-          ...calculateNetAmounts(monthlyAmount),
-        });
-      }
-    });
+        if (monthlyAmount > 0) {
+          incomeRows.push({
+            source: income.type || `Zusatzeinkommen ${index + 1}`,
+            ...calculateNetAmounts(monthlyAmount),
+          });
+        }
+      },
+    );
 
     return incomeRows;
   };

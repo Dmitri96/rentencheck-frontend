@@ -31,7 +31,7 @@ export function ClientInfoSection({ client, clientId }: ClientInfoSectionProps) 
 
       // Navigate to the specific rentencheck edit page
       router.push(`/dashboard/clients/${clientId}/rentencheck/${response.rentencheck.id}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating rentencheck:", error);
       toast.error("Fehler beim Erstellen des Rentenchecks");
     } finally {

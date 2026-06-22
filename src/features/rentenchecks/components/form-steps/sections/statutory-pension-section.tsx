@@ -99,12 +99,15 @@ export function StatutoryPensionSection({
                 <Input
                   id="disabilityPensionAmount"
                   type="number"
-                  value={(data as any).disabilityPensionAmount || ""}
+                  value={
+                    (data as RentenblickData & { disabilityPensionAmount?: number })
+                      .disabilityPensionAmount || ""
+                  }
                   onChange={(e) =>
                     updateData({
-                      // field is added on the form model; cast to any for forward compatibility
+                      // disabilityPensionAmount extends the base form model for forward compatibility
                       disabilityPensionAmount: Number.parseFloat(e.target.value) || 0,
-                    } as any)
+                    } as Partial<RentenblickData>)
                   }
                   placeholder="0"
                   className="h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"

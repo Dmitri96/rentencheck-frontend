@@ -37,7 +37,7 @@ export function RentenchecksCard({ clientId, rentenchecks, loading }: Rentenchec
 
       // Navigate to the specific rentencheck edit page
       router.push(`/dashboard/clients/${clientId}/rentencheck/${response.rentencheck.id}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating rentencheck:", error);
       toast.error("Fehler beim Erstellen des Rentenchecks");
     } finally {
@@ -50,7 +50,7 @@ export function RentenchecksCard({ clientId, rentenchecks, loading }: Rentenchec
       setCreating(true);
       await RentencheckService.downloadPdf(parseInt(clientId), rentencheckId);
       toast.success("PDF wird heruntergeladen...");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error downloading PDF:", error);
       toast.error("Fehler beim Herunterladen des PDFs");
     } finally {

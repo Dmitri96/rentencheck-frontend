@@ -13,13 +13,15 @@ import {
 } from "@/components/ui/select";
 import { Plus, Trash2, Edit, Save, X } from "lucide-react";
 import type { RentenblickData } from "../../rentenblick-form";
+import type { UseContractManagementReturn } from "@/hooks/use-contract-management";
+import type { PensionContractData } from "@/lib/validations/contract-schemas";
 
 /**
  * Props interface for the Pension Contracts Section component
  */
 interface PensionContractsSectionProps {
   data: RentenblickData;
-  contractManagement: any;
+  contractManagement: UseContractManagementReturn;
   isConfirmed: boolean;
 }
 
@@ -27,9 +29,9 @@ interface PensionContractsSectionProps {
  * Pension Contract Form Component - Extracted for proper memoization
  */
 interface PensionFormProps {
-  pensionForm: any;
-  setPensionForm: (form: any) => void;
-  state: any;
+  pensionForm: PensionContractData;
+  setPensionForm: (form: PensionContractData) => void;
+  state: UseContractManagementReturn["state"];
   handleSaveEditContract: () => void;
   handleAddPensionContract: () => void;
   handleCancelEdit: () => void;

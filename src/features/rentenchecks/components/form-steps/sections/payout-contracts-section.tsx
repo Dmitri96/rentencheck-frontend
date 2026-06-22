@@ -13,13 +13,15 @@ import {
 } from "@/components/ui/select";
 import { Plus, Trash2, Edit, Save, X } from "lucide-react";
 import type { RentenblickData } from "../../rentenblick-form";
+import type { UseContractManagementReturn } from "@/hooks/use-contract-management";
+import type { PayoutContractData } from "@/lib/validations/contract-schemas";
 
 /**
  * Props interface for the Payout Contracts Section component
  */
 interface PayoutContractsSectionProps {
   data: RentenblickData;
-  contractManagement: any;
+  contractManagement: UseContractManagementReturn;
   isConfirmed: boolean;
 }
 
@@ -27,9 +29,9 @@ interface PayoutContractsSectionProps {
  * Payout Contract Form Component - Extracted for proper memoization
  */
 interface PayoutFormProps {
-  payoutForm: any;
-  setPayoutForm: (form: any) => void;
-  state: any;
+  payoutForm: PayoutContractData;
+  setPayoutForm: (form: PayoutContractData) => void;
+  state: UseContractManagementReturn["state"];
   handleSaveEditContract: () => void;
   handleAddPayoutContract: () => void;
   handleCancelEdit: () => void;

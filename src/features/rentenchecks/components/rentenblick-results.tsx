@@ -3,8 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart3, Edit3, FileText } from "lucide-react";
-import { PensionResultsOverview } from "@/components/pension-results-overview";
-import type { RentenblickData } from "@/components/rentenblick-form";
+import { PensionResultsOverview } from "@/features/pension/components/pension-results-overview";
+import type { RentenblickData } from "@/features/rentenchecks/components/rentenblick-form";
 
 type RentenblickResultsProps = {
   data: RentenblickData;

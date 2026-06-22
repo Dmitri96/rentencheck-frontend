@@ -3,11 +3,11 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuthContext } from "../../providers/AuthProvider";
-import { Button } from "../ui/button";
-import { Card, CardContent } from "../ui/card";
+import { useAuthContext } from "@/providers/auth-provider";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { LayoutDashboard, Users, Settings, LogOut, UserCog, Plus } from "lucide-react";
-import { cn } from "../../lib/utils";
+import { cn } from "@/lib/utils";
 
 interface NavigationItem {
   href: string;

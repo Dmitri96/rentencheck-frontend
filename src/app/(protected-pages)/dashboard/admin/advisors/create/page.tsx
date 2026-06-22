@@ -1,5 +1,5 @@
-import CreateAdvisorForm from "../../../../../../components/dashboard/admin/create-advisor-form";
-import RoleGuard from "../../../../../../components/auth/role-guard";
+import CreateAdvisorForm from "@/features/admin/components/create-advisor-form";
+import RoleGuard from "@/features/auth/components/role-guard";
 
 export default function CreateAdvisorPage() {
   return (

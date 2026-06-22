@@ -1,5 +1,5 @@
-import AdvisorManagement from "../../../../../components/dashboard/admin/advisor-management";
-import RoleGuard from "../../../../../components/auth/role-guard";
+import AdvisorManagement from "@/features/admin/components/advisor-management";
+import RoleGuard from "@/features/auth/components/role-guard";
 
 export default function AdvisorManagementPage() {
   return (
