@@ -2,23 +2,22 @@ import { api, ensureCsrfCookie } from "@/lib/api";
 import type { ApiError, AuthResponse, LoginInput, RegisterInput, User } from "@/types/auth";
 import type { components } from "@/lib/api/schema";
 
-// TODO Wave 3C: backend UserResource has loose string-typed fields; narrow here until annotations land.
 type UserResource = components["schemas"]["UserResource"];
 
 function mapUserResource(resource: UserResource): User {
   return {
-    id: Number(resource.id),
+    id: resource.id,
     name: resource.name,
     first_name: resource.first_name,
     last_name: resource.last_name,
     full_name: resource.full_name,
     email: resource.email,
-    phone: resource.phone || undefined,
-    company: resource.company || undefined,
+    phone: resource.phone ?? undefined,
+    company: resource.company ?? undefined,
     plan: resource.plan,
     status: resource.status as User["status"],
-    newsletter: resource.newsletter === "1" || resource.newsletter === "true",
-    roles: resource.roles?.map(String) ?? [],
+    newsletter: resource.newsletter,
+    roles: resource.roles ? Object.values(resource.roles).map(String) : [],
     is_admin: resource.is_admin,
     is_advisor: resource.is_advisor,
     is_active: resource.is_active,
@@ -55,9 +54,9 @@ export class AuthService {
     }
 
     return {
-      user: mapUserResource(data.user),
+      user: mapUserResource(data.data.user),
       // Token is still issued by backend but frontend uses session cookies.
-      token: data.token,
+      token: data.data.token,
       message: data.message,
     };
   }
@@ -89,8 +88,8 @@ export class AuthService {
     }
 
     return {
-      user: mapUserResource(data.user),
-      token: data.token,
+      user: mapUserResource(data.data.user),
+      token: data.data.token,
       message: data.message,
     };
   }
@@ -118,7 +117,7 @@ export class AuthService {
       throw this.normaliseError(error as ApiError);
     }
 
-    return mapUserResource(data.user);
+    return mapUserResource(data.data.user);
   }
 
   private static normaliseError(error: ApiError): ApiError {

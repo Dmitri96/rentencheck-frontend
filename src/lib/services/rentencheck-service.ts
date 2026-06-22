@@ -202,8 +202,8 @@ export interface RentencheckListResponse {
   };
 }
 
-// TODO Wave 3C: rentencheck schema types are very loose (rentencheck: string[], client: string).
-// These casts unwrap the real runtime shape until backend Resource annotations land.
+// Scramble infers rentencheck endpoints loosely (Eloquent model.toArray() has no typed schema).
+// These helpers unwrap the real runtime shape.
 function unwrapRentencheckResponse(raw: unknown): RentencheckResponse {
   const payload = raw as {
     data?: {
@@ -307,7 +307,7 @@ export class RentencheckService {
       "/clients/{clientId}/rentenchecks/{rentencheckId}/step/{step}",
       {
         params: { path: { clientId, rentencheckId, step } },
-        // TODO Wave 3C: schema marks requestBody as `never`; body accepted at runtime.
+        // Scramble cannot infer the UpdateRentencheckStepRequest body shape; cast is required.
         body: stepData as never,
       },
     );
@@ -435,7 +435,7 @@ export class RentencheckService {
 
     if (error) throw error;
 
-    // TODO Wave 3C: schema types pension_data fields loosely; cast to typed shape.
+    // Schema types pension_data fields via inference from PensionCalculator.analyze(); cast for client/totals.
     const payload = data as unknown as {
       data: {
         pension_data: PensionCalculationData;

@@ -5,28 +5,6 @@ import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { RentencheckData } from "@/lib/services/rentencheck-service";
 
-// Narrow type for the admin "current_parameters" response used for mapping defaults
-type PensionParameters = {
-  economic_assumptions?: {
-    inflation_rate?: number;
-    pension_increase_rate?: number;
-    investment_return_rate?: number;
-  };
-  social_insurance?: {
-    health_insurance_rate?: number;
-    additional_health_insurance_rate?: number;
-    care_insurance_rate?: number;
-    total_insurance_rate?: number;
-    health_insurance_exemption_bav?: number;
-  };
-  tax_system?: unknown;
-  regional_taxes?: unknown;
-  demographics?: {
-    retirement_age?: number;
-    life_expectancy?: number;
-  };
-};
-
 const DEFAULT_FORM_DATA: RentencheckData = {
   profession: "",
   currentGrossIncome: 0,
@@ -124,14 +102,10 @@ export function useRentenblickForm({
     const load = async () => {
       try {
         setLoading(true);
-        // TODO Wave 3C: /pension-parameters schema typed as `string`; real shape is object.
         const { data: rawData, error } = await api.GET("/pension-parameters");
         if (error) throw new Error("API Fehler");
 
-        const res = rawData as unknown as { success?: boolean; data?: PensionParameters };
-        if (!res.success) throw new Error("API Fehler");
-
-        const p = (res.data ?? {}) as PensionParameters;
+        const p = rawData.data.parameters;
 
         const mappedDefaults: Partial<RentencheckData> = {
           assumedInflation: p.economic_assumptions?.inflation_rate ?? undefined,

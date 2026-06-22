@@ -10,26 +10,24 @@ import type {
 } from "@/types";
 import type { components } from "@/lib/api/schema";
 
-// TODO Wave 3C: ClientResource has string-typed fields (id, age, is_active…).
 type ClientResource = components["schemas"]["ClientResource"];
 
 function mapClientResource(r: ClientResource): Client {
   return {
-    id: Number(r.id),
+    id: r.id,
     first_name: r.first_name,
     last_name: r.last_name,
     full_name: r.full_name,
     email: r.email,
-    phone: r.phone || undefined,
-    street: r.street || undefined,
-    city: r.city || undefined,
-    postal_code: r.postal_code || undefined,
+    phone: r.phone ?? undefined,
+    street: r.street ?? undefined,
+    city: r.city ?? undefined,
+    postal_code: r.postal_code ?? undefined,
     birth_date: r.birth_date || undefined,
-    age: r.age ? Number(r.age) : undefined,
+    age: r.age ?? undefined,
     formatted_address: r.formatted_address,
-    is_active:
-      r.is_active === "1" || r.is_active === "true" || r.is_active === (true as unknown as string),
-    notes: r.notes || undefined,
+    is_active: r.is_active,
+    notes: r.notes ?? undefined,
     created_at: r.created_at,
     updated_at: r.updated_at,
   };
@@ -70,9 +68,8 @@ export class ClientService {
     filters?: ClientFilters,
     sort?: ClientSort,
   ): Promise<ClientListResponse> {
-    // openapi-fetch doesn't support arbitrary query params for /clients yet
+    // openapi-fetch doesn't support arbitrary query params for /clients
     // (schema has query?: never). Build URL manually so filtering works.
-    // TODO Wave 3C: add query params to schema once backend controller is annotated.
     const params = new URLSearchParams({ page: page.toString() });
     if (filters?.search) params.append("search", filters.search);
     if (filters?.isActive !== undefined) params.append("is_active", filters.isActive.toString());

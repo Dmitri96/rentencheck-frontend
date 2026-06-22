@@ -66,23 +66,13 @@ export function PensionSettingsPanel() {
     const load = async () => {
       try {
         setLoading(true);
-        // TODO Wave 3C: /admin/pension-settings schema typed as `string`; real shape is object.
         const { data: rawData, error } = await api.GET("/admin/pension-settings");
         if (error) throw new Error("API Fehler");
 
-        const res = rawData as unknown as {
-          success?: boolean;
-          data?: SettingsPayload;
-          current_parameters?: PensionParameters;
-        };
-        if (!res.success) throw new Error("API Fehler");
-
-        // rows (already typed by backend resources)
-        const rows = res.data as SettingsPayload;
+        const rows = rawData.data.settings as unknown as SettingsPayload;
         setSettingsRows(rows);
 
-        // current parameters (already numeric from backend resource)
-        const p = res.current_parameters as PensionParameters;
+        const p = rawData.data.current_parameters as PensionParameters;
         setParameters(p);
         setForm(p);
       } catch (err) {
@@ -155,14 +145,10 @@ export function PensionSettingsPanel() {
         toast.info("Keine Änderungen");
         return;
       }
-      // TODO Wave 3C: /admin/pension-settings/bulk-update schema typed as `string`.
-      const { data: bulkRaw, error: bulkError } = await api.PATCH(
-        "/admin/pension-settings/bulk-update",
-        { body: { settings: changes } },
-      );
+      const { error: bulkError } = await api.PATCH("/admin/pension-settings/bulk-update", {
+        body: { settings: changes },
+      });
       if (bulkError) throw new Error("Speichern fehlgeschlagen");
-      const bulkRes = bulkRaw as unknown as { success?: boolean };
-      if (!bulkRes.success) throw new Error("Speichern fehlgeschlagen");
       toast.success("Einstellungen gespeichert");
       setParameters(form);
     } catch (err) {

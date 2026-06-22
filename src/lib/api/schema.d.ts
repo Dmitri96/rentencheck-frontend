@@ -4,44 +4,6 @@
  */
 
 export interface paths {
-    "/profile": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            user: components["schemas"]["User"];
-                            permissions: unknown[];
-                        };
-                    };
-                };
-                401: components["responses"]["AuthenticationException"];
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/admin/dashboard": {
         parameters: {
             query?: never;
@@ -115,7 +77,6 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Register a new user */
         post: operations["auth.register"];
         delete?: never;
         options?: never;
@@ -132,7 +93,6 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Login user and create token */
         post: operations["auth.login"];
         delete?: never;
         options?: never;
@@ -147,7 +107,6 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get authenticated user information */
         get: operations["auth.user"];
         put?: never;
         post?: never;
@@ -166,7 +125,6 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Logout user (revoke token) */
         post: operations["auth.logout"];
         delete?: never;
         options?: never;
@@ -206,23 +164,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/{fileId}/download": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Download a file with security checks */
-        get: operations["file.download"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/admin/pension-settings": {
         parameters: {
             query?: never;
@@ -232,22 +173,6 @@ export interface paths {
         };
         get: operations["pensionSettings.index"];
         put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/admin/pension-settings/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["pensionSettings.update"];
         post?: never;
         delete?: never;
         options?: never;
@@ -269,22 +194,6 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["pensionSettings.bulkUpdate"];
-        trace?: never;
-    };
-    "/admin/pension-settings/reset-defaults": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["pensionSettings.resetToDefaults"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
         trace?: never;
     };
     "/pension-parameters": {
@@ -423,37 +332,44 @@ export interface components {
         /** AdvisorDetailResource */
         AdvisorDetailResource: {
             advisor: {
-                id: string;
+                id: number;
                 name: string;
                 first_name: string;
                 last_name: string;
                 email: string;
-                phone: string;
-                company: string;
+                phone: string | null;
+                company: string | null;
                 status: string;
                 created_at: string;
             };
-            statistics: string;
-            monthly_stats: string;
-            recent_clients: string;
+            statistics: {
+                total_clients: number;
+                total_rentenchecks: number;
+                completed_rentenchecks: number;
+                pending_rentenchecks: number;
+                completion_rate: number;
+                avg_completion_time: number | null;
+            };
+            monthly_stats: unknown[];
+            recent_clients: unknown[];
         };
         /** AdvisorResource */
         AdvisorResource: {
-            id: string;
+            id: number;
             name: string;
             first_name: string;
             last_name: string;
             email: string;
-            phone: string;
-            company: string;
+            phone: string | null;
+            company: string | null;
             status: string;
             created_at: string;
             last_login: string;
             /** @description Placeholder - track separately if needed */
             statistics: {
-                total_clients: string;
-                total_rentenchecks: string;
-                completed_rentenchecks: string;
+                total_clients: number;
+                total_rentenchecks: number;
+                completed_rentenchecks: number;
                 completion_rate: number;
             };
         };
@@ -471,20 +387,20 @@ export interface components {
         };
         /** ClientResource */
         ClientResource: {
-            id: string;
+            id: number;
             first_name: string;
             last_name: string;
             full_name: string;
             email: string;
-            phone: string;
-            street: string;
-            city: string;
-            postal_code: string;
+            phone: string | null;
+            street: string | null;
+            city: string | null;
+            postal_code: string | null;
             birth_date: string;
-            age: string;
+            age: number | null;
             formatted_address: string;
-            is_active: string;
-            notes: string;
+            is_active: boolean;
+            notes: string | null;
             created_at: string;
             updated_at: string;
         };
@@ -499,19 +415,6 @@ export interface components {
             password: string;
             password_confirmation: string;
         };
-        /** DashboardOverviewResource */
-        DashboardOverviewResource: {
-            overview: {
-                total_advisors: string;
-                active_advisors: string;
-                blocked_advisors: string;
-                total_clients: string;
-                total_rentenchecks: string;
-                completed_rentenchecks: string;
-                completion_rate: string;
-            };
-            recent_activity: string;
-        };
         /** File */
         File: string[];
         /** LoginRequest */
@@ -520,6 +423,60 @@ export interface components {
             email: string;
             password: string;
             remember_me?: boolean | null;
+        };
+        /** PensionParametersResource */
+        PensionParametersResource: {
+            economic_assumptions: {
+                inflation_rate: number;
+                pension_increase_rate: number;
+                investment_return_rate: number;
+            };
+            social_insurance: {
+                health_insurance_rate: number;
+                additional_health_insurance_rate: number;
+                care_insurance_rate: number;
+                total_insurance_rate: number;
+                health_insurance_exemption_bav: number;
+            };
+            tax_system: {
+                rates: {
+                    stufe_1: number;
+                    stufe_2: number;
+                    stufe_3: number;
+                    stufe_4: number;
+                    stufe_5: number;
+                };
+                thresholds: {
+                    threshold_1: number;
+                    threshold_2: number;
+                    threshold_3: number;
+                    threshold_4: number;
+                };
+                solidarity_surcharge_rate: number;
+                solidarity_surcharge_threshold: number;
+            };
+            regional_taxes: {
+                church_tax_bavaria_bw: number;
+                church_tax_other_states: number;
+            };
+            demographics: {
+                retirement_age: number;
+                life_expectancy: number;
+            };
+        };
+        /** PensionSettingResource */
+        PensionSettingResource: {
+            id: number;
+            key: string;
+            value: number;
+            unit: string | null;
+            description: string | null;
+            description_de: string | null;
+            formatted_value: string;
+            category: string;
+            is_active: boolean;
+            valid_from: string;
+            valid_until: string;
         };
         /** RegisterRequest */
         RegisterRequest: {
@@ -561,33 +518,22 @@ export interface components {
             /** @enum {string} */
             status: "active" | "blocked";
         };
-        /**
-         * UpdatePensionSettingRequest
-         * @description Update Pension Setting Request
-         *
-         *     Handles validation for updating individual pension settings
-         */
-        UpdatePensionSettingRequest: {
-            value: number;
-            description?: string;
-            description_de?: string;
-        };
-        /** User */
-        User: string[];
         /** UserResource */
         UserResource: {
-            id: string;
+            id: number;
             name: string;
             first_name: string;
             last_name: string;
             full_name: string;
             email: string;
-            phone: string;
-            company: string;
+            phone: string | null;
+            company: string | null;
             plan: string;
             status: string;
-            newsletter: string;
-            roles?: unknown[];
+            newsletter: boolean;
+            roles?: {
+                [key: string]: unknown;
+            };
             is_admin: boolean;
             is_advisor: boolean;
             is_active: boolean;
@@ -667,14 +613,29 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description `DashboardOverviewResource` */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["DashboardOverviewResource"];
+                        data: {
+                            total_advisors: number;
+                            active_advisors: number;
+                            blocked_advisors: number;
+                            total_clients: number;
+                            total_rentenchecks: number;
+                            completed_rentenchecks: number;
+                            completion_rate: number;
+                            recent_activity: {
+                                id: string;
+                                client_name: string;
+                                advisor_name: string;
+                                is_completed: boolean;
+                                created_at: string;
+                            }[];
+                        };
+                        message: null;
                     };
                 };
             };
@@ -734,7 +695,6 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -771,7 +731,6 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -786,7 +745,6 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description `AdvisorDetailResource` */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -794,6 +752,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: components["schemas"]["AdvisorDetailResource"];
+                        message: null;
                     };
                 };
             };
@@ -862,7 +821,6 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -879,14 +837,16 @@ export interface operations {
             };
         };
         responses: {
-            200: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        user: components["schemas"]["UserResource"];
-                        token: string;
+                        data: {
+                            user: components["schemas"]["UserResource"];
+                            token: string;
+                        };
                         /** @constant */
                         message: "Registrierung erfolgreich";
                     };
@@ -914,8 +874,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        user: components["schemas"]["UserResource"];
-                        token: string;
+                        data: {
+                            user: components["schemas"]["UserResource"];
+                            token: string;
+                        };
                         /** @constant */
                         message: "Anmeldung erfolgreich";
                     };
@@ -940,8 +902,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        user: components["schemas"]["UserResource"];
-                        permissions: unknown[];
+                        data: {
+                            user: components["schemas"]["UserResource"];
+                            permissions: unknown[];
+                        };
                         /** @constant */
                         message: "Benutzerinformationen erfolgreich abgerufen";
                     };
@@ -965,6 +929,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        data: string[];
                         /** @constant */
                         message: "Erfolgreich abgemeldet";
                     };
@@ -1145,61 +1110,6 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "file.download": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                fileId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": string;
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @constant */
-                        message: "Zugriff verweigert";
-                    };
-                };
-            };
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @constant */
-                        message: "Datei nicht gefunden";
-                    };
-                };
-            };
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @constant */
-                        message: "Fehler beim Herunterladen der Datei";
-                    };
-                };
-            };
-        };
-    };
     "pensionSettings.index": {
         parameters: {
             query?: never;
@@ -1214,39 +1124,19 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
+                    "application/json": {
+                        data: {
+                            settings: {
+                                [key: string]: unknown;
+                            };
+                            current_parameters: components["schemas"]["PensionParametersResource"];
+                        };
+                        message: null;
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "pensionSettings.update": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdatePensionSettingRequest"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": string;
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-            422: components["responses"]["ValidationException"];
         };
     };
     "pensionSettings.bulkUpdate": {
@@ -1267,33 +1157,18 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
+                    "application/json": {
+                        data: {
+                            settings: components["schemas"]["PensionSettingResource"][];
+                            current_parameters: components["schemas"]["PensionParametersResource"];
+                        };
+                        message: string;
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
-        };
-    };
-    "pensionSettings.resetToDefaults": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": string;
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
         };
     };
     "pensionSettings.getParameters": {
@@ -1310,7 +1185,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
+                    "application/json": {
+                        data: {
+                            parameters: components["schemas"]["PensionParametersResource"];
+                        };
+                        message: null;
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];
@@ -1334,7 +1214,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: {
-                            data: unknown[];
+                            rentenchecks: unknown[];
                             client: string;
                         };
                         message: null;
@@ -1404,7 +1284,6 @@ export interface operations {
                                 pensionContracts: unknown[];
                                 additionalIncome: unknown[];
                             };
-                            /** @description Assume 10 years of additional income */
                             pension_totals: {
                                 payout_total: number;
                                 pension_monthly_total: number;
@@ -1474,8 +1353,7 @@ export interface operations {
                                 currentAge: number;
                                 inflationRate: number;
                                 retirementAge: number;
-                                /** @constant */
-                                lifeExpectancy: 85;
+                                lifeExpectancy: number;
                                 desiredPensionToday: number;
                                 desiredPensionRetirement: number;
                                 desiredPensionLifeExpectancy: number;
@@ -1528,7 +1406,6 @@ export interface operations {
                                     };
                                 };
                             };
-                            /** @description Assume 10 years of additional income */
                             pension_totals: {
                                 payout_total: number;
                                 pension_monthly_total: number;

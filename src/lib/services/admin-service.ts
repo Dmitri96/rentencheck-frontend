@@ -8,11 +8,8 @@ import type {
 } from "../../types/auth";
 import type { components } from "@/lib/api/schema";
 
-// TODO Wave 3C: AdvisorResource has string-typed numeric fields (id, total_clients…).
-// Narrow the schema types here until backend Resource annotations land.
 type AdvisorResource = components["schemas"]["AdvisorResource"];
 type AdvisorDetailResource = components["schemas"]["AdvisorDetailResource"];
-type DashboardOverviewResource = components["schemas"]["DashboardOverviewResource"];
 
 interface GetAdvisorsParams {
   status?: "all" | "active" | "blocked";
@@ -39,20 +36,20 @@ interface PaginatedResponse<T> {
 
 function mapAdvisorResource(r: AdvisorResource): Advisor {
   return {
-    id: Number(r.id),
+    id: r.id,
     name: r.name,
     first_name: r.first_name,
     last_name: r.last_name,
     email: r.email,
-    phone: r.phone || undefined,
-    company: r.company || undefined,
+    phone: r.phone ?? undefined,
+    company: r.company ?? undefined,
     status: r.status as Advisor["status"],
     created_at: r.created_at,
     last_login: r.last_login || undefined,
     statistics: {
-      total_clients: Number(r.statistics.total_clients),
-      total_rentenchecks: Number(r.statistics.total_rentenchecks),
-      completed_rentenchecks: Number(r.statistics.completed_rentenchecks),
+      total_clients: r.statistics.total_clients,
+      total_rentenchecks: r.statistics.total_rentenchecks,
+      completed_rentenchecks: r.statistics.completed_rentenchecks,
       completion_rate: r.statistics.completion_rate,
     },
   };
@@ -87,22 +84,25 @@ export class AdminService {
       throw handleApiError(error);
     }
 
-    // TODO Wave 3C: DashboardOverviewResource has string-typed numeric fields.
-    const overview = data.data.overview as DashboardOverviewResource["overview"];
-    const recentActivity = data.data
-      .recent_activity as unknown as AdminDashboardData["recent_activity"];
+    const dashboardData = data.data;
 
     return {
       overview: {
-        total_advisors: Number(overview.total_advisors),
-        active_advisors: Number(overview.active_advisors),
-        blocked_advisors: Number(overview.blocked_advisors),
-        total_clients: Number(overview.total_clients),
-        total_rentenchecks: Number(overview.total_rentenchecks),
-        completed_rentenchecks: Number(overview.completed_rentenchecks),
-        completion_rate: Number(overview.completion_rate),
+        total_advisors: dashboardData.total_advisors,
+        active_advisors: dashboardData.active_advisors,
+        blocked_advisors: dashboardData.blocked_advisors,
+        total_clients: dashboardData.total_clients,
+        total_rentenchecks: dashboardData.total_rentenchecks,
+        completed_rentenchecks: dashboardData.completed_rentenchecks,
+        completion_rate: dashboardData.completion_rate,
       },
-      recent_activity: recentActivity ?? [],
+      recent_activity: dashboardData.recent_activity.map((a) => ({
+        id: Number(a.id),
+        client_name: a.client_name,
+        advisor_name: a.advisor_name,
+        is_completed: a.is_completed,
+        created_at: a.created_at,
+      })),
     };
   }
 
@@ -156,39 +156,29 @@ export class AdminService {
       throw handleApiError(error);
     }
 
-    // TODO Wave 3C: AdvisorDetailResource has `statistics` and `monthly_stats` typed as `string`.
     const resource = data.data as AdvisorDetailResource;
-    const stats = resource.statistics as unknown as AdvisorDetails["statistics"];
-    const monthlyStats = resource.monthly_stats as unknown as AdvisorDetails["monthly_stats"];
-    const recentClients = resource.recent_clients as unknown as AdvisorDetails["recent_clients"];
 
     return {
       advisor: {
-        id: Number(resource.advisor.id),
+        id: resource.advisor.id,
         name: resource.advisor.name,
         first_name: resource.advisor.first_name,
         last_name: resource.advisor.last_name,
         email: resource.advisor.email,
-        phone: resource.advisor.phone || undefined,
-        company: resource.advisor.company || undefined,
+        phone: resource.advisor.phone ?? undefined,
+        company: resource.advisor.company ?? undefined,
         status: resource.advisor.status as Advisor["status"],
         created_at: resource.advisor.created_at,
         statistics: {
-          total_clients: 0,
-          total_rentenchecks: 0,
-          completed_rentenchecks: 0,
-          completion_rate: 0,
+          total_clients: resource.statistics.total_clients,
+          total_rentenchecks: resource.statistics.total_rentenchecks,
+          completed_rentenchecks: resource.statistics.completed_rentenchecks,
+          completion_rate: resource.statistics.completion_rate,
         },
       },
-      statistics: stats ?? {
-        total_clients: 0,
-        total_rentenchecks: 0,
-        completed_rentenchecks: 0,
-        pending_rentenchecks: 0,
-        completion_rate: 0,
-      },
-      monthly_stats: monthlyStats ?? [],
-      recent_clients: recentClients ?? [],
+      statistics: resource.statistics,
+      monthly_stats: (resource.monthly_stats as AdvisorDetails["monthly_stats"]) ?? [],
+      recent_clients: (resource.recent_clients as AdvisorDetails["recent_clients"]) ?? [],
     };
   }
 

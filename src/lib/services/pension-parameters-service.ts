@@ -58,9 +58,6 @@ class PensionParametersService {
    * Fetch advisor-readable pension parameters from the backend.
    * Falls back to hard-coded defaults if the request fails so chart
    * components can still render without a network round-trip.
-   *
-   * TODO Wave 3C: schema typed as `string` for /pension-parameters 200 response.
-   * Once backend annotations land, replace the `as unknown` cast below.
    */
   async getPensionParameters(): Promise<PensionParameters> {
     try {
@@ -71,19 +68,29 @@ class PensionParametersService {
         return DEFAULTS;
       }
 
-      // TODO Wave 3C: schema returns `string` for this endpoint; real shape is the object below.
-      const payload = data as unknown as {
-        success?: boolean;
-        data?: PensionParameters;
-        current_parameters?: PensionParameters;
+      const params = data.data.parameters;
+
+      return {
+        economic_assumptions: {
+          inflation_rate: params.economic_assumptions.inflation_rate,
+          pension_increase_rate: params.economic_assumptions.pension_increase_rate,
+          investment_return_rate: params.economic_assumptions.investment_return_rate,
+        },
+        social_insurance: {
+          health_insurance_rate: params.social_insurance.health_insurance_rate,
+          additional_health_insurance_rate:
+            params.social_insurance.additional_health_insurance_rate,
+          care_insurance_rate: params.social_insurance.care_insurance_rate,
+          total_insurance_rate: params.social_insurance.total_insurance_rate,
+          health_insurance_exemption_bav: params.social_insurance.health_insurance_exemption_bav,
+        },
+        tax_system: {
+          rates: params.tax_system.rates,
+          thresholds: params.tax_system.thresholds,
+          solidarity_surcharge_rate: params.tax_system.solidarity_surcharge_rate,
+          solidarity_surcharge_threshold: params.tax_system.solidarity_surcharge_threshold,
+        },
       };
-
-      if (!payload.success) {
-        console.warn("Pension parameters API returned success=false, using defaults");
-        return DEFAULTS;
-      }
-
-      return payload.data ?? DEFAULTS;
     } catch (error) {
       console.warn("Failed to fetch dynamic pension parameters, using defaults:", error);
       return DEFAULTS;

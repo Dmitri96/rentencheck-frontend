@@ -135,7 +135,7 @@ export interface AdvisorDetails {
     completed_rentenchecks: number;
     pending_rentenchecks: number;
     completion_rate: number;
-    avg_completion_time?: number;
+    avg_completion_time?: number | null;
   };
   monthly_stats: MonthlyStats[];
   recent_clients: {
