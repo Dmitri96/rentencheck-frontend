@@ -5,10 +5,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ClientService } from "@/lib/services/client-service";
 import { RentencheckService, type Rentencheck } from "@/lib/services/rentencheck-service";
-import { useAuthContext } from "@/providers/auth-provider";
 import type { Client } from "@/types";
 import {
-  ClientDetailHeader,
   ClientInfoSection,
   ClientContactCard,
   ClientStatsCard,
@@ -16,6 +14,7 @@ import {
   ClientLoadingState,
   ClientErrorState,
 } from "./client-detail";
+import { DashboardShell } from "@/components/dashboard-shell";
 
 interface ClientDetailViewProps {
   clientId: string;
@@ -23,7 +22,6 @@ interface ClientDetailViewProps {
 
 export function ClientDetailView({ clientId }: ClientDetailViewProps) {
   const router = useRouter();
-  const { logout } = useAuthContext();
   const [client, setClient] = useState<Client | null>(null);
   const [rentenchecks, setRentenchecks] = useState<Rentencheck[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,16 +60,6 @@ export function ClientDetailView({ clientId }: ClientDetailViewProps) {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      router.push("/login");
-    } catch (error) {
-      console.error("Logout error:", error);
-      router.push("/login");
-    }
-  };
-
   // Loading state
   if (loading) {
     return <ClientLoadingState />;
@@ -84,29 +72,25 @@ export function ClientDetailView({ clientId }: ClientDetailViewProps) {
 
   // Main content
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <ClientDetailHeader onLogout={handleLogout} />
+    <DashboardShell title="Mandantendetails" backHref="/dashboard">
+      <ClientInfoSection client={client} clientId={clientId} />
 
-      <div className="container mx-auto px-6 py-8">
-        <ClientInfoSection client={client} clientId={clientId} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Client Information Sidebar */}
+        <div className="lg:col-span-1 space-y-6">
+          <ClientContactCard client={client} />
+          <ClientStatsCard client={client} rentenchecks={rentenchecks} />
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Client Information Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-            <ClientContactCard client={client} />
-            <ClientStatsCard client={client} rentenchecks={rentenchecks} />
-          </div>
-
-          {/* Rentenchecks Main Content */}
-          <div className="lg:col-span-2">
-            <RentenchecksCard
-              clientId={clientId}
-              rentenchecks={rentenchecks}
-              loading={rentenchecksLoading}
-            />
-          </div>
+        {/* Rentenchecks Main Content */}
+        <div className="lg:col-span-2">
+          <RentenchecksCard
+            clientId={clientId}
+            rentenchecks={rentenchecks}
+            loading={rentenchecksLoading}
+          />
         </div>
       </div>
-    </div>
+    </DashboardShell>
   );
 }

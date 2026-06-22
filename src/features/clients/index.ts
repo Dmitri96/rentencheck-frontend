@@ -9,7 +9,6 @@ export { CreateClientForm } from "./components/create-client-form";
 
 // Client detail sub-components — exported for pages that render them individually
 export {
-  ClientDetailHeader,
   ClientInfoSection,
   ClientContactCard,
   ClientStatsCard,

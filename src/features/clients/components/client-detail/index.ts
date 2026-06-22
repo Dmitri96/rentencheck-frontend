@@ -1,5 +1,4 @@
 // Client Detail Components
-export { ClientDetailHeader } from "./client-detail-header";
 export { ClientInfoSection } from "./client-info-section";
 export { ClientContactCard } from "./client-contact-card";
 export { ClientStatsCard } from "./client-stats-card";

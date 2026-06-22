@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
+"use client";
+
+import { useCallback } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { LoginInput, RegisterInput, User, ApiError } from "@/types/auth";
-import { clearAuth, getToken, getUser, saveToken, saveUser } from "@/lib/storage";
 import { AuthService } from "@/lib/services/auth-service";
 import { ensureCsrfCookie, resetCsrfCookieCache } from "@/lib/api";
 import { toast } from "sonner";
 
 export interface UseAuthReturn {
   user: User | null;
-  token: string | null;
+  token: string | null; // kept for API shape compatibility; always null (no localStorage)
   permissions: string[];
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -18,159 +20,137 @@ export interface UseAuthReturn {
   clearError: () => void;
 }
 
+/**
+ * Fetches the current session user from the server via Sanctum session cookies.
+ * Returns null on 401 (not authenticated) instead of throwing.
+ */
+async function fetchCurrentUser(): Promise<User | null> {
+  try {
+    return await AuthService.getCurrentUser();
+  } catch {
+    // 401 → not logged in; treat as unauthenticated rather than an error
+    return null;
+  }
+}
+
 export function useAuth(): UseAuthReturn {
-  // Initialize with values that work for both server and client
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [permissions, setPermissions] = useState<string[]>([]);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  // This effect runs only once after the component mounts on the client
-  useEffect(() => {
-    const storedToken = getToken();
-    const storedUser = getUser();
+  // Server-state bootstrap: replace the old localStorage useEffect.
+  // isLoading is true during the initial fetch, false once we know auth state.
+  const {
+    data: user = null,
+    isLoading,
+    error: queryError,
+  } = useQuery<User | null>({
+    queryKey: ["me"],
+    queryFn: fetchCurrentUser,
+    // Stale after 60s; re-validates on window focus by default is off (set in QueryProvider)
+    staleTime: 60_000,
+    retry: 0, // 401 is expected when not logged in — don't hammer the endpoint
+  });
 
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(storedUser);
-      setIsAuthenticated(true);
-      // Initialize permissions based on user role
-      setPermissions(storedUser.roles || []);
-    }
-
-    setIsLoading(false);
-  }, []);
-
-  // Register a new user
-  const register = useCallback(async (data: RegisterInput): Promise<void> => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      await ensureCsrfCookie(); // Sanctum SPA — warm XSRF-TOKEN cookie before mutation
-      const response = await AuthService.register(data);
-      setToken(response.token);
-      setUser(response.user);
-      setPermissions(response.permissions || []);
-      setIsAuthenticated(true);
-
-      // Save to localStorage (AuthService already handles this, but we keep it for consistency)
-      if (typeof window !== "undefined") {
-        saveToken(response.token);
-        saveUser(response.user);
-      }
-
-      toast.success("Registrierung erfolgreich!");
-    } catch (err) {
-      const apiError = err as ApiError;
-      const errorMessage = apiError.message || "Registrierung fehlgeschlagen";
-      setError(errorMessage);
-
-      // Handle validation errors
-      if (apiError.errors) {
-        Object.entries(apiError.errors).forEach(([field, messages]) => {
-          toast.error(`${field}: ${messages.join(", ")}`);
-        });
-      } else {
-        toast.error(errorMessage);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Login user
-  const login = useCallback(async (data: LoginInput): Promise<void> => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      await ensureCsrfCookie(); // Sanctum SPA — warm XSRF-TOKEN cookie before mutation
-      const response = await AuthService.login(data);
-      setToken(response.token);
-      setUser(response.user);
-      setPermissions(response.permissions || []);
-      setIsAuthenticated(true);
-
-      // Save to localStorage (AuthService already handles this, but we keep it for consistency)
-      if (typeof window !== "undefined") {
-        saveToken(response.token);
-        saveUser(response.user);
-      }
-
+  // Login mutation: warms CSRF cookie, calls AuthService, then re-fetches ['me']
+  const loginMutation = useMutation<void, ApiError, LoginInput>({
+    mutationFn: async (credentials) => {
+      await ensureCsrfCookie();
+      await AuthService.login(credentials);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["me"] });
       toast.success("Anmeldung erfolgreich!");
-    } catch (err) {
-      const apiError = err as ApiError;
-      const errorMessage = apiError.message || "Anmeldung fehlgeschlagen";
-      setError(errorMessage);
-
-      // Handle validation errors
-      if (apiError.errors) {
-        Object.entries(apiError.errors).forEach(([field, messages]) => {
+    },
+    onError: (err) => {
+      const errorMessage = err.message || "Anmeldung fehlgeschlagen";
+      if (err.errors) {
+        Object.entries(err.errors).forEach(([field, messages]) => {
           toast.error(`${field}: ${messages.join(", ")}`);
         });
       } else {
         toast.error(errorMessage);
       }
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+  });
 
-  // Logout user
-  const logout = useCallback(async (): Promise<void> => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      await AuthService.logout();
-
-      // Clear state and localStorage
-      setToken(null);
-      setUser(null);
-      setPermissions([]);
-      setIsAuthenticated(false);
-
-      // Clear localStorage (AuthService already handles this, but we keep it for consistency)
-      if (typeof window !== "undefined") {
-        clearAuth();
+  // Register mutation: same CSRF → register → invalidate ['me']
+  const registerMutation = useMutation<void, ApiError, RegisterInput>({
+    mutationFn: async (input) => {
+      await ensureCsrfCookie();
+      await AuthService.register(input);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      toast.success("Registrierung erfolgreich!");
+    },
+    onError: (err) => {
+      const errorMessage = err.message || "Registrierung fehlgeschlagen";
+      if (err.errors) {
+        Object.entries(err.errors).forEach(([field, messages]) => {
+          toast.error(`${field}: ${messages.join(", ")}`);
+        });
+      } else {
+        toast.error(errorMessage);
       }
-      resetCsrfCookieCache(); // next login warms a fresh XSRF-TOKEN
+    },
+  });
 
+  // Logout mutation: clears server session, nulls ['me'] cache, resets CSRF
+  const logoutMutation = useMutation<void, ApiError, void>({
+    mutationFn: () => AuthService.logout(),
+    onSuccess: () => {
+      queryClient.setQueryData(["me"], null);
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      resetCsrfCookieCache();
       toast.success("Erfolgreich abgemeldet");
-    } catch (err) {
-      const apiError = err as ApiError;
-      const errorMessage = apiError.message || "Fehler beim Abmelden";
-      setError(errorMessage);
-      toast.error(errorMessage);
+    },
+    onError: (err) => {
+      // Even on failure, clear local cache so the UI reflects logout
+      queryClient.setQueryData(["me"], null);
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      resetCsrfCookieCache();
+      toast.error(err.message || "Fehler beim Abmelden");
+    },
+  });
 
-      // Even if logout fails on server, clear local state
-      setToken(null);
-      setUser(null);
-      setPermissions([]);
-      setIsAuthenticated(false);
+  const login = useCallback(
+    async (data: LoginInput): Promise<void> => {
+      await loginMutation.mutateAsync(data);
+    },
+    [loginMutation],
+  );
 
-      if (typeof window !== "undefined") {
-        clearAuth();
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const register = useCallback(
+    async (data: RegisterInput): Promise<void> => {
+      await registerMutation.mutateAsync(data);
+    },
+    [registerMutation],
+  );
 
-  // Clear error
-  const clearError = useCallback((): void => {
-    setError(null);
-  }, []);
+  const logout = useCallback(async (): Promise<void> => {
+    await logoutMutation.mutateAsync();
+  }, [logoutMutation]);
+
+  // clearError is a no-op for API compat; mutation errors are transient in TanStack Query
+  const clearError = useCallback((): void => {}, []);
+
+  const permissions = user?.roles ?? [];
+
+  const error =
+    loginMutation.error?.message ??
+    registerMutation.error?.message ??
+    logoutMutation.error?.message ??
+    (queryError ? String(queryError) : null);
 
   return {
-    user,
-    token,
+    user: user ?? null,
+    token: null, // session-cookie auth; no bearer token stored in frontend
     permissions,
-    isAuthenticated,
-    isLoading,
+    isAuthenticated: !!user,
+    isLoading:
+      isLoading ||
+      loginMutation.isPending ||
+      registerMutation.isPending ||
+      logoutMutation.isPending,
     error,
     login,
     register,

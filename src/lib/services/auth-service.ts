@@ -3,23 +3,18 @@ import { AuthResponse, LoginInput, RegisterInput, User, ApiError } from "@/types
 import { AxiosError } from "axios";
 
 /**
- * Authentication Service
- * Handles all authentication-related API calls
+ * Authentication Service — network layer only.
+ * State management (who is logged in) lives in useAuth via TanStack Query ['me'].
+ * This service never reads or writes localStorage.
  */
 export class AuthService {
   /**
-   * Login user with email and password
+   * Login user with email and password.
+   * Returns the full auth response; the caller (useAuth) decides what to do with it.
    */
   static async login(credentials: LoginInput): Promise<AuthResponse> {
     try {
       const response = await ApiService.post<AuthResponse>("/auth/login", credentials);
-
-      // Store token and user data in localStorage
-      if (response.data.token) {
-        localStorage.setItem("auth_token", response.data.token);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-      }
-
       return response.data;
     } catch (error) {
       throw this.handleAuthError(error as AxiosError);
@@ -27,18 +22,11 @@ export class AuthService {
   }
 
   /**
-   * Register new user
+   * Register a new user account.
    */
   static async register(userData: RegisterInput): Promise<AuthResponse> {
     try {
       const response = await ApiService.post<AuthResponse>("/auth/register", userData);
-
-      // Store token and user data in localStorage
-      if (response.data.token) {
-        localStorage.setItem("auth_token", response.data.token);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-      }
-
       return response.data;
     } catch (error) {
       throw this.handleAuthError(error as AxiosError);
@@ -46,23 +34,20 @@ export class AuthService {
   }
 
   /**
-   * Logout current user
+   * Terminate the current Sanctum session on the server.
    */
   static async logout(): Promise<void> {
     try {
       await ApiService.post("/auth/logout");
     } catch (error) {
-      // Even if logout fails on server, clear local storage
+      // Log and swallow — the caller still clears local cache regardless
       console.error("Logout error:", error);
-    } finally {
-      // Always clear local storage
-      localStorage.removeItem("auth_token");
-      localStorage.removeItem("user");
     }
   }
 
   /**
-   * Get current authenticated user
+   * Fetch the currently authenticated user from the server.
+   * Used by the ['me'] TanStack Query to bootstrap auth state on page load.
    */
   static async getCurrentUser(): Promise<User> {
     try {
@@ -74,39 +59,7 @@ export class AuthService {
   }
 
   /**
-   * Check if user is authenticated
-   */
-  static isAuthenticated(): boolean {
-    if (typeof window === "undefined") return false;
-    return !!localStorage.getItem("auth_token");
-  }
-
-  /**
-   * Get stored user data
-   */
-  static getStoredUser(): User | null {
-    if (typeof window === "undefined") return null;
-
-    const userData = localStorage.getItem("user");
-    if (!userData) return null;
-
-    try {
-      return JSON.parse(userData);
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * Get stored auth token
-   */
-  static getStoredToken(): string | null {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem("auth_token");
-  }
-
-  /**
-   * Handle authentication errors and format them properly
+   * Handle authentication errors and normalise them into ApiError shape.
    */
   private static handleAuthError(error: AxiosError): ApiError {
     const data = (error.response?.data ?? {}) as {

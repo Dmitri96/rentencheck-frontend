@@ -19,22 +19,12 @@ const apiClient = axios.create({
 });
 
 /**
- * Request interceptor to add authorization token
+ * Request interceptor — Sanctum SPA uses session cookies; no bearer token needed.
+ * withCredentials on the instance already sends the laravel_session cookie.
  */
 apiClient.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    // Get token from localStorage or your preferred storage
-    const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
-  },
-  (error: unknown) => {
-    return Promise.reject(error);
-  },
+  (config: InternalAxiosRequestConfig) => config,
+  (error: unknown) => Promise.reject(error),
 );
 
 /**
@@ -48,11 +38,8 @@ apiClient.interceptors.response.use(
     const { response } = error;
 
     if (response?.status === 401) {
-      // Token expired or invalid
+      // Sanctum session expired — redirect to login; no localStorage to clear
       if (typeof window !== "undefined") {
-        localStorage.removeItem("auth_token");
-        localStorage.removeItem("user");
-        // Redirect to login page
         window.location.href = "/login";
       }
       toast.error("Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.");
