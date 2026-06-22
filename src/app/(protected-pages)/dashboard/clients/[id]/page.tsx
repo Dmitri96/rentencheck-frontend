@@ -1,11 +1,12 @@
 import { ClientDetailView } from "@/components/dashboard/client-detail-view";
 
+// Next.js 15 made dynamic route `params` a Promise. Resolve it server-side
+// before handing the typed id to the client component.
 interface ClientDetailPageProps {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 }
 
-export default function ClientDetailPage({ params }: ClientDetailPageProps) {
-  return <ClientDetailView clientId={params.id} />;
+export default async function ClientDetailPage({ params }: ClientDetailPageProps) {
+  const { id } = await params;
+  return <ClientDetailView clientId={id} />;
 }

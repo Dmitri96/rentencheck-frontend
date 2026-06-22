@@ -24,13 +24,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ClientService } from "@/lib/services/client-service";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/providers/AuthProvider";
 import type { Client, ClientFilters } from "@/types";
 import { RentencheckService } from "@/lib/services/rentencheck-service";
 
 export function ClientDashboard() {
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout } = useAuthContext();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,7 +48,7 @@ export function ClientDashboard() {
       setLoading(true);
       const response = await ClientService.getClients(1); // Load first page
       setClients(response.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error loading clients:", error);
       toast.error("Fehler beim Laden der Mandanten");
     } finally {
@@ -68,7 +68,7 @@ export function ClientDashboard() {
 
       // Remove from local state or reload
       setClients(clients.filter((client) => client.id !== clientId));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting client:", error);
       toast.error("Fehler beim Deaktivieren des Mandanten");
     } finally {
@@ -87,7 +87,7 @@ export function ClientDashboard() {
 
       // Navigate to the specific rentencheck edit page
       router.push(`/dashboard/clients/${client.id}/rentencheck/${response.rentencheck.id}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating rentencheck:", error);
       toast.error("Fehler beim Erstellen des Rentenchecks");
     } finally {
@@ -286,7 +286,7 @@ export function ClientDashboard() {
                 <Filter className="h-4 w-4 text-gray-500" />
                 <select
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as any)}
+                  onChange={(e) => setStatusFilter(e.target.value as "all" | "active" | "inactive")}
                   className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">Alle Status</option>

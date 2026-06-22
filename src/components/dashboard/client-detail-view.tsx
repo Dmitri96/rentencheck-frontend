@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ClientService } from "@/lib/services/client-service";
 import { RentencheckService, type Rentencheck } from "@/lib/services/rentencheck-service";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/providers/AuthProvider";
 import type { Client } from "@/types";
 import {
   ClientDetailHeader,
@@ -23,7 +23,7 @@ interface ClientDetailViewProps {
 
 export function ClientDetailView({ clientId }: ClientDetailViewProps) {
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout } = useAuthContext();
   const [client, setClient] = useState<Client | null>(null);
   const [rentenchecks, setRentenchecks] = useState<Rentencheck[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,7 +39,7 @@ export function ClientDetailView({ clientId }: ClientDetailViewProps) {
       setLoading(true);
       const response = await ClientService.getClient(parseInt(clientId));
       setClient(response.client);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error loading client:", error);
       toast.error("Fehler beim Laden der Mandantendaten");
       router.push("/dashboard");
@@ -53,7 +53,7 @@ export function ClientDetailView({ clientId }: ClientDetailViewProps) {
       setRentenchecksLoading(true);
       const response = await RentencheckService.getRentenchecks(parseInt(clientId));
       setRentenchecks(response.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error loading rentenchecks:", error);
       // Don't show error toast for rentenchecks, just show empty state
       setRentenchecks([]);

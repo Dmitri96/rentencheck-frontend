@@ -9,25 +9,10 @@ interface PensionResultsTableProps {
   desiredPension: number;
 }
 
-interface ParametersShape {
-  economic_assumptions: {
-    inflation_rate: number;
-    pension_increase_rate?: number;
-  };
-  social_insurance: {
-    total_insurance_rate: number;
-  };
-  tax_system: {
-    rates: {
-      stufe_1?: number;
-      stufe_2?: number;
-      stufe_3?: number;
-      stufe_4?: number;
-      stufe_5?: number;
-    };
-    solidarity_surcharge_rate: number;
-  };
-}
+// Re-use the central PensionCalculationData['parameters_used'] from rentencheck-service
+// rather than defining a parallel structural type — the previous local copy drifted.
+type ParametersShape =
+  import("@/lib/services/rentencheck-service").PensionCalculationData["parameters_used"];
 
 interface IncomeRowComputed {
   label: string;
@@ -61,11 +46,22 @@ export function PensionResultsTable({ data, desiredPension }: PensionResultsTabl
       } catch {
         // fallback parameters if backend call fails
         if (!mounted) return;
+        // Defensive fallback when the backend calculation endpoint fails — keeps
+        // the table renderable with conservative German defaults instead of crashing.
         setParameters({
-          economic_assumptions: { inflation_rate: 2, pension_increase_rate: 1 },
-          social_insurance: { total_insurance_rate: 12.15 },
+          economic_assumptions: {
+            inflation_rate: 2,
+            investment_return_rate: 3,
+            pension_increase_rate: 1,
+          },
+          social_insurance: {
+            health_insurance_rate: 7.3,
+            care_insurance_rate: 1.525,
+            total_insurance_rate: 12.15,
+          },
           tax_system: {
             rates: { stufe_4: 42 },
+            thresholds: {},
             solidarity_surcharge_rate: 5.5,
           },
         });
@@ -146,8 +142,9 @@ export function PensionResultsTable({ data, desiredPension }: PensionResultsTabl
     }
 
     // 3. Rentenverträge (Basis, BAV, Riester, Privat)
-    const pensionContracts = data.step_3_data?.pensionContracts || [];
-    const groupedByType = pensionContracts.reduce<Record<string, number>>((acc, c: any) => {
+    const pensionContracts: Array<{ contractType?: string; monthlyAmount?: number | string }> =
+      data.step_3_data?.pensionContracts || [];
+    const groupedByType = pensionContracts.reduce<Record<string, number>>((acc, c) => {
       const type = c.contractType || "Sonstige Rente";
       const amount = Number(c.monthlyAmount) || 0;
       acc[type] = (acc[type] || 0) + amount;
@@ -160,9 +157,10 @@ export function PensionResultsTable({ data, desiredPension }: PensionResultsTabl
     });
 
     // 4. Auszahlungsverträge (Einmalbetrag -> Monatsäquivalent)
-    const payoutContracts = data.step_3_data?.payoutContracts || [];
+    const payoutContracts: Array<{ guaranteedAmount?: number | string }> =
+      data.step_3_data?.payoutContracts || [];
     if (payoutContracts.length > 0) {
-      const monthly = payoutContracts.reduce((sum: number, c: any) => {
+      const monthly = payoutContracts.reduce((sum: number, c) => {
         const guaranteed = Number(c.guaranteedAmount) || 0;
         return sum + guaranteed / 240; // 20 Jahre -> 240 Monate
       }, 0);
@@ -170,9 +168,13 @@ export function PensionResultsTable({ data, desiredPension }: PensionResultsTabl
     }
 
     // 5. Zusatzeinkommen
-    const additionalIncome = data.step_3_data?.additionalIncome || [];
+    const additionalIncome: Array<{
+      amount?: number | string;
+      frequency?: string;
+      type?: string;
+    }> = data.step_3_data?.additionalIncome || [];
     if (additionalIncome.length > 0) {
-      const groupedIncome = additionalIncome.reduce<Record<string, number>>((acc, i: any) => {
+      const groupedIncome = additionalIncome.reduce<Record<string, number>>((acc, i) => {
         let monthly = Number(i.amount) || 0;
         if (i.frequency === "Jährlich") monthly = monthly / 12;
         if (i.frequency === "Einmalig") monthly = monthly / 240;

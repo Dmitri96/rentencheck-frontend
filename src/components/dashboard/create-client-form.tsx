@@ -16,11 +16,11 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ClientService } from "@/lib/services/client-service";
 import { createClientSchema, type CreateClientFormInput } from "@/lib/validations/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/providers/AuthProvider";
 
 export function CreateClientForm() {
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout } = useAuthContext();
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -62,7 +62,7 @@ export function CreateClientForm() {
 
       toast.success(response.message || "Mandant erfolgreich angelegt!");
       router.push("/dashboard");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating client:", error);
 
       // Handle validation errors

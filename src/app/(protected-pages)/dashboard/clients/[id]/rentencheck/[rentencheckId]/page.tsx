@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Settings, LogOut, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/providers/AuthProvider";
 import { RentenblickForm } from "@/components/rentenblick-form";
 import {
   RentencheckService,
@@ -18,7 +18,7 @@ import { Card, CardContent } from "@/components/ui/card";
 export default function EditRentencheckPage() {
   const params = useParams();
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout } = useAuthContext();
   const [loading, setLoading] = useState(true);
   const [rentencheck, setRentencheck] = useState<Rentencheck | null>(null);
   const [client, setClient] = useState<{ id: number; full_name: string; email: string } | null>(

@@ -1,5 +1,45 @@
 import { ApiService } from "../api-service";
 
+/**
+ * Response shape for GET /clients/{clientId}/rentenchecks/{rentencheckId}/calculation.
+ * Mirrors backend `PensionCalculator::analyze()`. Full OpenAPI generation lands in Wave 3C.
+ */
+export interface PensionCalculationData {
+  currentAge: number;
+  retirementAge: number;
+  lifeExpectancy: number;
+  inflationRate: number;
+  statutoryPensionGross: number;
+  statutoryPensionAfterInsurance: number;
+  privatePensionToday: number;
+  bavRiesterToday: number;
+  parameters_used: {
+    economic_assumptions: {
+      inflation_rate: number;
+      investment_return_rate: number;
+      pension_increase_rate?: number;
+    };
+    social_insurance: {
+      health_insurance_rate: number;
+      care_insurance_rate: number;
+      total_insurance_rate: number;
+    };
+    tax_system: {
+      rates: Record<string, number | undefined>;
+      thresholds: Record<string, number | undefined>;
+      solidarity_surcharge_rate?: number;
+      solidarity_surcharge_threshold?: number;
+    };
+  };
+}
+
+export interface PensionCalculationResponse {
+  pension_data: PensionCalculationData;
+  pension_totals: Record<string, unknown>;
+  client: Record<string, unknown>;
+  message: string;
+}
+
 export interface RentencheckData {
   // Step 1: Personal and Financial Information
   profession: string;
@@ -272,19 +312,17 @@ export class RentencheckService {
   }
 
   /**
-   * Get calculated pension data using dynamic backend parameters
+   * Get calculated pension data using dynamic backend parameters.
+   *
+   * Shape comes from backend `PensionCalculator::analyze()`. The full
+   * OpenAPI-generated type lands in Wave 3C once backend Resource classes
+   * gain `#[OA\Property]` annotations; until then the shape lives here
+   * mirrored from the calculator's contract.
    */
   static async getPensionCalculation(
     clientId: number,
     rentencheckId: number,
-  ): Promise<{
-    // Shape comes from backend `PensionCalculator::analyze()`; full typing lands
-    // when backend Resource classes get `#[OA\Property]` annotations (Wave 3C).
-    pension_data: Record<string, unknown>;
-    pension_totals: Record<string, unknown>;
-    client: Record<string, unknown>;
-    message: string;
-  }> {
+  ): Promise<PensionCalculationResponse> {
     const response = await ApiService.get(
       `${this.baseUrl}/${clientId}/rentenchecks/${rentencheckId}/calculation`,
     );
