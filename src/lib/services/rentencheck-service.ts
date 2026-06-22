@@ -192,19 +192,8 @@ export class RentencheckService {
     step: number,
     stepData: Partial<RentencheckData>,
   ): Promise<RentencheckResponse> {
-    console.log("🚀 RentencheckService.updateStep called with:", {
-      clientId,
-      rentencheckId,
-      step,
-      stepData,
-    });
-
     const url = `${this.baseUrl}/${clientId}/rentenchecks/${rentencheckId}/step/${step}`;
-    console.log("🌐 API URL:", url);
-
     const response = await ApiService.put(url, stepData);
-    console.log("✅ API Response:", response);
-
     return response.data;
   }
 
@@ -289,9 +278,11 @@ export class RentencheckService {
     clientId: number,
     rentencheckId: number,
   ): Promise<{
-    pension_data: any;
-    pension_totals: any;
-    client: any;
+    // Shape comes from backend `PensionCalculator::analyze()`; full typing lands
+    // when backend Resource classes get `#[OA\Property]` annotations (Wave 3C).
+    pension_data: Record<string, unknown>;
+    pension_totals: Record<string, unknown>;
+    client: Record<string, unknown>;
     message: string;
   }> {
     const response = await ApiService.get(
@@ -332,36 +323,18 @@ export class RentencheckService {
     clientId: number,
   ): Promise<RentencheckResponse> {
     try {
-      console.log(
-        "🔍 getOrCreateDraftRentencheck: Getting existing rentenchecks for clientId:",
-        clientId,
-      );
-
-      // First, try to get existing rentenchecks
       const listResponse = await this.getRentenchecks(clientId);
-
-      console.log("📋 getOrCreateDraftRentencheck: Got rentenchecks list:", listResponse);
-
-      // Look for existing draft
       const existingDraft = listResponse.data.find((r) => r.status === "draft");
 
       if (existingDraft) {
-        console.log("✅ getOrCreateDraftRentencheck: Found existing draft:", existingDraft.id);
-        // Return existing draft
         return await this.getRentencheck(clientId, existingDraft.id);
-      } else {
-        console.log("➕ getOrCreateDraftRentencheck: No draft found, creating new one");
-        // Create new draft
-        return await this.createRentencheck(clientId, {
-          title: `Rentencheck für ${listResponse.client.full_name}`,
-        });
       }
-    } catch (error) {
-      console.log(
-        "❌ getOrCreateDraftRentencheck: Error in first try block, creating new one:",
-        error,
-      );
-      // If no rentenchecks exist yet, create first one
+
+      return await this.createRentencheck(clientId, {
+        title: `Rentencheck für ${listResponse.client.full_name}`,
+      });
+    } catch {
+      // No existing rentenchecks for this client → start a fresh draft.
       return await this.createRentencheck(clientId);
     }
   }

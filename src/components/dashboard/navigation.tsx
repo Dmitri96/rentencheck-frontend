@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuthContext } from "../../providers/AuthProvider";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
-import { LayoutDashboard, Users, FileText, Settings, LogOut, UserCog, Plus } from "lucide-react";
+import { LayoutDashboard, Users, Settings, LogOut, UserCog, Plus } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 interface NavigationItem {
@@ -54,19 +54,6 @@ const Navigation = () => {
       label: "Kunden",
       icon: Users,
       roles: ["financial_advisor", "admin"],
-    },
-    {
-      href: "/dashboard/rentenchecks",
-      label: "Rentenchecks",
-      icon: FileText,
-      roles: ["financial_advisor", "admin"],
-    },
-
-    // Common items
-    {
-      href: "/dashboard/settings",
-      label: "Einstellungen",
-      icon: Settings,
     },
   ];
 
@@ -182,7 +169,7 @@ const Navigation = () => {
           <div className="mt-8">
             <h3 className="text-sm font-medium text-gray-900 mb-3">Schnellaktionen</h3>
             <div className="space-y-2">
-              <Link href="/dashboard/clients/create">
+              <Link href="/dashboard/clients/new">
                 <Button variant="outline" size="sm" className="w-full justify-start gap-2">
                   <Plus className="w-4 h-4" />
                   Neuer Kunde

@@ -74,82 +74,6 @@ export class AuthService {
   }
 
   /**
-   * Refresh authentication token
-   */
-  static async refreshToken(): Promise<AuthResponse> {
-    try {
-      const response = await ApiService.post<AuthResponse>("/auth/refresh");
-
-      if (response.data.token) {
-        localStorage.setItem("auth_token", response.data.token);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-      }
-
-      return response.data;
-    } catch (error) {
-      throw this.handleAuthError(error as AxiosError);
-    }
-  }
-
-  /**
-   * Send password reset email
-   */
-  static async forgotPassword(email: string): Promise<{ message: string }> {
-    try {
-      const response = await ApiService.post<{ message: string }>("/auth/forgot-password", {
-        email,
-      });
-      return response.data;
-    } catch (error) {
-      throw this.handleAuthError(error as AxiosError);
-    }
-  }
-
-  /**
-   * Reset password with token
-   */
-  static async resetPassword(
-    token: string,
-    password: string,
-    passwordConfirmation: string,
-  ): Promise<{ message: string }> {
-    try {
-      const response = await ApiService.post<{ message: string }>("/auth/reset-password", {
-        token,
-        password,
-        password_confirmation: passwordConfirmation,
-      });
-      return response.data;
-    } catch (error) {
-      throw this.handleAuthError(error as AxiosError);
-    }
-  }
-
-  /**
-   * Verify email with token
-   */
-  static async verifyEmail(token: string): Promise<{ message: string }> {
-    try {
-      const response = await ApiService.post<{ message: string }>("/auth/verify-email", { token });
-      return response.data;
-    } catch (error) {
-      throw this.handleAuthError(error as AxiosError);
-    }
-  }
-
-  /**
-   * Resend email verification
-   */
-  static async resendVerification(): Promise<{ message: string }> {
-    try {
-      const response = await ApiService.post<{ message: string }>("/auth/resend-verification");
-      return response.data;
-    } catch (error) {
-      throw this.handleAuthError(error as AxiosError);
-    }
-  }
-
-  /**
    * Check if user is authenticated
    */
   static isAuthenticated(): boolean {
@@ -185,32 +109,27 @@ export class AuthService {
    * Handle authentication errors and format them properly
    */
   private static handleAuthError(error: AxiosError): ApiError {
+    const data = (error.response?.data ?? {}) as {
+      message?: string;
+      errors?: Record<string, string[]>;
+    };
+
     if (error.response?.status === 422) {
-      // Validation errors
-      const data = error.response.data as any;
       return {
-        message: data.message || "Validierungsfehler",
-        errors: data.errors || {},
+        message: data.message ?? "Validierungsfehler",
+        errors: data.errors ?? {},
       };
     }
 
     if (error.response?.status === 401) {
-      return {
-        message: "Ungültige Anmeldedaten",
-      };
+      return { message: "Ungültige Anmeldedaten" };
     }
 
     if (error.response?.status === 429) {
-      return {
-        message: "Zu viele Anmeldeversuche. Bitte versuchen Sie es später erneut.",
-      };
+      return { message: "Zu viele Anmeldeversuche. Bitte versuchen Sie es später erneut." };
     }
 
-    // Generic error
-    const data = error.response?.data as any;
-    return {
-      message: data?.message || "Ein unerwarteter Fehler ist aufgetreten",
-    };
+    return { message: data.message ?? "Ein unerwarteter Fehler ist aufgetreten" };
   }
 }
 

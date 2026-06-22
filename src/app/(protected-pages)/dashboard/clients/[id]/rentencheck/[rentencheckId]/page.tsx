@@ -36,18 +36,10 @@ export default function EditRentencheckPage() {
   const loadRentencheck = async () => {
     try {
       setLoading(true);
-      console.log("📥 EditRentencheckPage.loadRentencheck called with:", {
-        clientId,
-        rentencheckId,
-      });
-
       const response = await RentencheckService.getRentencheck(clientId, rentencheckId);
-
-      console.log("✅ Loaded rentencheck:", response.rentencheck);
-
       setRentencheck(response.rentencheck);
       setClient(response.client);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error loading rentencheck:", error);
       toast.error("Fehler beim Laden des Rentenchecks");
       router.push(`/dashboard/clients/${clientId}`);
@@ -59,14 +51,6 @@ export default function EditRentencheckPage() {
   const handleStepSave = async (step: number, stepData: Partial<RentencheckData>) => {
     if (!rentencheck) return;
 
-    console.log("🎯 EditRentencheckPage.handleStepSave called with:", {
-      clientId,
-      rentencheckId,
-      "rentencheck.id": rentencheck.id,
-      step,
-      stepData,
-    });
-
     try {
       setSaving(true);
       const response = await RentencheckService.updateStep(
@@ -77,7 +61,7 @@ export default function EditRentencheckPage() {
       );
       setRentencheck(response.rentencheck);
       toast.success(`Schritt ${step} erfolgreich gespeichert`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error saving step:", error);
       toast.error("Fehler beim Speichern");
     } finally {
@@ -93,7 +77,7 @@ export default function EditRentencheckPage() {
       await RentencheckService.completeRentencheck(clientId, rentencheck.id);
       toast.success("Rentencheck erfolgreich abgeschlossen!");
       router.push(`/dashboard/clients/${clientId}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error completing rentencheck:", error);
       toast.error("Fehler beim Abschließen des Rentenchecks");
     } finally {
@@ -108,7 +92,7 @@ export default function EditRentencheckPage() {
       setSaving(true);
       await RentencheckService.downloadPdf(clientId, rentencheck.id);
       toast.success("PDF wird heruntergeladen...");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error downloading PDF:", error);
       toast.error("Fehler beim Herunterladen des PDFs");
     } finally {
@@ -236,24 +220,6 @@ export default function EditRentencheckPage() {
                 <div className="text-xs text-gray-500">
                   {rentencheck.completed_steps.length} von 5 Schritten
                 </div>
-                {/* Temporary Debug Button */}
-                {rentencheck.completed_steps.length === 4 && (
-                  <Button
-                    onClick={async () => {
-                      try {
-                        await RentencheckService.markStepCompleted(clientId, rentencheckId, 5);
-                        window.location.reload();
-                      } catch (error) {
-                        console.error("Error marking step 5 complete:", error);
-                      }
-                    }}
-                    variant="outline"
-                    size="sm"
-                    className="mt-2 text-orange-600 border-orange-200"
-                  >
-                    🔧 Debug: Mark Step 5 Complete
-                  </Button>
-                )}
               </div>
             </div>
           </div>

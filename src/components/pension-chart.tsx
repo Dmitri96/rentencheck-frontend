@@ -385,7 +385,7 @@ function renderChart(pensionData: PensionData, desiredPension: number, rootData?
       {/* KPI-Kacheln */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="rounded-xl border p-4 bg-white">
-          let
+          <div className="text-sm text-gray-600 mb-1">Gesamtlücke im Ruhestand</div>
           <div className="text-2xl font-bold text-red-600">{formatNumber(totalGap)}</div>
           <div className="text-xs text-gray-500 mt-1">
             Summe aller Ruhestandsjahre, 12 Monate pro Jahr
