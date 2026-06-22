@@ -7,7 +7,7 @@ import { ArrowLeft, Settings, LogOut, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useAuthContext } from "@/providers/auth-provider";
-import { RentenblickForm } from "@/features/rentenchecks/components/rentenblick-form";
+import { RentenblickForm } from "@/features/rentenchecks";
 import {
   RentencheckService,
   type Rentencheck,

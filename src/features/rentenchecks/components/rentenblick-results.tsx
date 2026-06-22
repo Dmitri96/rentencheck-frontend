@@ -1,17 +1,43 @@
 "use client";
 
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart3, Edit3, FileText } from "lucide-react";
 import { PensionResultsOverview } from "@/features/pension/components/pension-results-overview";
-import type { RentenblickData } from "@/features/rentenchecks/components/rentenblick-form";
+import type { Rentencheck, RentencheckData } from "@/lib/services/rentencheck-service";
 
 type RentenblickResultsProps = {
-  data: RentenblickData;
+  data: RentencheckData;
   saving?: boolean;
   onEdit: () => void;
   onDownloadPdf?: () => void;
 };
+
+/**
+ * The pension result views read `data.step_3_data?.payoutContracts` etc. —
+ * shape from the persisted Rentencheck. During the live wizard we only have
+ * flat form data, so reproject it into a step-keyed envelope before passing.
+ */
+function projectFormDataToRentencheck(data: RentencheckData): Rentencheck {
+  return {
+    id: 0,
+    user_id: 0,
+    client_id: 0,
+    status: "draft",
+    title: "",
+    completed_steps: [],
+    step_1_data: data,
+    step_2_data: data,
+    step_3_data: data,
+    step_4_data: data,
+    step_5_data: data,
+    progress_percentage: 100,
+    is_complete: false,
+    created_at: "",
+    updated_at: "",
+  } as Rentencheck;
+}
 
 /**
  * Post-completion results view for the rentenblick wizard.
@@ -23,6 +49,8 @@ export function RentenblickResults({
   onEdit,
   onDownloadPdf,
 }: RentenblickResultsProps) {
+  const projected = useMemo(() => projectFormDataToRentencheck(data), [data]);
+
   return (
     <div className="space-y-6">
       <Card className="shadow-lg border-0 bg-gradient-to-r from-green-50 to-emerald-50">
@@ -38,7 +66,7 @@ export function RentenblickResults({
         </CardHeader>
       </Card>
 
-      <PensionResultsOverview data={data} desiredPension={data.pensionWishCurrentValue} />
+      <PensionResultsOverview data={projected} desiredPension={data.pensionWishCurrentValue} />
 
       <Card>
         <CardContent className="p-6">

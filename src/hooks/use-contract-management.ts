@@ -10,7 +10,7 @@ import {
   type PensionContractData,
   type AdditionalIncomeData,
 } from "@/lib/validations/contract-schemas";
-import type { RentenblickData } from "@/features/rentenchecks/components/rentenblick-form";
+import type { RentencheckData } from "@/lib/services/rentencheck-service";
 
 /**
  * Contract management state interface
@@ -71,8 +71,8 @@ export interface UseContractManagementReturn {
  * @param isConfirmed - Whether the form step is confirmed/readonly
  */
 export const useContractManagement = (
-  data: RentenblickData,
-  updateData: (data: Partial<RentenblickData>) => void,
+  data: RentencheckData,
+  updateData: (data: Partial<RentencheckData>) => void,
   isConfirmed: boolean,
 ): UseContractManagementReturn => {
   // Internal state management for forms and editing

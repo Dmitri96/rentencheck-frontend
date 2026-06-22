@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useContractManagement } from "@/hooks/use-contract-management";
-import type { RentenblickData } from "../rentenblick-form";
+import type { RentencheckData } from "@/lib/services/rentencheck-service";
 import { StatutoryPensionSection } from "./sections/statutory-pension-section";
 import { ProfessionalProvisionSection } from "./sections/professional-provision-section";
 import { PublicServiceProvisionSection } from "./sections/public-service-provision-section";
@@ -16,8 +16,8 @@ import { AdditionalIncomeSection } from "./sections/additional-income-section";
  * This step handles collection of existing pension contracts and future income expectations
  */
 interface ContractOverviewStepProps {
-  data: RentenblickData;
-  updateData: (data: Partial<RentenblickData>) => void;
+  data: RentencheckData;
+  updateData: (data: Partial<RentencheckData>) => void;
   isConfirmed: boolean;
 }
 

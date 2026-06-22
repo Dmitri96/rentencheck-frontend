@@ -10,94 +10,7 @@ import { ContractOverviewStep } from "./form-steps/contract-overview-step";
 import { ImportantAspectsStep } from "./form-steps/important-aspects-step";
 import { ConclusionStep } from "./form-steps/conclusion-step";
 import { RentenblickResults, useRentenblickForm } from "@/features/rentenchecks";
-
-export interface RentenblickData {
-  // Step 1: Personal and Financial Information
-  profession: string;
-  currentGrossIncome: number;
-  currentNetIncome: number;
-  maritalStatus: string;
-  assetSeparation: string;
-  healthInsurance: string;
-  healthInsuranceContribution: number;
-  hasToChurchTax: boolean;
-
-  // Step 2: Expectations
-  currentAge: number;
-  retirementAge: number;
-  pensionWishCurrentValue: number;
-  guaranteedAmount: number;
-  provisionDuration: number;
-  assumedInflation: number;
-
-  // Step 3: Contract Overview
-  statutoryPensionClaims: boolean;
-  statutoryPensionAge?: number;
-  statutoryPensionAmount?: number;
-  // New: disability pension amount (Erwerbsminderungsrente), monthly
-  disabilityPensionAmount?: number;
-
-  professionalProvisionWorks: boolean;
-  professionalProvisionAge?: number;
-  professionalProvisionAmount?: number;
-
-  publicServiceAdditionalProvision: boolean;
-  publicServiceProvisionAge?: number;
-  publicServiceProvisionAmount?: number;
-
-  civilServiceProvision: boolean;
-  civilServiceProvisionAge?: number;
-  civilServiceProvisionAmount?: number;
-
-  payoutContracts: Array<{
-    contract: string;
-    company: string;
-    contractType: string;
-    interestRate: number;
-    maturityYear: number;
-    guaranteedAmount: number;
-    projectedAmount: number;
-  }>;
-  pensionContracts: Array<{
-    contract: string;
-    company: string;
-    contractType: string;
-    interestRate: number;
-    pensionStartYear: number;
-    guaranteedAmount: number;
-    projectedAmount: number;
-    monthlyAmount: number;
-  }>;
-  additionalIncome: Array<{
-    type: string;
-    startYear: number;
-    amount: number;
-    frequency: string;
-  }>;
-
-  // Step 4: Important Aspects
-  aspectRatings: {
-    availabilityDuringSavings: string;
-    flexibilityInRetirement: string;
-    capitalOrAnnuityChoice: string;
-    childBenefits: string;
-    initialPaymentOption: string;
-    taxSavingsInSavingsPhase: string;
-    lowTaxInPayoutPhase: string;
-    protectionAgainstDisability: string;
-    survivorBenefits: string;
-    deathBenefitsOutsideFamily: string;
-    protectionAgainstThirdParties: string;
-  };
-  productDependsOnEmployer: string;
-  taxLimitationsInSavingsPhase: string;
-  onlyForRetirement: string;
-
-  // Step 5: Conclusion
-  finalNotes: string;
-  date: string;
-  location: string;
-}
+import type { RentencheckData } from "@/lib/services/rentencheck-service";
 
 const steps = [
   {
@@ -133,9 +46,9 @@ const steps = [
 ];
 
 export interface RentenblickFormProps {
-  initialData?: Partial<RentenblickData>;
-  onStepSave?: (stepId: number, data: RentenblickData) => Promise<void>;
-  onAutoSave?: (data: RentenblickData) => Promise<void>;
+  initialData?: Partial<RentencheckData>;
+  onStepSave?: (stepId: number, data: RentencheckData) => Promise<void>;
+  onAutoSave?: (data: RentencheckData) => Promise<void>;
   onComplete?: () => Promise<void>;
   onDownloadPdf?: () => Promise<void>;
   completedSteps?: number[];
@@ -153,7 +66,7 @@ export interface RentenblickFormProps {
  *   - <RentenblickResults> when showResults is true
  *
  * If you're adding a new step, change `steps` + the switch in renderStep
- * and update RentenblickData. State plumbing is already taken care of.
+ * and update RentencheckData. State plumbing is already taken care of.
  */
 export function RentenblickForm({
   initialData = {},

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import ApiService from "@/lib/api-service";
-import type { RentenblickData } from "@/features/rentenchecks/components/rentenblick-form";
+import type { RentencheckData } from "@/lib/services/rentencheck-service";
 
 // Narrow type for the admin "current_parameters" response used for mapping defaults
 type PensionParameters = {
@@ -27,7 +27,7 @@ type PensionParameters = {
   };
 };
 
-const DEFAULT_FORM_DATA: RentenblickData = {
+const DEFAULT_FORM_DATA: RentencheckData = {
   profession: "",
   currentGrossIncome: 0,
   hasToChurchTax: false,
@@ -82,9 +82,9 @@ const DEFAULT_FORM_DATA: RentenblickData = {
 const NUM_STEPS = 5;
 
 type UseRentenblickFormArgs = {
-  initialData?: Partial<RentenblickData>;
+  initialData?: Partial<RentencheckData>;
   completedSteps?: number[];
-  onStepSave?: (stepId: number, data: RentenblickData) => Promise<void>;
+  onStepSave?: (stepId: number, data: RentencheckData) => Promise<void>;
   onComplete?: () => Promise<void>;
 };
 
@@ -109,7 +109,7 @@ export function useRentenblickForm({
   const [confirmedSteps, setConfirmedSteps] = useState<number[]>(completedSteps);
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [formData, setFormData] = useState<RentenblickData>({
+  const [formData, setFormData] = useState<RentencheckData>({
     ...DEFAULT_FORM_DATA,
     ...initialData,
   });
@@ -129,7 +129,7 @@ export function useRentenblickForm({
 
         const p = (res.data.data || {}) as PensionParameters;
 
-        const mappedDefaults: Partial<RentenblickData> = {
+        const mappedDefaults: Partial<RentencheckData> = {
           assumedInflation: p.economic_assumptions?.inflation_rate ?? undefined,
           retirementAge: p.demographics?.retirement_age ?? undefined,
           provisionDuration: p.demographics?.life_expectancy ?? undefined,
@@ -155,7 +155,7 @@ export function useRentenblickForm({
     // Defaults load is mount-only; deliberately no dependency list change.
   }, []);
 
-  const updateFormData = useCallback((data: Partial<RentenblickData>) => {
+  const updateFormData = useCallback((data: Partial<RentencheckData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
   }, []);
 

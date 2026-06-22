@@ -2,11 +2,11 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { RentenblickData } from "../rentenblick-form";
+import type { RentencheckData } from "@/lib/services/rentencheck-service";
 
 interface ExpectationsStepProps {
-  data: RentenblickData;
-  updateData: (data: Partial<RentenblickData>) => void;
+  data: RentencheckData;
+  updateData: (data: Partial<RentencheckData>) => void;
   isConfirmed: boolean;
 }
 

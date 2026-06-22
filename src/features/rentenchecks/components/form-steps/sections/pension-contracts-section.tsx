@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Trash2, Edit, Save, X } from "lucide-react";
-import type { RentenblickData } from "../../rentenblick-form";
+import type { RentencheckData } from "@/lib/services/rentencheck-service";
 import type { UseContractManagementReturn } from "@/hooks/use-contract-management";
 import type { PensionContractData } from "@/lib/validations/contract-schemas";
 
@@ -20,7 +20,7 @@ import type { PensionContractData } from "@/lib/validations/contract-schemas";
  * Props interface for the Pension Contracts Section component
  */
 interface PensionContractsSectionProps {
-  data: RentenblickData;
+  data: RentencheckData;
   contractManagement: UseContractManagementReturn;
   isConfirmed: boolean;
 }

@@ -4,14 +4,14 @@ import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { RentenblickData } from "../../rentenblick-form";
+import type { RentencheckData } from "@/lib/services/rentencheck-service";
 
 /**
  * Props interface for the Statutory Pension Section component
  */
 interface StatutoryPensionSectionProps {
-  data: RentenblickData;
-  updateData: (data: Partial<RentenblickData>) => void;
+  data: RentencheckData;
+  updateData: (data: Partial<RentencheckData>) => void;
   isConfirmed: boolean;
 }
 
@@ -100,14 +100,14 @@ export function StatutoryPensionSection({
                   id="disabilityPensionAmount"
                   type="number"
                   value={
-                    (data as RentenblickData & { disabilityPensionAmount?: number })
+                    (data as RentencheckData & { disabilityPensionAmount?: number })
                       .disabilityPensionAmount || ""
                   }
                   onChange={(e) =>
                     updateData({
                       // disabilityPensionAmount extends the base form model for forward compatibility
                       disabilityPensionAmount: Number.parseFloat(e.target.value) || 0,
-                    } as Partial<RentenblickData>)
+                    } as Partial<RentencheckData>)
                   }
                   placeholder="0"
                   className="h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"

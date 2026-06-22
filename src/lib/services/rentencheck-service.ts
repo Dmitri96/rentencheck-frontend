@@ -62,33 +62,48 @@ export interface RentencheckData {
 
   // Step 3: Contract Overview
   statutoryPensionClaims: boolean;
-  // Extended Step 3 fields used in analysis
   statutoryPensionAge?: number;
   statutoryPensionAmount?: number;
+  // Monthly disability pension (Erwerbsminderungsrente).
   disabilityPensionAmount?: number;
+
   professionalProvisionWorks: boolean;
   professionalProvisionAge?: number;
   professionalProvisionAmount?: number;
+
   publicServiceAdditionalProvision: boolean;
   publicServiceProvisionAge?: number;
   publicServiceProvisionAmount?: number;
+
   civilServiceProvision: boolean;
   civilServiceProvisionAge?: number;
   civilServiceProvisionAmount?: number;
+
+  // Contract shapes mirror the backend FormRequest enums in UpdateRentencheckStepRequest.
   payoutContracts: Array<{
-    type: string;
-    amount: number;
-    description: string;
+    contract: string;
+    company: string;
+    contractType: string;
+    interestRate: number;
+    maturityYear: number;
+    guaranteedAmount: number;
+    projectedAmount: number;
   }>;
   pensionContracts: Array<{
-    type: string;
-    amount: number;
-    description: string;
+    contract: string;
+    company: string;
+    contractType: string;
+    interestRate: number;
+    pensionStartYear: number;
+    guaranteedAmount: number;
+    projectedAmount: number;
+    monthlyAmount: number;
   }>;
   additionalIncome: Array<{
     type: string;
+    startYear: number;
     amount: number;
-    description: string;
+    frequency: string;
   }>;
 
   // Step 4: Important Aspects

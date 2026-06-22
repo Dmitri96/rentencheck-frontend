@@ -10,11 +10,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import type { RentenblickData } from "../rentenblick-form";
+import type { RentencheckData } from "@/lib/services/rentencheck-service";
 
 interface PersonalFinancialStepProps {
-  data: RentenblickData;
-  updateData: (data: Partial<RentenblickData>) => void;
+  data: RentencheckData;
+  updateData: (data: Partial<RentencheckData>) => void;
   isConfirmed: boolean;
 }
 

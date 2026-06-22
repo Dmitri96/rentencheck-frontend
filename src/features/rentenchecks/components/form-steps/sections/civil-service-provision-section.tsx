@@ -4,14 +4,14 @@ import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { RentenblickData } from "../../rentenblick-form";
+import type { RentencheckData } from "@/lib/services/rentencheck-service";
 
 /**
  * Props interface for the Civil Service Provision Section component
  */
 interface CivilServiceProvisionSectionProps {
-  data: RentenblickData;
-  updateData: (data: Partial<RentenblickData>) => void;
+  data: RentencheckData;
+  updateData: (data: Partial<RentencheckData>) => void;
   isConfirmed: boolean;
 }
 
