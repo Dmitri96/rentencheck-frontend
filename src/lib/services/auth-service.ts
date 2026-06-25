@@ -96,13 +96,15 @@ export class AuthService {
 
   /**
    * Terminate the current Sanctum session on the server.
+   *
+   * Re-throws on network failure so the AuthProvider's useMutation.onError
+   * can surface a toast to the user. The caller is responsible for clearing
+   * local cache regardless of whether the server call succeeded.
    */
   static async logout(): Promise<void> {
-    try {
-      await api.POST("/auth/logout", {});
-    } catch (err) {
-      // Swallow — caller still clears local cache regardless
-      console.error("Logout error:", err);
+    const { error } = await api.POST("/auth/logout", {});
+    if (error) {
+      throw this.normaliseError(error as ApiError);
     }
   }
 

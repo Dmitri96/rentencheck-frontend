@@ -1,7 +1,7 @@
 "use client";
 
 import ErrorBoundary from "@/components/ui/error-boundary";
-import Navigation from "@/features/admin/components/dashboard-navigation";
+import Navigation from "@/components/dashboard-navigation";
 import { useAuthContext } from "@/providers/auth-provider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
