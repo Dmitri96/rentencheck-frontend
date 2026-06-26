@@ -147,7 +147,7 @@ function PensionChartInner({
 
       {/* Chart */}
       <div className="w-full mb-8" style={{ height: "500px", padding: "20px" }}>
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        {}
         <Line data={chartData as any} options={options as any} plugins={[hoverLinePlugin as any]} />
       </div>
 

@@ -8,7 +8,6 @@
 import type { Rentencheck } from "@/lib/services/rentencheck-service";
 import type { PensionData } from "@/features/pension";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyObject = Record<string, any>;
 
 interface UseChartConfigResult {
@@ -122,7 +121,7 @@ export function useChartConfig(
 
   const hoverLinePlugin = {
     id: "hoverLine",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     afterDatasetsDraw(chart: any) {
       const { ctx } = chart;
       const active = chart.getActiveElements?.() || [];
@@ -142,7 +141,6 @@ export function useChartConfig(
     },
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const options: any = {
     responsive: true,
     maintainAspectRatio: false,
@@ -164,9 +162,8 @@ export function useChartConfig(
         padding: 10,
         titleFont: { weight: "600" },
         callbacks: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           title: (items: any[]) => `Alter ${items?.[0]?.label}`,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
           afterBody: (context: any) => {
             const i = context[0].dataIndex;
             const d = series[i];
@@ -222,7 +219,6 @@ export function useChartConfig(
       y: {
         title: { display: true, text: "Monatlicher Betrag (€)" },
         ticks: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           callback: (value: any) => "€" + Number(value).toLocaleString(),
         },
       },

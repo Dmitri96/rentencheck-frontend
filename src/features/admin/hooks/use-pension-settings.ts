@@ -141,11 +141,9 @@ export function usePensionSettings(): UsePensionSettingsResult {
       ];
 
       categories.forEach((cat) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const list = (settingsRows as any)[cat] as SettingRow[] | undefined;
         if (!Array.isArray(list)) return;
         list.forEach((row) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const path = rowToPath(cat as any, row.key);
           if (!path) return;
           const before = get(parameters, path);

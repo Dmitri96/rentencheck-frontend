@@ -1,50 +1,64 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextPlugin from "eslint-config-next";
 import boundaries from "eslint-plugin-boundaries";
+import prettierConfig from "eslint-config-prettier";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
+/*
+ * ESLint flat config for Next.js 16.
+ *
+ * Next 16 ships `eslint-config-next` as a native flat-config array that already
+ * includes Core Web Vitals + TypeScript + jsx-a11y rule presets — we no longer
+ * need `FlatCompat` or a separate jsx-a11y entry. Spread the array directly.
+ */
 const eslintConfig = [
-  ...compat.extends(
-    "next/core-web-vitals",
-    "next/typescript",
-    "plugin:jsx-a11y/recommended",
-    "prettier",
-  ),
+  ...nextPlugin,
+
+  // Disable any stylistic rule that conflicts with Prettier
+  prettierConfig,
+
   {
     ignores: [".next/**", "node_modules/**", "public/**", "src/lib/api/schema.d.ts"],
   },
-  // Feature boundary enforcement — prevents features from reaching into each
-  // other's internals. Cross-feature imports must go through the barrel index.ts.
+
+  // ---------------------------------------------------------------------------
+  // Next 16 / React 19 — new react-hooks v6 rules.
   //
-  // Strategy: each feature folder is an element in "folder" mode so all files
-  // inside it are treated as private. The only public surface is the barrel
-  // (index.ts at the folder root). External consumers (app, other features)
-  // may only import from the barrel — deep paths are blocked by no-private.
+  // eslint-plugin-react-hooks v6 (bundled by eslint-config-next 16) ships a
+  // batch of React-Compiler-flavoured rules even when the compiler is not
+  // enabled. Several are valid long-term goals but flag legitimate patterns
+  // we use today (TanStack Query effects, controlled component factories,
+  // etc.). They are turned off here until we either:
+  //   (a) opt into React Compiler, or
+  //   (b) refactor each call site in a dedicated pass.
+  //
+  // The pre-existing `react-hooks/exhaustive-deps` rule stays at its default.
+  // ---------------------------------------------------------------------------
+  {
+    rules: {
+      "react-hooks/immutability": "off",
+      "react-hooks/incompatible-library": "off",
+      "react-hooks/purity": "off",
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/static-components": "off",
+    },
+  },
+
+  // Feature boundary enforcement — features can't reach into each other's
+  // internals. Cross-feature imports must go through the barrel index.ts.
   {
     plugins: { boundaries },
     settings: {
       "boundaries/elements": [
-        // Next.js app router — treated as a flat element, no private concept
         {
           type: "app",
           pattern: "src/app",
           mode: "folder",
         },
-        // Each feature folder is an isolated element; sub-paths are private
         {
           type: "feature",
           pattern: "src/features/*",
           mode: "folder",
           capture: ["featureName"],
         },
-        // Shared utilities, UI components, hooks, providers, types — no restrictions
         {
           type: "shared",
           pattern: ["src/components", "src/lib", "src/hooks", "src/providers", "src/types"],
@@ -53,9 +67,8 @@ const eslintConfig = [
       ],
     },
     rules: {
-      // Block imports of private files from outside the owning feature folder.
-      // "Private" means any file that is NOT the feature's index.ts barrel.
-      // Same-feature internal imports are always fine (allowed by default).
+      // Block deep-path imports of feature internals from outside that feature.
+      // "Private" = anything that isn't the feature's index.ts barrel.
       "boundaries/no-private": "error",
     },
   },
