@@ -36,7 +36,6 @@ export function ProfessionalProvisionSection({
             updateData({ professionalProvisionWorks: checked as boolean })
           }
           disabled={isConfirmed}
-          className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
         />
         <Label htmlFor="professionalProvisionWorks" className="text-sm font-medium cursor-pointer">
           Berufsständische Versorgungswerke
@@ -46,13 +45,10 @@ export function ProfessionalProvisionSection({
       {/* Show input fields when checkbox is checked */}
       {data.professionalProvisionWorks && (
         <div className="ml-7 space-y-4 animate-in slide-in-from-top-2 duration-200">
-          <div className="border-l-2 border-blue-200 pl-4 space-y-4">
+          <div className="border-l-2 border-border pl-4 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label
-                  htmlFor="professionalProvisionAge"
-                  className="text-sm font-medium text-gray-700"
-                >
+                <Label htmlFor="professionalProvisionAge" className="text-sm">
                   Im Alter von
                 </Label>
                 <Input
@@ -63,15 +59,11 @@ export function ProfessionalProvisionSection({
                     updateData({ professionalProvisionAge: Number.parseInt(e.target.value) || 0 })
                   }
                   placeholder="0"
-                  className="h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
                   disabled={isConfirmed}
                 />
               </div>
               <div className="space-y-2">
-                <Label
-                  htmlFor="professionalProvisionAmount"
-                  className="text-sm font-medium text-gray-700"
-                >
+                <Label htmlFor="professionalProvisionAmount" className="text-sm">
                   Wie viel
                 </Label>
                 <Input
@@ -84,7 +76,6 @@ export function ProfessionalProvisionSection({
                     })
                   }
                   placeholder="0"
-                  className="h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
                   disabled={isConfirmed}
                 />
               </div>

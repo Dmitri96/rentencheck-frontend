@@ -10,8 +10,6 @@ interface PensionResultsTableProps {
   desiredPension: number;
 }
 
-// Re-use the central PensionCalculationData['parameters_used'] from rentencheck-service
-// rather than defining a parallel structural type — the previous local copy drifted.
 type ParametersShape =
   import("@/lib/services/rentencheck-service").PensionCalculationData["parameters_used"];
 
@@ -29,10 +27,15 @@ interface IncomeRowComputed {
   purchasingPower: number;
 }
 
-const currency = (value: number) =>
-  `${value.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€`;
+const eur = (value: number) =>
+  new Intl.NumberFormat("de-DE", {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
 
-export function PensionResultsTable({ data, desiredPension }: PensionResultsTableProps) {
+export function PensionResultsTable({ data }: PensionResultsTableProps) {
   const [parameters, setParameters] = useState<ParametersShape | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -45,10 +48,7 @@ export function PensionResultsTable({ data, desiredPension }: PensionResultsTabl
         if (!mounted) return;
         setParameters(res.pension_data.parameters_used);
       } catch {
-        // fallback parameters if backend call fails
         if (!mounted) return;
-        // Defensive fallback when the backend calculation endpoint fails — keeps
-        // the table renderable with conservative German defaults instead of crashing.
         setParameters({
           economic_assumptions: {
             inflation_rate: 2,
@@ -80,8 +80,8 @@ export function PensionResultsTable({ data, desiredPension }: PensionResultsTabl
     if (!parameters) return [];
 
     const effectiveTaxRate = parameters.tax_system.rates.stufe_4 ?? 42;
-    const churchTaxRate = 9; // 9% vom Brutto laut Vorgabe
-    const soliRate = parameters.tax_system.solidarity_surcharge_rate ?? 5.5; // 5,5% vom Brutto laut Vorgabe
+    const churchTaxRate = 9;
+    const soliRate = parameters.tax_system.solidarity_surcharge_rate ?? 5.5;
     const kvRate = parameters.social_insurance.total_insurance_rate ?? 12.15;
     const inflation = parameters.economic_assumptions.inflation_rate ?? 2;
     const hasChurchTax = data.step_1_data?.hasToChurchTax ?? false;
@@ -102,7 +102,6 @@ export function PensionResultsTable({ data, desiredPension }: PensionResultsTabl
       const churchTax = hasChurchTax ? brutto * (churchTaxRate / 100) : 0;
       const soli = brutto * (soliRate / 100);
       const afterTax = brutto - incomeTax - churchTax - soli;
-      // Ges. KV laut Vorgabe auf Brutto berechnen (nicht auf Nach-Steuer)
       const healthInsurance = brutto * (kvSharePct / 100) * (kvRate / 100);
       const afterKV = afterTax - healthInsurance;
       const purchasingPower = afterKV / Math.pow(1 + inflation / 100, yearsToRetirement);
@@ -122,8 +121,6 @@ export function PensionResultsTable({ data, desiredPension }: PensionResultsTabl
       };
     };
 
-    // Delegate income source enumeration to the shared aggregator so both result
-    // views (overview + table) use the same traversal logic.
     const sources = aggregateIncomeSources(data.step_3_data ?? null);
     const items: IncomeRowComputed[] = sources.map(({ label, monthlyGross }) =>
       compute(label, monthlyGross, 100, 100),
@@ -159,8 +156,8 @@ export function PensionResultsTable({ data, desiredPension }: PensionResultsTabl
 
   if (loading || !parameters) {
     return (
-      <div className="w-full border rounded-lg p-6 text-center text-sm text-gray-600">
-        Tabelle wird mit aktuellen Parametern berechnet...
+      <div className="w-full border border-border rounded-md px-6 py-6 text-center text-sm text-muted-foreground">
+        Tabelle wird mit aktuellen Parametern berechnet…
       </div>
     );
   }
@@ -171,10 +168,10 @@ export function PensionResultsTable({ data, desiredPension }: PensionResultsTabl
   const hasChurchTaxHeader = data.step_1_data?.hasToChurchTax ?? false;
 
   return (
-    <div className="bg-white rounded-lg border overflow-hidden">
-      <div className="px-4 py-3 border-b bg-gray-50">
-        <h3 className="font-semibold text-gray-900">Berechnungstabelle</h3>
-        <div className="mt-1 text-xs text-gray-600 grid grid-cols-2 md:grid-cols-4 gap-2">
+    <div className="bg-card rounded-md border border-border overflow-hidden">
+      <div className="px-5 py-4 border-b border-border-subtle bg-[var(--surface-subtle)]">
+        <h4 className="text-foreground font-medium">Berechnungstabelle</h4>
+        <div className="mt-2 text-xs text-muted-foreground grid grid-cols-2 md:grid-cols-4 gap-2 font-mono tabular-nums">
           <div>Steuer: {effectiveTaxRate}%</div>
           <div>Kirchensteuer: {hasChurchTaxHeader ? "9% (auf Brutto)" : "0% (aus)"}</div>
           <div>Soli: {soliRate}% (auf Brutto)</div>
@@ -185,55 +182,108 @@ export function PensionResultsTable({ data, desiredPension }: PensionResultsTabl
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50 border-b">
-              <th className="p-3 text-left">EINKOMMENSQUELLE</th>
-              <th className="p-3 text-right">BRUTTO</th>
-              <th className="p-3 text-center">ANTEIL</th>
-              <th className="p-3 text-right">STEUER</th>
-              <th className="p-3 text-right">KIRCHE</th>
-              <th className="p-3 text-right">SOLI</th>
-              <th className="p-3 text-right">NACH STEUER</th>
-              <th className="p-3 text-center">ANTEIL</th>
-              <th className="p-3 text-right">GES. KV</th>
-              <th className="p-3 text-right">NACH KV</th>
-              <th className="p-3 text-right">KAUFKRAFT</th>
+            <tr className="border-b border-border-subtle">
+              <Th align="left">Einkommensquelle</Th>
+              <Th>Brutto</Th>
+              <Th align="center">Anteil</Th>
+              <Th>Steuer</Th>
+              <Th>Kirche</Th>
+              <Th>Soli</Th>
+              <Th>Nach Steuer</Th>
+              <Th align="center">Anteil</Th>
+              <Th>Ges. KV</Th>
+              <Th>Nach KV</Th>
+              <Th>Kaufkraft</Th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="[&_tr:nth-child(even)]:bg-[var(--surface-subtle)]">
             {rows.map((r, idx) => (
-              <tr key={idx} className="border-b hover:bg-gray-50">
-                <td className="p-3 font-medium">{r.label}</td>
-                <td className="p-3 text-right">{currency(r.brutto)}</td>
-                <td className="p-3 text-center">{r.taxSharePct.toFixed(0)}%</td>
-                <td className="p-3 text-right text-red-600">{currency(r.incomeTax)}</td>
-                <td className="p-3 text-right text-red-600">{currency(r.churchTax)}</td>
-                <td className="p-3 text-right text-red-600">{currency(r.soli)}</td>
-                <td className="p-3 text-right">{currency(r.afterTax)}</td>
-                <td className="p-3 text-center">{r.kvSharePct.toFixed(0)}%</td>
-                <td className="p-3 text-right text-red-600">{currency(r.healthInsurance)}</td>
-                <td className="p-3 text-right text-green-700 font-medium">{currency(r.afterKV)}</td>
-                <td className="p-3 text-right text-emerald-700 font-bold">
-                  {currency(r.purchasingPower)}
-                </td>
+              <tr key={idx}>
+                <Td align="left" strong>
+                  {r.label}
+                </Td>
+                <Td>{eur(r.brutto)}</Td>
+                <Td align="center" tone="muted">
+                  {r.taxSharePct.toFixed(0)}%
+                </Td>
+                <Td tone="muted">{eur(r.incomeTax)}</Td>
+                <Td tone="muted">{eur(r.churchTax)}</Td>
+                <Td tone="muted">{eur(r.soli)}</Td>
+                <Td>{eur(r.afterTax)}</Td>
+                <Td align="center" tone="muted">
+                  {r.kvSharePct.toFixed(0)}%
+                </Td>
+                <Td tone="muted">{eur(r.healthInsurance)}</Td>
+                <Td tone="success">{eur(r.afterKV)}</Td>
+                <Td tone="success" strong>
+                  {eur(r.purchasingPower)}
+                </Td>
               </tr>
             ))}
 
-            <tr className="bg-gray-100 font-semibold border-t-2 border-gray-700">
-              <td className="p-3">Gesamt</td>
-              <td className="p-3 text-right">{currency(totals.brutto)}</td>
-              <td className="p-3 text-center">–</td>
-              <td className="p-3 text-right">{currency(totals.incomeTax)}</td>
-              <td className="p-3 text-right">{currency(totals.churchTax)}</td>
-              <td className="p-3 text-right">{currency(totals.soli)}</td>
-              <td className="p-3 text-right">{currency(totals.afterTax)}</td>
-              <td className="p-3 text-center">–</td>
-              <td className="p-3 text-right">{currency(totals.healthInsurance)}</td>
-              <td className="p-3 text-right">{currency(totals.afterKV)}</td>
-              <td className="p-3 text-right">{currency(totals.purchasingPower)}</td>
+            <tr className="border-t border-foreground/20 bg-muted">
+              <Td align="left" strong>
+                Gesamt
+              </Td>
+              <Td strong>{eur(totals.brutto)}</Td>
+              <Td align="center" tone="muted">
+                –
+              </Td>
+              <Td tone="muted">{eur(totals.incomeTax)}</Td>
+              <Td tone="muted">{eur(totals.churchTax)}</Td>
+              <Td tone="muted">{eur(totals.soli)}</Td>
+              <Td strong>{eur(totals.afterTax)}</Td>
+              <Td align="center" tone="muted">
+                –
+              </Td>
+              <Td tone="muted">{eur(totals.healthInsurance)}</Td>
+              <Td tone="success" strong>
+                {eur(totals.afterKV)}
+              </Td>
+              <Td tone="success" strong>
+                {eur(totals.purchasingPower)}
+              </Td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+  );
+}
+
+function Th({
+  children,
+  align = "right",
+}: {
+  children: React.ReactNode;
+  align?: "left" | "right" | "center";
+}) {
+  const cls = align === "right" ? "text-right" : align === "center" ? "text-center" : "text-left";
+  return <th className={`label-uppercase px-3 py-3 ${cls}`}>{children}</th>;
+}
+
+function Td({
+  children,
+  align = "right",
+  strong = false,
+  tone,
+}: {
+  children: React.ReactNode;
+  align?: "left" | "right" | "center";
+  strong?: boolean;
+  tone?: "muted" | "success";
+}) {
+  const color =
+    tone === "muted"
+      ? "text-muted-foreground"
+      : tone === "success"
+        ? "text-success"
+        : "text-foreground";
+  const monoCols = align !== "left" ? "font-mono tabular-nums currency" : "";
+  const cls = align === "right" ? "text-right" : align === "center" ? "text-center" : "text-left";
+  return (
+    <td className={["px-3 py-3", cls, monoCols, strong ? "font-medium" : "", color].join(" ")}>
+      {children}
+    </td>
   );
 }

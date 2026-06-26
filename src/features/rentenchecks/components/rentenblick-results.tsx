@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart3, Edit3, FileText } from "lucide-react";
+import { Edit3, FileText } from "lucide-react";
 import { PensionResultsOverview } from "@/features/pension";
 import type { Rentencheck, RentencheckData } from "@/lib/services/rentencheck-service";
 
@@ -15,9 +15,8 @@ type RentenblickResultsProps = {
 };
 
 /**
- * The pension result views read `data.step_3_data?.payoutContracts` etc. —
- * shape from the persisted Rentencheck. During the live wizard we only have
- * flat form data, so reproject it into a step-keyed envelope before passing.
+ * Reproject the wizard's flat form data into the step-keyed envelope expected
+ * by downstream result views (which read `data.step_3_data?.payoutContracts`).
  */
 function projectFormDataToRentencheck(data: RentencheckData): Rentencheck {
   return {
@@ -40,8 +39,8 @@ function projectFormDataToRentencheck(data: RentencheckData): Rentencheck {
 }
 
 /**
- * Post-completion results view for the rentenblick wizard.
- * Pure presentation — all state lives in useRentenblickForm.
+ * Post-completion results — pure presentation. Action buttons sit in a
+ * border-only card at the bottom so the chart + KPI hero own the visual stack.
  */
 export function RentenblickResults({
   data,
@@ -52,48 +51,27 @@ export function RentenblickResults({
   const projected = useMemo(() => projectFormDataToRentencheck(data), [data]);
 
   return (
-    <div className="space-y-6">
-      <Card className="shadow-lg border-0 bg-gradient-to-r from-green-50 to-emerald-50">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-green-800 flex items-center justify-center gap-3">
-            <BarChart3 className="h-8 w-8" />
-            Ihre Rentenbedarfsanalyse
-          </CardTitle>
-          <p className="text-green-700 mt-2">
-            Basierend auf Ihren Angaben haben wir eine umfassende Analyse Ihrer Altersvorsorge
-            erstellt.
-          </p>
-        </CardHeader>
-      </Card>
-
+    <div className="space-y-12">
       <PensionResultsOverview data={projected} desiredPension={data.pensionWishCurrentValue} />
 
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button
-              onClick={onEdit}
-              variant="outline"
-              className="flex items-center gap-2 px-6 py-3"
-            >
+      <Card className="no-print">
+        <CardContent className="px-6 py-5">
+          <div className="flex flex-col sm:flex-row gap-3 justify-end items-center">
+            <Button onClick={onEdit} variant="outline">
               <Edit3 className="h-4 w-4" />
               Daten bearbeiten
             </Button>
 
             {onDownloadPdf && (
-              <Button
-                onClick={onDownloadPdf}
-                disabled={saving}
-                className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-              >
+              <Button onClick={onDownloadPdf} disabled={saving}>
                 {saving ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Lädt...
+                    <div className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
+                    Lädt…
                   </>
                 ) : (
                   <>
-                    <FileText className="h-5 w-5" />
+                    <FileText className="h-4 w-4" />
                     PDF-Bericht herunterladen
                   </>
                 )}

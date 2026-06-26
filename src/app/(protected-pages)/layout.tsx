@@ -58,7 +58,9 @@ export default function ProtectedLayout({
   return (
     <ErrorBoundary>
       <div className="flex min-h-screen bg-background">
-        <Navigation />
+        <div className="no-print">
+          <Navigation />
+        </div>
         <main className="flex-1 overflow-auto">{children}</main>
       </div>
     </ErrorBoundary>

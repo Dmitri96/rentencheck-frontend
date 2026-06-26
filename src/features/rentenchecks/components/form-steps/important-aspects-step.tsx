@@ -85,7 +85,7 @@ export function ImportantAspectsStep({ data, updateData, isConfirmed }: Importan
               {ratingOptions.map((option) => (
                 <th
                   key={option.value}
-                  className="text-center p-2 text-sm font-medium text-gray-600"
+                  className="text-center p-2 text-sm font-medium text-muted-foreground"
                 >
                   {option.label}
                 </th>
@@ -94,8 +94,8 @@ export function ImportantAspectsStep({ data, updateData, isConfirmed }: Importan
           </thead>
           <tbody>
             {aspects.map((aspect) => (
-              <tr key={aspect.key} className="border-b border-gray-100">
-                <td className="p-3 text-sm text-gray-700">{aspect.label}</td>
+              <tr key={aspect.key} className="border-b border-border-subtle">
+                <td className="p-3 text-sm text-foreground">{aspect.label}</td>
                 {ratingOptions.map((option) => (
                   <td key={option.value} className="p-3 text-center">
                     <RadioGroup
@@ -104,11 +104,7 @@ export function ImportantAspectsStep({ data, updateData, isConfirmed }: Importan
                       disabled={isConfirmed}
                     >
                       <div className="flex items-center justify-center">
-                        <RadioGroupItem
-                          value={option.value}
-                          id={`${aspect.key}-${option.value}`}
-                          className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                        />
+                        <RadioGroupItem value={option.value} id={`${aspect.key}-${option.value}`} />
                       </div>
                     </RadioGroup>
                   </td>
@@ -119,15 +115,13 @@ export function ImportantAspectsStep({ data, updateData, isConfirmed }: Importan
         </table>
       </div>
 
-      <div className="space-y-6 pt-6 border-t border-gray-200">
+      <div className="space-y-6 pt-6 border-t border-border">
         <div className="space-y-4">
-          <Label className="text-sm font-semibold text-gray-700">
-            Ist es für Sie akzeptabel, dass...
-          </Label>
+          <Label className="text-sm">Ist es für Sie akzeptabel, dass...</Label>
 
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-gray-700 mb-2">
+              <p className="text-sm text-foreground mb-2">
                 ...die Art des Produktes und die Auswahl des Anbieters von der Zustimmung des
                 Arbeitgebers mit abhängig sind?
               </p>
@@ -153,7 +147,7 @@ export function ImportantAspectsStep({ data, updateData, isConfirmed }: Importan
             </div>
 
             <div>
-              <p className="text-sm text-gray-700 mb-2">
+              <p className="text-sm text-foreground mb-2">
                 ...wegen der Nutzung von Steuervorteilen in der Sparzeit Einschränkungen (z.B. nicht
                 beleihbar) entstehen?
               </p>
@@ -179,7 +173,7 @@ export function ImportantAspectsStep({ data, updateData, isConfirmed }: Importan
             </div>
 
             <div>
-              <p className="text-sm text-gray-700 mb-2">
+              <p className="text-sm text-foreground mb-2">
                 ...Ihr Rentenkonzept nur dem Zweck der Altersversorgung dient (Rentenzahlung) und
                 keine andere Verwendung zulässt?
               </p>
@@ -208,10 +202,10 @@ export function ImportantAspectsStep({ data, updateData, isConfirmed }: Importan
       </div>
 
       {isConfirmed && (
-        <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+        <div className="bg-[color-mix(in_oklch,var(--success)_10%,var(--background))] p-4 rounded-lg border border-[color-mix(in_oklch,var(--success)_30%,var(--background))]">
           <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-green-800 font-medium">
+            <div className="w-2 h-2 bg-success rounded-full"></div>
+            <span className="text-success font-medium">
               Wichtige Aspekte der Altersvorsorge bestätigt
             </span>
           </div>

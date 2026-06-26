@@ -17,13 +17,12 @@ const geistMono = Geist_Mono({
 });
 
 // Variable serif with an optical-size axis — display headings + hero KPIs.
-// Restricted to weights/axes we actually use to keep payload lean.
+// Loaded as a true variable font so the optical-size + soft axes stay active.
 const fraunces = Fraunces({
   variable: "--font-display",
   subsets: ["latin"],
   display: "swap",
   axes: ["opsz", "SOFT"],
-  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {

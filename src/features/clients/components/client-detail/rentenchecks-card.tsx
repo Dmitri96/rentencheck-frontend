@@ -12,7 +12,7 @@ import type { Rentencheck } from "@/lib/services/rentencheck-service";
 import { RentencheckService } from "@/lib/services/rentencheck-service";
 import {
   formatDate,
-  getRentencheckStatusColor,
+  getRentencheckStatusVariant,
   getRentencheckStatusText,
 } from "@/lib/utils/client-utils";
 
@@ -29,13 +29,9 @@ export function RentenchecksCard({ clientId, rentenchecks, loading }: Rentenchec
   const handleCreateFirstRentencheck = async () => {
     try {
       setCreating(true);
-
-      // Create new rentencheck first
       const response = await RentencheckService.createRentencheck(parseInt(clientId), {
         title: `Erster Rentencheck`,
       });
-
-      // Navigate to the specific rentencheck edit page
       router.push(`/dashboard/clients/${clientId}/rentencheck/${response.rentencheck.id}`);
     } catch (error: unknown) {
       console.error("Error creating rentencheck:", error);
@@ -49,7 +45,7 @@ export function RentenchecksCard({ clientId, rentenchecks, loading }: Rentenchec
     try {
       setCreating(true);
       await RentencheckService.downloadPdf(parseInt(clientId), rentencheckId);
-      toast.success("PDF wird heruntergeladen...");
+      toast.success("PDF wird heruntergeladen…");
     } catch (error: unknown) {
       console.error("Error downloading PDF:", error);
       toast.error("Fehler beim Herunterladen des PDFs");
@@ -60,75 +56,69 @@ export function RentenchecksCard({ clientId, rentenchecks, loading }: Rentenchec
 
   const renderEmptyState = () => (
     <div className="text-center py-12">
-      <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">Noch keine Rentenchecks</h3>
-      <p className="text-gray-600 mb-6">
+      <FileText className="h-10 w-10 text-[var(--ink-tertiary)] mx-auto mb-4" strokeWidth={1.25} />
+      <h3 className="mb-2">Noch keine Rentenchecks</h3>
+      <p className="text-muted-foreground mb-6">
         Erstellen Sie den ersten Rentencheck für diesen Mandanten.
       </p>
-      <Button
-        onClick={handleCreateFirstRentencheck}
-        disabled={creating}
-        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-      >
-        {creating ? (
-          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-        ) : (
-          <Plus className="h-4 w-4 mr-2" />
-        )}
-        {creating ? "Erstelle..." : "Ersten Rentencheck erstellen"}
+      <Button onClick={handleCreateFirstRentencheck} disabled={creating}>
+        {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+        {creating ? "Erstelle…" : "Ersten Rentencheck erstellen"}
       </Button>
     </div>
   );
 
   const renderLoadingState = () => (
     <div className="text-center py-12">
-      <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-      <p className="text-gray-600">Rentenchecks werden geladen...</p>
+      <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto mb-4" />
+      <p className="text-muted-foreground">Rentenchecks werden geladen…</p>
     </div>
   );
 
   const renderRentenchecksList = () => (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {rentenchecks.map((check) => (
         <div
           key={check.id}
-          className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+          className="border border-border-subtle rounded-md px-4 py-4 transition-colors duration-[180ms] hover:bg-[var(--surface-subtle)]"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <h4 className="font-semibold text-gray-900">{check.title}</h4>
-              <div className="flex items-center space-x-4 mt-1">
-                <span className="text-sm text-gray-500">
-                  Erstellt: {formatDate(check.created_at)}
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <h4 className="text-[1rem] font-medium text-foreground">{check.title}</h4>
+              <div className="flex items-center flex-wrap gap-3 mt-2">
+                <span className="text-sm text-muted-foreground">
+                  Erstellt {formatDate(check.created_at)}
                 </span>
-                <Badge className={`text-xs ${getRentencheckStatusColor(check.status)}`}>
+                <Badge variant={getRentencheckStatusVariant(check.status)}>
                   {getRentencheckStatusText(check.status)}
                 </Badge>
               </div>
-              <div className="mt-2">
-                <span className="text-sm text-gray-600">Fortschritt: </span>
-                <span className="font-semibold text-blue-600">{check.progress_percentage}%</span>
-                <span className="text-sm text-gray-500 ml-2">
+              <p className="mt-2 text-sm text-muted-foreground">
+                Fortschritt:{" "}
+                <span className="text-foreground font-medium currency">
+                  {check.progress_percentage}%
+                </span>
+                <span className="ml-2 text-[var(--ink-tertiary)]">
                   ({check.completed_steps?.length || 0} von 5 Schritten)
                 </span>
-              </div>
+              </p>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2 shrink-0">
               <Link href={`/dashboard/clients/${clientId}/rentencheck/${check.id}`}>
-                <Button variant="outline" size="sm" title="Bearbeiten">
+                <Button variant="outline" size="icon" title="Bearbeiten">
                   <Edit3 className="h-4 w-4" />
                 </Button>
               </Link>
               {check.status === "completed" && (
                 <>
                   <Link href={`/dashboard/clients/${clientId}/rentencheck/${check.id}/analysis`}>
-                    <Button variant="outline" size="sm" title="Analyse anzeigen">
+                    <Button variant="outline" size="icon" title="Analyse anzeigen">
                       <BarChart3 className="h-4 w-4" />
                     </Button>
                   </Link>
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="icon"
                     title="PDF herunterladen"
                     onClick={() => handleDownloadPdf(check.id)}
                     disabled={creating}
@@ -149,11 +139,9 @@ export function RentenchecksCard({ clientId, rentenchecks, loading }: Rentenchec
   );
 
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+    <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold">Rentenchecks</CardTitle>
-        </div>
+        <CardTitle>Rentenchecks</CardTitle>
       </CardHeader>
       <CardContent>
         {loading

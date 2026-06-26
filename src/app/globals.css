@@ -246,6 +246,10 @@
     body {
       background: white;
     }
+    /* Hide top bar, sidebar, action toolbars so the chart + KPI hero own the page */
+    .no-print {
+      display: none !important;
+    }
   }
 }
 

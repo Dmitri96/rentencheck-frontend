@@ -126,8 +126,10 @@ const CreateAdvisorForm = () => {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Neuen Berater erstellen</h1>
-          <p className="text-gray-600 mt-2">Erstellen Sie einen neuen Finanzberater-Account</p>
+          <h1 className="text-foreground">Neuen Berater erstellen</h1>
+          <p className="text-muted-foreground mt-2">
+            Erstellen Sie einen neuen Finanzberater-Account
+          </p>
         </div>
       </div>
 
@@ -142,55 +144,49 @@ const CreateAdvisorForm = () => {
             {/* Name Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="first_name">
-                  Vorname <span className="text-red-500">*</span>
-                </Label>
+                <Label htmlFor="first_name">Vorname</Label>
                 <Input
                   id="first_name"
                   type="text"
                   value={formData.first_name}
                   onChange={(e) => handleInputChange("first_name", e.target.value)}
                   placeholder="Max"
-                  className={getFieldError("first_name") ? "border-red-500" : ""}
+                  className={getFieldError("first_name") ? "border-destructive" : ""}
                 />
                 {getFieldError("first_name") && (
-                  <p className="text-sm text-red-600">{getFieldError("first_name")}</p>
+                  <p className="text-sm text-destructive">{getFieldError("first_name")}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="last_name">
-                  Nachname <span className="text-red-500">*</span>
-                </Label>
+                <Label htmlFor="last_name">Nachname</Label>
                 <Input
                   id="last_name"
                   type="text"
                   value={formData.last_name}
                   onChange={(e) => handleInputChange("last_name", e.target.value)}
                   placeholder="Mustermann"
-                  className={getFieldError("last_name") ? "border-red-500" : ""}
+                  className={getFieldError("last_name") ? "border-destructive" : ""}
                 />
                 {getFieldError("last_name") && (
-                  <p className="text-sm text-red-600">{getFieldError("last_name")}</p>
+                  <p className="text-sm text-destructive">{getFieldError("last_name")}</p>
                 )}
               </div>
             </div>
 
             {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="email">
-                E-Mail-Adresse <span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="email">E-Mail-Adresse</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 placeholder="max.mustermann@example.com"
-                className={getFieldError("email") ? "border-red-500" : ""}
+                className={getFieldError("email") ? "border-destructive" : ""}
               />
               {getFieldError("email") && (
-                <p className="text-sm text-red-600">{getFieldError("email")}</p>
+                <p className="text-sm text-destructive">{getFieldError("email")}</p>
               )}
             </div>
 
@@ -203,10 +199,10 @@ const CreateAdvisorForm = () => {
                 value={formData.phone}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
                 placeholder="+49 123 456789"
-                className={getFieldError("phone") ? "border-red-500" : ""}
+                className={getFieldError("phone") ? "border-destructive" : ""}
               />
               {getFieldError("phone") && (
-                <p className="text-sm text-red-600">{getFieldError("phone")}</p>
+                <p className="text-sm text-destructive">{getFieldError("phone")}</p>
               )}
             </div>
 
@@ -219,19 +215,17 @@ const CreateAdvisorForm = () => {
                 value={formData.company}
                 onChange={(e) => handleInputChange("company", e.target.value)}
                 placeholder="Musterberatung GmbH"
-                className={getFieldError("company") ? "border-red-500" : ""}
+                className={getFieldError("company") ? "border-destructive" : ""}
               />
               {getFieldError("company") && (
-                <p className="text-sm text-red-600">{getFieldError("company")}</p>
+                <p className="text-sm text-destructive">{getFieldError("company")}</p>
               )}
             </div>
 
             {/* Password Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="password">
-                  Passwort <span className="text-red-500">*</span>
-                </Label>
+                <Label htmlFor="password">Passwort</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -239,7 +233,7 @@ const CreateAdvisorForm = () => {
                     value={formData.password}
                     onChange={(e) => handleInputChange("password", e.target.value)}
                     placeholder="Mindestens 8 Zeichen"
-                    className={getFieldError("password") ? "border-red-500 pr-10" : "pr-10"}
+                    className={getFieldError("password") ? "border-destructive pr-10" : "pr-10"}
                   />
                   <Button
                     type="button"
@@ -249,21 +243,19 @@ const CreateAdvisorForm = () => {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="w-4 h-4 text-gray-400" />
+                      <EyeOff className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <Eye className="w-4 h-4 text-gray-400" />
+                      <Eye className="w-4 h-4 text-muted-foreground" />
                     )}
                   </Button>
                 </div>
                 {getFieldError("password") && (
-                  <p className="text-sm text-red-600">{getFieldError("password")}</p>
+                  <p className="text-sm text-destructive">{getFieldError("password")}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password_confirmation">
-                  Passwort bestätigen <span className="text-red-500">*</span>
-                </Label>
+                <Label htmlFor="password_confirmation">Passwort bestätigen</Label>
                 <div className="relative">
                   <Input
                     id="password_confirmation"
@@ -272,7 +264,7 @@ const CreateAdvisorForm = () => {
                     onChange={(e) => handleInputChange("password_confirmation", e.target.value)}
                     placeholder="Passwort wiederholen"
                     className={
-                      getFieldError("password_confirmation") ? "border-red-500 pr-10" : "pr-10"
+                      getFieldError("password_confirmation") ? "border-destructive pr-10" : "pr-10"
                     }
                   />
                   <Button
@@ -283,14 +275,16 @@ const CreateAdvisorForm = () => {
                     onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
                   >
                     {showPasswordConfirm ? (
-                      <EyeOff className="w-4 h-4 text-gray-400" />
+                      <EyeOff className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <Eye className="w-4 h-4 text-gray-400" />
+                      <Eye className="w-4 h-4 text-muted-foreground" />
                     )}
                   </Button>
                 </div>
                 {getFieldError("password_confirmation") && (
-                  <p className="text-sm text-red-600">{getFieldError("password_confirmation")}</p>
+                  <p className="text-sm text-destructive">
+                    {getFieldError("password_confirmation")}
+                  </p>
                 )}
               </div>
             </div>
@@ -306,7 +300,7 @@ const CreateAdvisorForm = () => {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-primary hover:bg-primary-hover"
                 >
                   {isSubmitting ? (
                     <>

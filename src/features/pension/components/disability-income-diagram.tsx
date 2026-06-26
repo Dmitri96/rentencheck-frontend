@@ -117,13 +117,19 @@ export function DisabilityIncomeDiagram({
       {
         label: "Netto (verfügbar)",
         data: [fullSalaryNet, krankengeldNet, erwerbsminderungsrenteNet, totalWithInsuranceNet],
+        // Chart series colors aligned with brief: navy → amber → terracotta → forest
         backgroundColor: [
-          "#3b82f6", // Full salary - blue
-          "#f59e0b", // Krankengeld - amber
-          "#ef4444", // Disability - red
-          "#10b981", // With insurance - green
+          "oklch(0.32 0.075 260)", // navy
+          "oklch(0.65 0.13 65)", // amber
+          "oklch(0.52 0.18 25)", // terracotta
+          "oklch(0.5 0.1 155)", // forest
         ],
-        borderColor: ["#1e40af", "#d97706", "#dc2626", "#059669"],
+        borderColor: [
+          "oklch(0.27 0.075 260)",
+          "oklch(0.55 0.13 65)",
+          "oklch(0.42 0.18 25)",
+          "oklch(0.4 0.1 155)",
+        ],
         borderWidth: 2,
       },
       {
@@ -134,13 +140,19 @@ export function DisabilityIncomeDiagram({
           erwerbsminderungsrenteGross - erwerbsminderungsrenteNet,
           totalWithInsuranceGross - totalWithInsuranceNet,
         ],
+        // Lighter siblings of the brief's chart series for the deductions overlay
         backgroundColor: [
-          "#93c5fd", // Light blue
-          "#fcd34d", // Light amber
-          "#fca5a5", // Light red
-          "#86efac", // Light green
+          "oklch(0.55 0.055 260)",
+          "oklch(0.8 0.1 65)",
+          "oklch(0.7 0.13 25)",
+          "oklch(0.7 0.08 155)",
         ],
-        borderColor: ["#1e40af", "#d97706", "#dc2626", "#059669"],
+        borderColor: [
+          "oklch(0.27 0.075 260)",
+          "oklch(0.55 0.13 65)",
+          "oklch(0.42 0.18 25)",
+          "oklch(0.4 0.1 155)",
+        ],
         borderWidth: 1,
       },
     ],
@@ -153,7 +165,7 @@ export function DisabilityIncomeDiagram({
       x: {
         stacked: true,
         ticks: {
-          color: "#1f2937",
+          color: "oklch(0.22 0.025 260)",
           font: { size: 12 },
         },
         grid: { display: false },
@@ -164,9 +176,9 @@ export function DisabilityIncomeDiagram({
         max: Math.max(fullSalaryGross * 1.1, totalWithInsuranceGross * 1.1),
         ticks: {
           callback: (value) => "€" + Number(value).toLocaleString(),
-          color: "#6b7280",
+          color: "oklch(0.42 0.022 260)",
         },
-        grid: { color: "#e5e7eb" },
+        grid: { color: "oklch(0.9 0.008 80)" },
       },
     },
     plugins: {
@@ -181,16 +193,16 @@ export function DisabilityIncomeDiagram({
       title: {
         display: true,
         text: "Einkommensverlauf bei Berufsunfähigkeit (Brutto & Netto)",
-        font: { size: 18, weight: "bold" },
-        color: "#1f2937",
+        font: { size: 16, weight: "normal" },
+        color: "oklch(0.22 0.025 260)",
       },
       tooltip: {
-        backgroundColor: "rgba(0, 0, 0, 0.9)",
+        backgroundColor: "oklch(0.22 0.025 260)",
         titleColor: "#fff",
         bodyColor: "#fff",
-        borderColor: "#374151",
+        borderColor: "oklch(0.32 0.075 260)",
         borderWidth: 1,
-        cornerRadius: 8,
+        cornerRadius: 6,
         callbacks: {
           label: (context) => {
             const datasetLabel = context.dataset.label;

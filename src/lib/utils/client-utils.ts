@@ -4,10 +4,13 @@
  */
 
 /**
- * Get the appropriate status color class for a client's active state
+ * Badge variant for a client's active state — maps to the token-backed
+ * Badge component (success | outline) rather than raw Tailwind classes.
  */
-export function getClientStatusColor(isActive: boolean): string {
-  return isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800";
+export type StatusVariant = "default" | "success" | "warning" | "destructive" | "outline";
+
+export function getClientStatusVariant(isActive: boolean): StatusVariant {
+  return isActive ? "success" : "outline";
 }
 
 /**
@@ -18,18 +21,19 @@ export function getClientStatusText(isActive: boolean): string {
 }
 
 /**
- * Get the appropriate color class for a rentencheck status
+ * Badge variant for a rentencheck status. Returned variant feeds the Badge
+ * component directly — see src/components/ui/badge.tsx.
  */
-export function getRentencheckStatusColor(status: string): string {
+export function getRentencheckStatusVariant(status: string): StatusVariant {
   switch (status) {
     case "completed":
-      return "bg-green-100 text-green-800";
+      return "success";
     case "draft":
-      return "bg-yellow-100 text-yellow-800";
+      return "warning";
     case "archived":
-      return "bg-gray-100 text-gray-800";
+      return "outline";
     default:
-      return "bg-gray-100 text-gray-800";
+      return "outline";
   }
 }
 

@@ -13,7 +13,9 @@ export function PensionSettingsPanel() {
   const { loading, saving, form, handleChange, handleSave, handleReset } = usePensionSettings();
 
   if (loading || !form) {
-    return <div className="p-8 text-center text-gray-600">Einstellungen werden geladen...</div>;
+    return (
+      <div className="p-8 text-center text-muted-foreground">Einstellungen werden geladen…</div>
+    );
   }
 
   const s = form.social_insurance;

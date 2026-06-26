@@ -11,27 +11,27 @@ interface ClientContactCardProps {
 
 export function ClientContactCard({ client }: ClientContactCardProps) {
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">Kontaktinformationen</CardTitle>
+        <CardTitle>Kontaktinformationen</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center space-x-3">
-          <Mail className="h-4 w-4 text-gray-400" />
-          <span className="text-sm">{client.email}</span>
+      <CardContent className="space-y-3">
+        <div className="flex items-center gap-3">
+          <Mail className="h-4 w-4 text-[var(--ink-tertiary)] shrink-0" />
+          <span className="text-sm text-foreground truncate">{client.email}</span>
         </div>
 
         {client.phone && (
-          <div className="flex items-center space-x-3">
-            <Phone className="h-4 w-4 text-gray-400" />
-            <span className="text-sm">{client.phone}</span>
+          <div className="flex items-center gap-3">
+            <Phone className="h-4 w-4 text-[var(--ink-tertiary)] shrink-0" />
+            <span className="text-sm text-foreground">{client.phone}</span>
           </div>
         )}
 
         {(client.street || client.city) && (
-          <div className="flex items-start space-x-3">
-            <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
-            <div className="text-sm">
+          <div className="flex items-start gap-3">
+            <MapPin className="h-4 w-4 text-[var(--ink-tertiary)] shrink-0 mt-0.5" />
+            <div className="text-sm text-foreground">
               {client.street && <div>{client.street}</div>}
               {(client.postal_code || client.city) && (
                 <div>
@@ -42,10 +42,13 @@ export function ClientContactCard({ client }: ClientContactCardProps) {
           </div>
         )}
 
-        <div className="flex items-center space-x-3">
-          <Calendar className="h-4 w-4 text-gray-400" />
-          <span className="text-sm">
-            Geboren: {client.birth_date ? formatDate(client.birth_date) : "Nicht angegeben"}
+        <div className="flex items-center gap-3">
+          <Calendar className="h-4 w-4 text-[var(--ink-tertiary)] shrink-0" />
+          <span className="text-sm text-muted-foreground">
+            Geboren:{" "}
+            <span className="text-foreground">
+              {client.birth_date ? formatDate(client.birth_date) : "Nicht angegeben"}
+            </span>
           </span>
         </div>
       </CardContent>

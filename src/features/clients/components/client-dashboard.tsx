@@ -17,6 +17,10 @@ import {
   Filter,
   Loader2,
   Search,
+  Users,
+  CheckCircle2,
+  PauseCircle,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -35,7 +39,6 @@ export function ClientDashboard() {
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
   const [creatingRentencheck, setCreatingRentencheck] = useState<number | null>(null);
 
-  // Load clients on component mount
   useEffect(() => {
     loadClients();
   }, []);
@@ -43,7 +46,7 @@ export function ClientDashboard() {
   const loadClients = async () => {
     try {
       setLoading(true);
-      const response = await ClientService.getClients(1); // Load first page
+      const response = await ClientService.getClients(1);
       setClients(response.data);
     } catch (error: unknown) {
       console.error("Error loading clients:", error);
@@ -62,8 +65,6 @@ export function ClientDashboard() {
       setDeleteLoading(clientId);
       await ClientService.deleteClient(clientId);
       toast.success("Mandant erfolgreich deaktiviert");
-
-      // Remove from local state or reload
       setClients(clients.filter((client) => client.id !== clientId));
     } catch (error: unknown) {
       console.error("Error deleting client:", error);
@@ -76,13 +77,9 @@ export function ClientDashboard() {
   const handleCreateRentencheckForClient = async (client: Client) => {
     try {
       setCreatingRentencheck(client.id);
-
-      // Create new rentencheck first
       const response = await RentencheckService.createRentencheck(client.id, {
         title: `Rentencheck für ${client.full_name}`,
       });
-
-      // Navigate to the specific rentencheck edit page
       router.push(`/dashboard/clients/${client.id}/rentencheck/${response.rentencheck.id}`);
     } catch (error: unknown) {
       console.error("Error creating rentencheck:", error);
@@ -106,29 +103,17 @@ export function ClientDashboard() {
     return matchesSearch && matchesStatus;
   });
 
-  const getStatusColor = (isActive: boolean) => {
-    return isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800";
-  };
-
-  const getStatusText = (isActive: boolean) => {
-    return isActive ? "Aktiv" : "Inaktiv";
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("de-DE");
-  };
+  const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString("de-DE");
 
   if (loading) {
     return (
       <DashboardShell title="Berater Dashboard">
         <div className="flex items-center justify-center py-24">
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-12 text-center">
-              <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Mandanten werden geladen...
-              </h3>
-              <p className="text-gray-600">Bitte warten Sie einen Moment.</p>
+          <Card>
+            <CardContent className="px-12 py-12 text-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+              <h3 className="mb-2">Mandanten werden geladen…</h3>
+              <p className="text-muted-foreground">Bitte warten Sie einen Moment.</p>
             </CardContent>
           </Card>
         </div>
@@ -136,114 +121,70 @@ export function ClientDashboard() {
     );
   }
 
+  const newThisWeek = clients.filter((c) => {
+    const createdDate = new Date(c.created_at);
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    return createdDate > weekAgo;
+  }).length;
+
   return (
     <DashboardShell title="Berater Dashboard">
-      {/* Page Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-start justify-between mb-8">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Meine Mandanten</h2>
-          <p className="text-gray-600">
-            Verwalten Sie Ihre Mandanten und erstellen Sie Rentenchecks
+          <h2>Meine Mandanten</h2>
+          <p className="mt-2 text-muted-foreground">
+            Verwalten Sie Ihre Mandanten und erstellen Sie Rentenchecks.
           </p>
         </div>
         <Link href="/dashboard/clients/new">
-          <Button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
-            <Plus className="h-5 w-5" />
+          <Button>
+            <Plus className="h-4 w-4" />
             Mandant anlegen
           </Button>
         </Link>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Gesamt Mandanten</p>
-                <p className="text-3xl font-bold text-gray-900">{clients.length}</p>
-              </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">👥</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Aktive Mandanten</p>
-                <p className="text-3xl font-bold text-green-600">
-                  {clients.filter((c) => c.is_active).length}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">✅</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Inaktive Mandanten</p>
-                <p className="text-3xl font-bold text-gray-600">
-                  {clients.filter((c) => !c.is_active).length}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">⏸️</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Neue Mandanten</p>
-                <p className="text-3xl font-bold text-purple-600">
-                  {
-                    clients.filter((c) => {
-                      const createdDate = new Date(c.created_at);
-                      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-                      return createdDate > weekAgo;
-                    }).length
-                  }
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">✨</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <StatTile
+          label="Gesamt Mandanten"
+          value={clients.length}
+          icon={<Users className="h-4 w-4" />}
+        />
+        <StatTile
+          label="Aktive Mandanten"
+          value={clients.filter((c) => c.is_active).length}
+          icon={<CheckCircle2 className="h-4 w-4 text-success" />}
+        />
+        <StatTile
+          label="Inaktive Mandanten"
+          value={clients.filter((c) => !c.is_active).length}
+          icon={<PauseCircle className="h-4 w-4 text-muted-foreground" />}
+        />
+        <StatTile
+          label="Neue diese Woche"
+          value={newThisWeek}
+          icon={<Sparkles className="h-4 w-4 text-primary" />}
+        />
       </div>
 
-      {/* Search and Filter */}
-      <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg mb-6">
-        <CardContent className="p-6">
+      <Card className="mb-6">
+        <CardContent className="px-6 py-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
-                placeholder="Mandanten suchen (Name, E-Mail)..."
+                placeholder="Mandanten suchen (Name, E-Mail)…"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-12"
+                className="pl-10"
               />
             </div>
             <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-gray-500" />
+              <Filter className="h-4 w-4 text-muted-foreground" />
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as "all" | "active" | "inactive")}
-                className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-10 rounded-md border border-input bg-surface px-3 text-sm text-foreground focus-visible:border-border-strong focus-visible:ring-[3px] focus-visible:ring-ring/40 outline-none transition-colors duration-[180ms]"
               >
                 <option value="all">Alle Status</option>
                 <option value="active">Aktiv</option>
@@ -254,81 +195,72 @@ export function ClientDashboard() {
         </CardContent>
       </Card>
 
-      {/* Client Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredClients.map((client) => (
-          <Card
-            key={client.id}
-            className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200 group"
-          >
-            <CardContent className="p-6">
+          <Card key={client.id} className="group">
+            <CardContent className="px-6 py-6">
               <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{client.full_name}</h3>
-                  <Badge className={`text-xs ${getStatusColor(client.is_active)}`}>
-                    {getStatusText(client.is_active)}
-                  </Badge>
-                  {client.age && (
-                    <p className="text-sm text-gray-500 mt-1">{client.age} Jahre alt</p>
-                  )}
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-[1.125rem] leading-tight truncate">{client.full_name}</h3>
+                  <div className="mt-2 flex items-center gap-2">
+                    <Badge variant={client.is_active ? "success" : "outline"}>
+                      {client.is_active ? "Aktiv" : "Inaktiv"}
+                    </Badge>
+                    {client.age != null && (
+                      <span className="text-sm text-muted-foreground">{client.age} Jahre</span>
+                    )}
+                  </div>
                 </div>
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="icon"
                   className="opacity-0 group-hover:opacity-100 transition-opacity"
                   onClick={() => handleDeleteClient(client.id)}
                   disabled={deleteLoading === client.id}
+                  aria-label="Mandant deaktivieren"
                 >
                   {deleteLoading === client.id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    <Trash2 className="h-4 w-4 text-red-500" />
+                    <Trash2 className="h-4 w-4 text-destructive" />
                   )}
                 </Button>
               </div>
 
-              <div className="space-y-3 mb-6">
+              <div className="space-y-2 mb-6">
                 {client.formatted_address && (
-                  <div className="flex items-center text-sm text-gray-600">
-                    <MapPin className="h-4 w-4 mr-2 text-gray-400" />
-                    <span>{client.formatted_address}</span>
+                  <div className="flex items-start text-sm text-muted-foreground gap-2">
+                    <MapPin className="h-4 w-4 mt-0.5 text-[var(--ink-tertiary)] shrink-0" />
+                    <span className="truncate">{client.formatted_address}</span>
                   </div>
                 )}
-                <div className="flex items-center text-sm text-gray-600">
-                  <Mail className="h-4 w-4 mr-2 text-gray-400" />
-                  <span>{client.email}</span>
+                <div className="flex items-center text-sm text-muted-foreground gap-2">
+                  <Mail className="h-4 w-4 text-[var(--ink-tertiary)] shrink-0" />
+                  <span className="truncate">{client.email}</span>
                 </div>
                 {client.phone && (
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Phone className="h-4 w-4 mr-2 text-gray-400" />
+                  <div className="flex items-center text-sm text-muted-foreground gap-2">
+                    <Phone className="h-4 w-4 text-[var(--ink-tertiary)] shrink-0" />
                     <span>{client.phone}</span>
                   </div>
                 )}
-                <div className="flex items-center text-sm text-gray-500">
-                  <span className="text-xs">Angelegt: {formatDate(client.created_at)}</span>
-                </div>
+                <p className="text-xs text-[var(--ink-tertiary)] pt-1">
+                  Angelegt {formatDate(client.created_at)}
+                </p>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div className="flex space-x-2">
+              <div className="flex items-center justify-between pt-4 border-t border-border-subtle gap-2">
+                <div className="flex gap-2">
                   <Link href={`/dashboard/clients/${client.id}/edit`}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-1 text-orange-600 border-orange-200 hover:bg-orange-50"
-                    >
-                      <Edit3 className="h-3 w-3" />
+                    <Button variant="outline" size="sm">
+                      <Edit3 className="h-3.5 w-3.5" />
                       Bearbeiten
                     </Button>
                   </Link>
                   <Link href={`/dashboard/clients/${client.id}`}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-1 text-purple-600 border-purple-200 hover:bg-purple-50"
-                    >
-                      <FileText className="h-3 w-3" />
-                      Rentenchecks
+                    <Button variant="outline" size="sm">
+                      <FileText className="h-3.5 w-3.5" />
+                      Übersicht
                     </Button>
                   </Link>
                 </div>
@@ -336,14 +268,13 @@ export function ClientDashboard() {
                   onClick={() => handleCreateRentencheckForClient(client)}
                   disabled={creatingRentencheck === client.id}
                   size="sm"
-                  className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1"
                 >
                   {creatingRentencheck === client.id ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : (
-                    <Play className="h-3 w-3" />
+                    <Play className="h-3.5 w-3.5" />
                   )}
-                  {creatingRentencheck === client.id ? "Erstelle..." : "START"}
+                  {creatingRentencheck === client.id ? "Erstelle…" : "Start"}
                 </Button>
               </div>
             </CardContent>
@@ -352,18 +283,21 @@ export function ClientDashboard() {
       </div>
 
       {filteredClients.length === 0 && !loading && (
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardContent className="p-12 text-center">
-            <div className="text-6xl mb-4">👥</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Keine Mandanten gefunden</h3>
-            <p className="text-gray-600 mb-6">
+        <Card>
+          <CardContent className="px-12 py-16 text-center">
+            <Users
+              className="h-10 w-10 mx-auto text-[var(--ink-tertiary)] mb-4"
+              strokeWidth={1.25}
+            />
+            <h3 className="mb-2">Keine Mandanten gefunden</h3>
+            <p className="text-muted-foreground mb-6">
               {searchTerm
                 ? "Ihre Suche ergab keine Treffer."
                 : "Sie haben noch keine Mandanten angelegt."}
             </p>
             <Link href="/dashboard/clients/new">
-              <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                <Plus className="h-4 w-4 mr-2" />
+              <Button>
+                <Plus className="h-4 w-4" />
                 Ersten Mandanten anlegen
               </Button>
             </Link>
@@ -371,5 +305,24 @@ export function ClientDashboard() {
         </Card>
       )}
     </DashboardShell>
+  );
+}
+
+function StatTile({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
+  return (
+    <Card>
+      <CardContent className="px-5 py-5">
+        <div className="flex items-center justify-between">
+          <p className="label-uppercase">{label}</p>
+          <span className="text-[var(--ink-tertiary)]">{icon}</span>
+        </div>
+        <p
+          className="mt-3 text-[2rem] leading-none currency"
+          style={{ fontFamily: "var(--font-display), Georgia, serif", fontWeight: 500 }}
+        >
+          {value}
+        </p>
+      </CardContent>
+    </Card>
   );
 }

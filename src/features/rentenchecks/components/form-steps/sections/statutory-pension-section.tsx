@@ -34,7 +34,6 @@ export function StatutoryPensionSection({
           checked={data.statutoryPensionClaims}
           onCheckedChange={(checked) => updateData({ statutoryPensionClaims: checked as boolean })}
           disabled={isConfirmed}
-          className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
         />
         <Label htmlFor="statutoryPensionClaims" className="text-sm font-medium cursor-pointer">
           Ansprüche aus gesetzlicher Rentenversicherung dasds
@@ -44,10 +43,10 @@ export function StatutoryPensionSection({
       {/* Show input fields when checkbox is checked */}
       {data.statutoryPensionClaims && (
         <div className="ml-7 space-y-4 animate-in slide-in-from-top-2 duration-200">
-          <div className="border-l-2 border-blue-200 pl-4 space-y-4">
+          <div className="border-l-2 border-border pl-4 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="statutoryPensionAge" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="statutoryPensionAge" className="text-sm">
                   Im Alter von
                 </Label>
                 <Input
@@ -60,15 +59,11 @@ export function StatutoryPensionSection({
                     })
                   }
                   placeholder="0"
-                  className="h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
                   disabled={isConfirmed}
                 />
               </div>
               <div className="space-y-2">
-                <Label
-                  htmlFor="statutoryPensionAmount"
-                  className="text-sm font-medium text-gray-700"
-                >
+                <Label htmlFor="statutoryPensionAmount" className="text-sm">
                   Wie viel
                 </Label>
                 <Input
@@ -81,7 +76,6 @@ export function StatutoryPensionSection({
                     })
                   }
                   placeholder="0"
-                  className="h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
                   disabled={isConfirmed}
                 />
               </div>
@@ -90,10 +84,7 @@ export function StatutoryPensionSection({
             {/* Erwerbsminderungsrente amount (no age) */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label
-                  htmlFor="disabilityPensionAmount"
-                  className="text-sm font-medium text-gray-700"
-                >
+                <Label htmlFor="disabilityPensionAmount" className="text-sm">
                   Ansprüche aus Erwerbsminderungsrente (mtl.)
                 </Label>
                 <Input
@@ -110,7 +101,6 @@ export function StatutoryPensionSection({
                     } as Partial<RentencheckData>)
                   }
                   placeholder="0"
-                  className="h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
                   disabled={isConfirmed}
                 />
               </div>

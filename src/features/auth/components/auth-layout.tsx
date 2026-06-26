@@ -7,21 +7,26 @@ interface AuthLayoutProps {
 }
 
 /**
- * Shared layout component for authentication pages
- * Provides consistent styling and branding across login/register pages
+ * Centered auth card on warm-ivory background.
+ * Serif monogram + Fraunces wordmark; no gradient hero strip.
  */
-export function AuthLayout({ children, title = "RENTENBLICK.de", subtitle }: AuthLayoutProps) {
+export function AuthLayout({ children, title = "Rentenblick", subtitle }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl mb-6 shadow-lg">
-            <span className="text-2xl text-white font-bold">R</span>
+    <div className="min-h-screen flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-[440px]">
+        <div className="flex flex-col items-center mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-md border border-border bg-surface mb-5">
+            <span
+              className="text-[1.5rem] leading-none text-foreground"
+              style={{ fontFamily: "var(--font-display), Georgia, serif", fontWeight: 500 }}
+            >
+              R
+            </span>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent mb-2">
-            {title}
-          </h1>
-          {subtitle && <p className="text-gray-600">{subtitle}</p>}
+          <h1 className="text-[1.75rem] leading-tight text-center">{title}</h1>
+          {subtitle && (
+            <p className="mt-2 text-[0.9375rem] text-muted-foreground text-center">{subtitle}</p>
+          )}
         </div>
         {children}
       </div>

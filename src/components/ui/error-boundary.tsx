@@ -39,7 +39,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       return (
         <Card className="max-w-md mx-auto my-8">
           <CardHeader>
-            <CardTitle className="text-red-600">Something went wrong</CardTitle>
+            <CardTitle className="text-destructive">Something went wrong</CardTitle>
           </CardHeader>
           <CardContent>
             <Alert variant="destructive" className="mb-4">
@@ -51,7 +51,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
             <details className="mt-4 text-sm">
               <summary className="cursor-pointer font-medium">Error details</summary>
-              <div className="mt-2 p-2 bg-red-50 rounded whitespace-pre-wrap text-red-700 font-mono text-xs">
+              <div className="mt-2 p-2 bg-[color-mix(in_oklch,var(--destructive)_10%,var(--background))] rounded whitespace-pre-wrap text-destructive font-mono text-xs">
                 {this.state.error?.toString()}
               </div>
             </details>

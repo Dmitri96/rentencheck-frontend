@@ -15,7 +15,7 @@ export function ExpectationsStep({ data, updateData, isConfirmed }: Expectations
     <div className={`space-y-8 ${isConfirmed ? "opacity-60 pointer-events-none" : ""}`}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Label htmlFor="currentAge" className="text-sm font-semibold text-gray-700">
+          <Label htmlFor="currentAge" className="text-sm">
             Aktuelles Alter
           </Label>
           <Input
@@ -24,13 +24,12 @@ export function ExpectationsStep({ data, updateData, isConfirmed }: Expectations
             value={data.currentAge || ""}
             onChange={(e) => updateData({ currentAge: Number.parseInt(e.target.value) || 0 })}
             placeholder="30"
-            className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
             disabled={isConfirmed}
           />
         </div>
 
         <div className="space-y-3">
-          <Label htmlFor="retirementAge" className="text-sm font-semibold text-gray-700">
+          <Label htmlFor="retirementAge" className="text-sm">
             Mit welchem Alter wollen Sie in Ruhestand gehen?
           </Label>
           <Input
@@ -39,7 +38,6 @@ export function ExpectationsStep({ data, updateData, isConfirmed }: Expectations
             value={data.retirementAge || ""}
             onChange={(e) => updateData({ retirementAge: Number.parseInt(e.target.value) || 0 })}
             placeholder="67"
-            className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
             disabled={isConfirmed}
           />
         </div>
@@ -47,7 +45,7 @@ export function ExpectationsStep({ data, updateData, isConfirmed }: Expectations
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Label htmlFor="pensionWishCurrentValue" className="text-sm font-semibold text-gray-700">
+          <Label htmlFor="pensionWishCurrentValue" className="text-sm">
             Rentenwunsch in heutiger Kaufkraft (€)
           </Label>
           <Input
@@ -58,13 +56,12 @@ export function ExpectationsStep({ data, updateData, isConfirmed }: Expectations
               updateData({ pensionWishCurrentValue: Number.parseFloat(e.target.value) || 0 })
             }
             placeholder="0"
-            className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
             disabled={isConfirmed}
           />
         </div>
 
         <div className="space-y-3">
-          <Label htmlFor="guaranteedAmount" className="text-sm font-semibold text-gray-700">
+          <Label htmlFor="guaranteedAmount" className="text-sm">
             Wie viel sollte davon garantiert sein? (€)
           </Label>
           <Input
@@ -75,7 +72,6 @@ export function ExpectationsStep({ data, updateData, isConfirmed }: Expectations
               updateData({ guaranteedAmount: Number.parseFloat(e.target.value) || 0 })
             }
             placeholder="0"
-            className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
             disabled={isConfirmed}
           />
         </div>
@@ -83,7 +79,7 @@ export function ExpectationsStep({ data, updateData, isConfirmed }: Expectations
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Label htmlFor="provisionDuration" className="text-sm font-semibold text-gray-700">
+          <Label htmlFor="provisionDuration" className="text-sm">
             Wie lange sollte die Versorgung reichen?
           </Label>
           <Input
@@ -94,13 +90,12 @@ export function ExpectationsStep({ data, updateData, isConfirmed }: Expectations
               updateData({ provisionDuration: Number.parseInt(e.target.value) || 0 })
             }
             placeholder="92"
-            className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
             disabled={isConfirmed}
           />
         </div>
 
         <div className="space-y-3">
-          <Label htmlFor="assumedInflation" className="text-sm font-semibold text-gray-700">
+          <Label htmlFor="assumedInflation" className="text-sm">
             Angenommene Inflation p.a. (%)
           </Label>
           <Input
@@ -112,17 +107,16 @@ export function ExpectationsStep({ data, updateData, isConfirmed }: Expectations
             }
             placeholder="0"
             step="0.1"
-            className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
             disabled={isConfirmed}
           />
         </div>
       </div>
 
       {isConfirmed && (
-        <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+        <div className="bg-[color-mix(in_oklch,var(--success)_10%,var(--background))] p-4 rounded-lg border border-[color-mix(in_oklch,var(--success)_30%,var(--background))]">
           <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-green-800 font-medium">Ihre Erwartungen bestätigt</span>
+            <div className="w-2 h-2 bg-success rounded-full"></div>
+            <span className="text-success font-medium">Ihre Erwartungen bestätigt</span>
           </div>
         </div>
       )}

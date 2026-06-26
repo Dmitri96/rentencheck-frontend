@@ -48,7 +48,7 @@ const AdditionalIncomeFormFields = React.memo(
     handleCancelEdit,
     isConfirmed,
   }: IncomeFormProps) => (
-    <div className="bg-gray-50 p-4 rounded-lg border space-y-4">
+    <div className="bg-[var(--surface-subtle)] p-4 rounded-lg border space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="space-y-1">
           <Label className="text-sm font-medium">Welche? *</Label>
@@ -173,11 +173,11 @@ export function AdditionalIncomeSection({
         >
           <div className="flex-1">
             <div className="font-medium text-sm">{income.type}</div>
-            <div className="text-blue-600 font-semibold">
+            <div className="text-primary font-semibold">
               {income.amount.toLocaleString("de-DE", { minimumFractionDigits: 2 })} € (
               {income.frequency})
             </div>
-            <div className="text-xs text-gray-500 mt-1">Ab: {income.startYear}</div>
+            <div className="text-xs text-muted-foreground mt-1">Ab: {income.startYear}</div>
           </div>
           {!isConfirmed && (
             <div className="flex gap-1">
@@ -193,7 +193,7 @@ export function AdditionalIncomeSection({
                 onClick={() => handleRemoveContract("income", index)}
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                className="h-8 w-8 p-0 text-destructive hover:text-red-700"
               >
                 <Trash2 className="h-3 w-3" />
               </Button>
@@ -207,7 +207,7 @@ export function AdditionalIncomeSection({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-[1.125rem] font-medium text-foreground">
           Erwarten Sie weitere Einkünfte, Einnahmen bzw. Vermögenswerte, die heute noch nicht
           vorliegen?
         </h3>
@@ -238,7 +238,9 @@ export function AdditionalIncomeSection({
       {data.additionalIncome.length > 0 ? (
         <AdditionalIncomeList />
       ) : (
-        <p className="text-gray-500 text-sm">Noch keine zusätzlichen Einkünfte hinzugefügt</p>
+        <p className="text-muted-foreground text-sm">
+          Noch keine zusätzlichen Einkünfte hinzugefügt
+        </p>
       )}
     </div>
   );

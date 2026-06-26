@@ -9,7 +9,7 @@ export default function AuthLayout({
 }>) {
   return (
     <ErrorBoundary>
-      <main className="min-h-screen bg-gray-100">{children}</main>
+      <main className="min-h-screen bg-background">{children}</main>
     </ErrorBoundary>
   );
 }

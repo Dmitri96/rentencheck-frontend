@@ -48,7 +48,7 @@ const PensionContractFormFields = React.memo(
     handleCancelEdit,
     isConfirmed,
   }: PensionFormProps) => (
-    <div className="bg-gray-50 p-4 rounded-lg border space-y-4">
+    <div className="bg-[var(--surface-subtle)] p-4 rounded-lg border space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="space-y-1">
           <Label className="text-sm font-medium">Vertrag</Label>
@@ -246,11 +246,11 @@ export function PensionContractsSection({
             <div className="font-medium text-sm">
               {contract.contract} - {contract.contractType}
             </div>
-            <div className="text-blue-600 font-semibold">
+            <div className="text-primary font-semibold">
               {contract.monthlyAmount.toLocaleString("de-DE", { minimumFractionDigits: 2 })} € /
               Monat
             </div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-xs text-muted-foreground mt-1">
               {contract.company} | Ab: {contract.pensionStartYear}
             </div>
           </div>
@@ -268,7 +268,7 @@ export function PensionContractsSection({
                 onClick={() => handleRemoveContract("pension", index)}
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                className="h-8 w-8 p-0 text-destructive hover:text-red-700"
               >
                 <Trash2 className="h-3 w-3" />
               </Button>
@@ -282,7 +282,7 @@ export function PensionContractsSection({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-[1.125rem] font-medium text-foreground">
           Verträge mit Renten bzw. laufendem Einkommen
         </h3>
         <Button
@@ -312,7 +312,7 @@ export function PensionContractsSection({
       {data.pensionContracts.length > 0 ? (
         <PensionContractList />
       ) : (
-        <p className="text-gray-500 text-sm">Noch keine Verträge hinzugefügt</p>
+        <p className="text-muted-foreground text-sm">Noch keine Verträge hinzugefügt</p>
       )}
     </div>
   );

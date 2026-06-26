@@ -42,8 +42,8 @@ export function DashboardShell({
 }: DashboardShellProps) {
   return (
     <div className="min-h-screen bg-background">
-      {/* Top bar — 64px height, hairline border, no shadow */}
-      <header className="sticky top-0 z-40 h-16 border-b border-border-subtle bg-background/95 backdrop-blur-[2px]">
+      {/* Top bar — 64px height, hairline border, no shadow. Hidden in print. */}
+      <header className="no-print sticky top-0 z-40 h-16 border-b border-border-subtle bg-background/95 backdrop-blur-[2px]">
         <div className="mx-auto flex h-full max-w-[1280px] items-center justify-between px-8">
           <div className="flex min-w-0 items-center gap-4">
             {backHref ? (

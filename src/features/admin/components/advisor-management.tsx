@@ -145,52 +145,46 @@ const AdvisorManagement = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Aktiv</Badge>;
+        return <Badge variant="success">Aktiv</Badge>;
       case "blocked":
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Gesperrt</Badge>;
+        return <Badge variant="destructive">Gesperrt</Badge>;
       case "pending":
-        return (
-          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Ausstehend</Badge>
-        );
+        return <Badge variant="warning">Ausstehend</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge variant="outline">{status}</Badge>;
     }
   };
 
   return (
-    <div className="container mx-auto p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+    <div className="container mx-auto px-6 py-8">
+      <div className="flex items-start justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Berater-Verwaltung</h1>
-          <p className="text-gray-600 mt-2">
-            Verwalten Sie Ihre Finanzberater und deren Berechtigungen
+          <h1>Berater-Verwaltung</h1>
+          <p className="mt-2 text-muted-foreground">
+            Verwalten Sie Ihre Finanzberater und deren Berechtigungen.
           </p>
         </div>
         <Link href="/dashboard/admin/advisors/create">
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            <Plus className="w-4 h-4 mr-2" />
+          <Button>
+            <Plus className="w-4 h-4" />
             Neuer Berater
           </Button>
         </Link>
       </div>
 
-      {/* Filters */}
       <Card className="mb-6">
-        <CardContent className="p-6">
+        <CardContent className="px-6 py-4">
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Nach Name, E-Mail oder Unternehmen suchen..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Input
+                placeholder="Nach Name, E-Mail oder Unternehmen suchen…"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
             </div>
-            <div className="sm:w-48">
+            <div className="sm:w-52">
               <Select
                 value={statusFilter}
                 onValueChange={(value: "all" | "active" | "blocked") => setStatusFilter(value)}
@@ -218,24 +212,22 @@ const AdvisorManagement = () => {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="h-16 bg-gray-200 rounded"></div>
-                </div>
+                <div key={i} className="h-14 bg-muted rounded animate-pulse"></div>
               ))}
             </div>
           ) : !advisors || advisors.data.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">
+            <div className="text-center py-10">
+              <p className="text-muted-foreground mb-4">
                 {searchTerm || statusFilter !== "all"
-                  ? "Keine Berater gefunden, die Ihren Suchkriterien entsprechen"
-                  : "Noch keine Berater vorhanden"}
+                  ? "Keine Berater gefunden, die Ihren Suchkriterien entsprechen."
+                  : "Noch keine Berater vorhanden."}
               </p>
               {!searchTerm && statusFilter === "all" && (
                 <Link href="/dashboard/admin/advisors/create">
                   <Button>
-                    <Plus className="w-4 h-4 mr-2" />
+                    <Plus className="w-4 h-4" />
                     Ersten Berater erstellen
                   </Button>
                 </Link>
@@ -243,53 +235,48 @@ const AdvisorManagement = () => {
             </div>
           ) : (
             <>
-              {/* Table */}
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-900">Berater</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-900">Unternehmen</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-900">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-900">Statistiken</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-900">Erstellt</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-900">Aktionen</th>
+                    <tr className="border-b border-border-subtle">
+                      <th className="label-uppercase text-left py-3 px-4">Berater</th>
+                      <th className="label-uppercase text-left py-3 px-4">Unternehmen</th>
+                      <th className="label-uppercase text-left py-3 px-4">Status</th>
+                      <th className="label-uppercase text-left py-3 px-4">Statistiken</th>
+                      <th className="label-uppercase text-left py-3 px-4">Erstellt</th>
+                      <th className="label-uppercase text-center py-3 px-4">Aktionen</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="[&_tr:nth-child(even)]:bg-[var(--surface-subtle)]">
                     {advisors.data.map((advisor) => (
-                      <tr key={advisor.id} className="border-b hover:bg-gray-50">
+                      <tr key={advisor.id}>
                         <td className="py-4 px-4">
                           <div>
-                            <p className="font-medium text-gray-900">{advisor.name}</p>
-                            <p className="text-sm text-gray-600">{advisor.email}</p>
+                            <p className="font-medium text-foreground">{advisor.name}</p>
+                            <p className="text-sm text-muted-foreground">{advisor.email}</p>
                             {advisor.phone && (
-                              <p className="text-sm text-gray-500">{advisor.phone}</p>
+                              <p className="text-xs text-[var(--ink-tertiary)]">{advisor.phone}</p>
                             )}
                           </div>
                         </td>
-                        <td className="py-4 px-4">
-                          <p className="text-gray-900">{advisor.company || "-"}</p>
-                        </td>
+                        <td className="py-4 px-4 text-foreground">{advisor.company || "—"}</td>
                         <td className="py-4 px-4">{getStatusBadge(advisor.status)}</td>
                         <td className="py-4 px-4">
-                          <div className="text-sm">
-                            <p className="text-gray-900">
+                          <div className="text-sm space-y-0.5">
+                            <p className="text-foreground">
                               {advisor.statistics.total_clients} Kunden
                             </p>
-                            <p className="text-gray-600">
+                            <p className="text-muted-foreground">
                               {advisor.statistics.completed_rentenchecks}/
                               {advisor.statistics.total_rentenchecks} Rentenchecks
                             </p>
-                            <p className="text-blue-600 font-medium">
+                            <p className="text-primary font-medium currency">
                               {advisor.statistics.completion_rate}% Abschlussrate
                             </p>
                           </div>
                         </td>
-                        <td className="py-4 px-4">
-                          <p className="text-sm text-gray-600">
-                            {new Date(advisor.created_at).toLocaleDateString("de-DE")}
-                          </p>
+                        <td className="py-4 px-4 text-sm text-muted-foreground">
+                          {new Date(advisor.created_at).toLocaleDateString("de-DE")}
                         </td>
                         <td className="py-4 px-4">
                           <div className="flex justify-center">
@@ -297,7 +284,7 @@ const AdvisorManagement = () => {
                               <DropdownMenuTrigger asChild>
                                 <Button
                                   variant="ghost"
-                                  size="sm"
+                                  size="icon"
                                   disabled={actionLoading === advisor.id}
                                 >
                                   <MoreHorizontal className="w-4 h-4" />
@@ -314,7 +301,7 @@ const AdvisorManagement = () => {
                                 {advisor.status === "active" ? (
                                   <DropdownMenuItem
                                     onClick={() => handleStatusChange(advisor, "blocked")}
-                                    className="text-red-600"
+                                    className="text-destructive"
                                   >
                                     <UserX className="w-4 h-4 mr-2" />
                                     Sperren
@@ -322,7 +309,7 @@ const AdvisorManagement = () => {
                                 ) : (
                                   <DropdownMenuItem
                                     onClick={() => handleStatusChange(advisor, "active")}
-                                    className="text-green-600"
+                                    className="text-success"
                                   >
                                     <UserCheck className="w-4 h-4 mr-2" />
                                     Aktivieren
@@ -334,7 +321,7 @@ const AdvisorManagement = () => {
                                     setSelectedAdvisor(advisor);
                                     setShowDeleteDialog(true);
                                   }}
-                                  className="text-red-600"
+                                  className="text-destructive"
                                   disabled={advisor.statistics.total_clients > 0}
                                 >
                                   <Trash2 className="w-4 h-4 mr-2" />
@@ -350,27 +337,26 @@ const AdvisorManagement = () => {
                 </table>
               </div>
 
-              {/* Pagination */}
               {advisors.last_page > 1 && (
-                <div className="flex items-center justify-between mt-6 pt-6 border-t">
-                  <div className="text-sm text-gray-600">
-                    Zeige {advisors.from} bis {advisors.to} von {advisors.total} Beratern
+                <div className="flex items-center justify-between mt-6 pt-5 border-t border-border-subtle">
+                  <div className="text-sm text-muted-foreground">
+                    Zeige {advisors.from}–{advisors.to} von {advisors.total} Beratern
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="icon"
                       onClick={() => setCurrentPage(currentPage - 1)}
                       disabled={currentPage === 1}
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </Button>
-                    <span className="text-sm font-medium">
+                    <span className="text-sm font-mono tabular-nums">
                       Seite {currentPage} von {advisors.last_page}
                     </span>
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="icon"
                       onClick={() => setCurrentPage(currentPage + 1)}
                       disabled={currentPage === advisors.last_page}
                     >
@@ -384,7 +370,6 @@ const AdvisorManagement = () => {
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -398,10 +383,10 @@ const AdvisorManagement = () => {
             <AlertDialogCancel>Abbrechen</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteAdvisor}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={actionLoading === selectedAdvisor?.id}
             >
-              {actionLoading === selectedAdvisor?.id ? "Wird gelöscht..." : "Löschen"}
+              {actionLoading === selectedAdvisor?.id ? "Wird gelöscht…" : "Löschen"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

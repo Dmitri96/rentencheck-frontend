@@ -3,7 +3,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { BarChart3, CheckCircle, ChevronLeft, ChevronRight, Edit3, Lock } from "lucide-react";
+import {
+  BarChart3,
+  Check,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Edit3,
+  FileText,
+  Lock,
+  Star,
+  Target,
+  User2,
+} from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { PersonalFinancialStep } from "./form-steps/personal-financial-step";
 import { ExpectationsStep } from "./form-steps/expectations-step";
 import { ContractOverviewStep } from "./form-steps/contract-overview-step";
@@ -11,38 +25,29 @@ import { ImportantAspectsStep } from "./form-steps/important-aspects-step";
 import { ConclusionStep } from "./form-steps/conclusion-step";
 import { RentenblickResults, useRentenblickForm } from "@/features/rentenchecks";
 import type { RentencheckData } from "@/lib/services/rentencheck-service";
+import type { LucideIcon } from "lucide-react";
 
-const steps = [
+const steps: Array<{
+  id: number;
+  title: string;
+  description: string;
+  Icon: LucideIcon;
+}> = [
   {
     id: 1,
     title: "Persönliche und finanzielle Angaben",
     description: "Grunddaten und Einkommen",
-    icon: "👤",
+    Icon: User2,
   },
-  {
-    id: 2,
-    title: "Ihre Erwartungen",
-    description: "Rentenwünsche und Ziele",
-    icon: "🎯",
-  },
-  {
-    id: 3,
-    title: "Vertragsübersicht",
-    description: "Bestehende Verträge",
-    icon: "📄",
-  },
+  { id: 2, title: "Ihre Erwartungen", description: "Rentenwünsche und Ziele", Icon: Target },
+  { id: 3, title: "Vertragsübersicht", description: "Bestehende Verträge", Icon: FileText },
   {
     id: 4,
     title: "Wichtige Aspekte der Altersvorsorge",
     description: "Bewertung verschiedener Aspekte",
-    icon: "⭐",
+    Icon: Star,
   },
-  {
-    id: 5,
-    title: "Abschluss",
-    description: "Finale Anmerkungen",
-    icon: "✅",
-  },
+  { id: 5, title: "Abschluss", description: "Finale Anmerkungen", Icon: CheckCircle2 },
 ];
 
 export interface RentenblickFormProps {
@@ -58,15 +63,11 @@ export interface RentenblickFormProps {
 /**
  * Rentenblick wizard shell.
  *
- * All state + side effects live in `useRentenblickForm` (extracted from this
- * file — used to be 630 LOC). The shell is pure rendering glue:
- *   - stepper (top)
- *   - one of 5 step components (middle)
- *   - prev/next/confirm/edit/finish nav (bottom)
+ * State + side-effects live in useRentenblickForm. The shell renders:
+ *   - top stepper with token-driven discs (no emoji, no gradients)
+ *   - the active step component (crossfade on transition)
+ *   - prev/confirm/edit/finish navigation
  *   - <RentenblickResults> when showResults is true
- *
- * If you're adding a new step, change `steps` + the switch in renderStep
- * and update RentencheckData. State plumbing is already taken care of.
  */
 export function RentenblickForm({
   initialData = {},
@@ -98,7 +99,7 @@ export function RentenblickForm({
     onComplete,
   });
 
-  void onAutoSave; // reserved for phase-11 autosave; intentionally not wired today
+  void onAutoSave;
 
   const renderStep = () => {
     const isConfirmed = confirmedSteps.includes(currentStep);
@@ -152,125 +153,157 @@ export function RentenblickForm({
     );
   }
 
+  const active = steps[currentStep - 1]!;
+  const ActiveIcon = active.Icon;
+
   return (
     <div className="space-y-8">
       {/* Step Navigation */}
-      <div className="hidden md:block">
-        <div className="flex justify-between items-center mb-8">
-          {steps.map((step, index) => (
-            <div key={step.id} className="flex items-center">
-              <div className="flex flex-col items-center">
-                <div
-                  className={`
-                    w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold transition-all duration-300 shadow-lg relative
-                    ${
-                      confirmedSteps.includes(step.id)
-                        ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
-                        : currentStep === step.id
-                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-blue-200"
-                          : "bg-white text-gray-400 border-2 border-gray-200"
-                    }
-                  `}
-                >
-                  {confirmedSteps.includes(step.id) ? (
-                    <Lock className="w-5 h-5" />
-                  ) : currentStep > step.id ? (
-                    <CheckCircle className="w-6 h-6" />
-                  ) : (
-                    <span>{step.icon}</span>
-                  )}
-                </div>
-                <div className="mt-2 text-center">
+      <nav aria-label="Schritt-Fortschritt" className="hidden md:block">
+        <ol className="flex items-start justify-between">
+          {steps.map((step, index) => {
+            const isConfirmed = confirmedSteps.includes(step.id);
+            const isCurrent = currentStep === step.id;
+            const isPast = currentStep > step.id;
+            const StepIcon = step.Icon;
+
+            const lineFilled = isConfirmed && confirmedSteps.includes(step.id + 1);
+
+            return (
+              <li key={step.id} className="flex-1 flex items-start">
+                <div className="flex flex-col items-center text-center w-full">
+                  {/* Disc */}
                   <div
-                    className={`text-sm font-medium ${currentStep >= step.id ? "text-gray-900" : "text-gray-500"}`}
+                    className={[
+                      "w-9 h-9 rounded-full flex items-center justify-center transition-colors duration-[180ms]",
+                      isConfirmed
+                        ? "bg-primary text-primary-foreground"
+                        : isCurrent
+                          ? "border-2 border-primary text-primary bg-surface"
+                          : isPast
+                            ? "border border-border bg-surface text-foreground"
+                            : "bg-muted text-muted-foreground border border-border-subtle",
+                    ].join(" ")}
                   >
-                    {step.title}
+                    {isConfirmed ? (
+                      <motion.span
+                        initial={{ scale: 0.6, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+                      >
+                        <Check className="w-4 h-4" strokeWidth={2} />
+                      </motion.span>
+                    ) : (
+                      <StepIcon className="w-4 h-4" strokeWidth={1.75} />
+                    )}
                   </div>
-                  <div className="text-xs text-gray-500 max-w-24">{step.description}</div>
+
+                  {/* Labels */}
+                  <div className="mt-3 px-2">
+                    <p
+                      className={`text-sm leading-tight ${
+                        isCurrent || isConfirmed
+                          ? "text-foreground font-medium"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {step.id}. {step.title}
+                    </p>
+                    <p className="text-xs text-[var(--ink-tertiary)] mt-1 max-w-[10rem] mx-auto">
+                      {step.description}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              {index < steps.length - 1 && (
-                <div
-                  className={`
-                    flex-1 h-1 mx-4 rounded-full transition-all duration-500
-                    ${confirmedSteps.includes(step.id) ? "bg-gradient-to-r from-green-500 to-emerald-500" : "bg-gray-200"}
-                  `}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
+
+                {/* Connector */}
+                {index < steps.length - 1 && (
+                  <div
+                    aria-hidden
+                    className={`h-px flex-1 mt-[18px] transition-colors duration-[180ms] ${
+                      lineFilled || isConfirmed ? "bg-primary" : "bg-border-subtle"
+                    }`}
+                  />
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
 
       {/* Main Form Card */}
-      <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
-        <CardHeader className="pb-6 bg-gradient-to-r from-slate-50 to-blue-50 rounded-t-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              {/* steps is a fixed-length array; currentStep is always 1-5 */}
-              { }
-              <div className="text-3xl">{steps[currentStep - 1]!.icon}</div>
-              <div>
-                <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                  { }
-                  {currentStep}. {steps[currentStep - 1]!.title}
+      <Card>
+        <CardHeader className="border-b pb-6 [.border-b]:pb-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-4 min-w-0">
+              <div className="w-10 h-10 rounded-md border border-border bg-surface flex items-center justify-center shrink-0">
+                <ActiveIcon className="w-5 h-5 text-foreground" strokeWidth={1.5} />
+              </div>
+              <div className="min-w-0">
+                <CardTitle className="flex items-center gap-3 flex-wrap">
+                  <span>
+                    {currentStep}. {active.title}
+                  </span>
                   {isCurrentStepConfirmed && (
-                    <div className="flex items-center gap-2">
-                      <Lock className="w-5 h-5 text-green-600" />
-                      <span className="text-sm text-green-600 font-medium">Bestätigt</span>
-                    </div>
+                    <span className="inline-flex items-center gap-1.5 text-sm text-success font-sans font-medium">
+                      <Lock className="w-4 h-4" strokeWidth={1.5} />
+                      Bestätigt
+                    </span>
                   )}
                 </CardTitle>
-                { }
-                <p className="text-gray-600 mt-1">{steps[currentStep - 1]!.description}</p>
+                <p className="mt-1 text-muted-foreground">{active.description}</p>
               </div>
             </div>
-            <div className="hidden md:block text-right">
-              <div className="text-sm font-medium text-gray-500 mb-1">Fortschritt</div>
-              <div className="text-2xl font-bold text-blue-600">{Math.round(progress)}%</div>
+            <div className="hidden md:block text-right shrink-0">
+              <p className="label-uppercase">Fortschritt</p>
+              <p
+                className="mt-1 text-[1.5rem] leading-none currency"
+                style={{ fontFamily: "var(--font-display), Georgia, serif", fontWeight: 500 }}
+              >
+                {Math.round(progress)}%
+              </p>
             </div>
           </div>
-          <Progress value={progress} className="mt-4 h-2" />
+          <Progress value={progress} className="mt-5 h-1.5" />
         </CardHeader>
 
-        <CardContent className="p-8">
-          <div className="transition-all duration-500 ease-in-out">{renderStep()}</div>
-
-          <div className="flex justify-between items-center pt-8 mt-8 border-t border-gray-100">
-            <Button
-              variant="outline"
-              onClick={prevStep}
-              disabled={currentStep === 1}
-              className="flex items-center gap-2 px-6 py-3 transition-all duration-200 hover:shadow-md disabled:opacity-50"
+        <CardContent className="px-8 py-8">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, x: 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -16 }}
+              transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
             >
+              {renderStep()}
+            </motion.div>
+          </AnimatePresence>
+
+          <div className="flex justify-between items-center pt-8 mt-8 border-t border-border-subtle">
+            <Button variant="outline" onClick={prevStep} disabled={currentStep === 1}>
               <ChevronLeft className="h-4 w-4" />
               Zurück
             </Button>
 
             <div className="flex items-center gap-3">
               {currentStep < steps.length && !isCurrentStepConfirmed && (
-                <Button
-                  onClick={() => confirmStep(currentStep)}
-                  disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
-                >
+                <Button onClick={() => confirmStep(currentStep)} disabled={saving}>
                   {saving ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Speichert...
+                      <div className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
+                      Speichert…
                     </>
                   ) : (
-                    "Daten bestätigen"
+                    <>
+                      <Check className="h-4 w-4" />
+                      Daten bestätigen
+                    </>
                   )}
                 </Button>
               )}
 
               {isCurrentStepConfirmed && currentStep < steps.length && (
-                <Button
-                  variant="outline"
-                  onClick={() => editStep(currentStep)}
-                  className="flex items-center gap-2 px-6 py-3 border-orange-200 text-orange-700 hover:bg-orange-50"
-                >
+                <Button variant="outline" onClick={() => editStep(currentStep)}>
                   <Edit3 className="h-4 w-4" />
                   Bearbeiten
                 </Button>
@@ -278,54 +311,32 @@ export function RentenblickForm({
 
               {currentStep === steps.length ? (
                 <div className="flex items-center gap-3">
-                  {/* Show completion button if not all steps are confirmed yet */}
                   {confirmedSteps.length < steps.length && (
-                    <Button
-                      onClick={generatePDF}
-                      disabled={saving}
-                      className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-                    >
+                    <Button onClick={generatePDF} disabled={saving}>
                       {saving ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Speichert...
+                          <div className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
+                          Speichert…
                         </>
                       ) : (
                         <>
-                          <BarChart3 className="h-5 w-5" />
+                          <BarChart3 className="h-4 w-4" />
                           Analyse erstellen
                         </>
                       )}
                     </Button>
                   )}
 
-                  {/* Show PDF download button if all steps are confirmed */}
                   {confirmedSteps.length === steps.length && onDownloadPdf && (
-                    <Button
-                      onClick={onDownloadPdf}
-                      disabled={saving}
-                      className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-                    >
+                    <Button onClick={onDownloadPdf} disabled={saving}>
                       {saving ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Lädt...
+                          <div className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
+                          Lädt…
                         </>
                       ) : (
                         <>
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                          </svg>
+                          <Download className="h-4 w-4" />
                           PDF herunterladen
                         </>
                       )}
@@ -333,10 +344,7 @@ export function RentenblickForm({
                   )}
                 </div>
               ) : (
-                <Button
-                  onClick={nextStep}
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-                >
+                <Button onClick={nextStep}>
                   Weiter
                   <ChevronRight className="h-4 w-4" />
                 </Button>

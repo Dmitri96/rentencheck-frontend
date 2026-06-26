@@ -47,8 +47,10 @@ export function PensionChart({ data, desiredPension }: PensionChartProps) {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
-          <p className="text-sm text-gray-600">Berechnung mit aktuellen Admin-Parametern...</p>
+          <div className="animate-spin rounded-full h-6 w-6 border-2 border-border border-t-primary mx-auto mb-3"></div>
+          <p className="text-sm text-muted-foreground">
+            Berechnung mit aktuellen Admin-Parametern…
+          </p>
         </div>
       </div>
     );
@@ -85,64 +87,62 @@ function PensionChartInner({
     <div className="w-full">
       {/* Calculation source indicator */}
       <div
-        className={`p-4 rounded-lg border mb-6 ${isBackendCalculation ? "bg-green-50 border-green-200" : "bg-yellow-50 border-yellow-200"}`}
+        className={`rounded-md border px-4 py-3 mb-6 ${
+          isBackendCalculation
+            ? "bg-[color-mix(in_oklch,var(--success)_10%,var(--background))] border-[color-mix(in_oklch,var(--success)_30%,var(--background))]"
+            : "bg-[color-mix(in_oklch,var(--warning)_15%,var(--background))] border-[color-mix(in_oklch,var(--warning)_30%,var(--background))]"
+        }`}
       >
-        <h3
-          className={`text-lg font-semibold mb-2 ${isBackendCalculation ? "text-green-800" : "text-yellow-800"}`}
+        <p
+          className={`text-sm font-medium mb-2 ${
+            isBackendCalculation
+              ? "text-success"
+              : "text-[color-mix(in_oklch,var(--warning)_85%,var(--foreground))]"
+          }`}
         >
           {isBackendCalculation
-            ? "✅ Backend-Berechnung mit dynamischen Admin-Parametern"
-            : "⚠️ Fallback-Berechnung (Frontend)"}
-        </h3>
-        <div className="space-y-2 text-sm">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div>
-              <span className="block font-medium">Inflation:</span>
-              <span>{parameters.economic_assumptions.inflation_rate}%</span>
-            </div>
-            <div>
-              <span className="block font-medium">Krankenversicherung:</span>
-              <span>{parameters.social_insurance.health_insurance_rate}%</span>
-            </div>
-            <div>
-              <span className="block font-medium">Pflegeversicherung:</span>
-              <span>{parameters.social_insurance.care_insurance_rate}%</span>
-            </div>
-            <div>
-              <span className="block font-medium">Kapitalrendite:</span>
-              <span>{parameters.economic_assumptions.investment_return_rate}%</span>
-            </div>
-          </div>
+            ? "Backend-Berechnung mit dynamischen Admin-Parametern"
+            : "Fallback-Berechnung (Frontend)"}
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+          <ParamCell
+            label="Inflation"
+            value={`${parameters.economic_assumptions.inflation_rate}%`}
+          />
+          <ParamCell
+            label="Krankenversicherung"
+            value={`${parameters.social_insurance.health_insurance_rate}%`}
+          />
+          <ParamCell
+            label="Pflegeversicherung"
+            value={`${parameters.social_insurance.care_insurance_rate}%`}
+          />
+          <ParamCell
+            label="Kapitalrendite"
+            value={`${parameters.economic_assumptions.investment_return_rate}%`}
+          />
         </div>
       </div>
 
       {/* KPI tiles */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="rounded-xl border p-4 bg-white">
-          <div className="text-sm text-gray-600 mb-1">Gesamtlücke im Ruhestand</div>
-          <div className="text-2xl font-bold text-red-600">{formatNumber(totalGap)}</div>
-          <div className="text-xs text-gray-500 mt-1">
-            Summe aller Ruhestandsjahre, 12 Monate pro Jahr
-          </div>
-        </div>
-        <div className="rounded-xl border p-4 bg-white">
-          <div className="text-sm text-gray-600 mb-1">Monatliche Lücke zum Rentenbeginn</div>
-          <div className="text-2xl font-bold text-orange-600">
-            {formatNumber(monthlyGapAtRetirement)}
-          </div>
-          <div className="text-xs text-gray-500 mt-1">
-            Monatlicher Fehlbetrag mit {retirementAge} Jahren
-          </div>
-        </div>
-        <div className="rounded-xl border p-4 bg-white">
-          <div className="text-sm text-gray-600 mb-1">
-            Gesamte monatliche Einnahmen zum Rentenbeginn
-          </div>
-          <div className="text-2xl font-bold text-blue-600">
-            {formatNumber(totalIncomeAtRetirement)}
-          </div>
-          <div className="text-xs text-gray-500 mt-1">Alle Einkommensquellen kombiniert</div>
-        </div>
+        <ChartKpiTile
+          label="Gesamtlücke im Ruhestand"
+          value={formatNumber(totalGap)}
+          hint="Summe aller Ruhestandsjahre, 12 Monate pro Jahr"
+          tone="destructive"
+        />
+        <ChartKpiTile
+          label="Monatliche Lücke zum Rentenbeginn"
+          value={formatNumber(monthlyGapAtRetirement)}
+          hint={`Monatlicher Fehlbetrag mit ${retirementAge} Jahren`}
+          tone="warning"
+        />
+        <ChartKpiTile
+          label="Gesamte monatliche Einnahmen"
+          value={formatNumber(totalIncomeAtRetirement)}
+          hint="Alle Einkommensquellen kombiniert"
+        />
       </div>
 
       {/* Chart */}
@@ -159,6 +159,46 @@ function PensionChartInner({
           disabilityPensionNetAmount={rootData?.step_3_data?.disabilityPensionAmount ?? undefined}
         />
       </div>
+    </div>
+  );
+}
+
+function ParamCell({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <span className="block text-[var(--ink-tertiary)] text-xs">{label}</span>
+      <span className="text-foreground font-mono tabular-nums">{value}</span>
+    </div>
+  );
+}
+
+function ChartKpiTile({
+  label,
+  value,
+  hint,
+  tone,
+}: {
+  label: string;
+  value: string;
+  hint: string;
+  tone?: "destructive" | "warning";
+}) {
+  const valueColor =
+    tone === "destructive"
+      ? "text-destructive"
+      : tone === "warning"
+        ? "text-[color-mix(in_oklch,var(--warning)_85%,var(--foreground))]"
+        : "text-foreground";
+  return (
+    <div className="rounded-md border border-border bg-card px-5 py-4">
+      <p className="label-uppercase">{label}</p>
+      <p
+        className={`mt-2 text-[1.5rem] leading-none currency ${valueColor}`}
+        style={{ fontFamily: "var(--font-display), Georgia, serif", fontWeight: 500 }}
+      >
+        {value}
+      </p>
+      <p className="text-xs text-[var(--ink-tertiary)] mt-2">{hint}</p>
     </div>
   );
 }

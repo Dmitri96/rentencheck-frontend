@@ -64,12 +64,12 @@ export default function AnalysisPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-              <p className="text-gray-600">Analyse wird geladen...</p>
+              <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+              <p className="text-muted-foreground">Analyse wird geladen...</p>
             </div>
           </div>
         </div>
@@ -79,11 +79,11 @@ export default function AnalysisPage() {
 
   if (!rentencheck) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Rentencheck nicht gefunden</h1>
-            <p className="text-gray-600 mb-6">
+            <h1 className="text-2xl font-bold text-foreground mb-4">Rentencheck nicht gefunden</h1>
+            <p className="text-muted-foreground mb-6">
               Der angeforderte Rentencheck konnte nicht geladen werden.
             </p>
             <Link href={`/dashboard/clients/${clientId}`}>
@@ -101,11 +101,11 @@ export default function AnalysisPage() {
   // Check if the rentencheck is completed
   if (rentencheck.status !== "completed") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Analyse nicht verfügbar</h1>
-            <p className="text-gray-600 mb-6">
+            <h1 className="text-2xl font-bold text-foreground mb-4">Analyse nicht verfügbar</h1>
+            <p className="text-muted-foreground mb-6">
               Die Analyse ist nur für abgeschlossene Rentenchecks verfügbar.
             </p>
             <div className="flex gap-4 justify-center">
@@ -132,7 +132,7 @@ export default function AnalysisPage() {
   const desiredPension = rentencheck.step_2_data?.pensionWishCurrentValue || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
@@ -145,12 +145,12 @@ export default function AnalysisPage() {
                 </Button>
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">{rentencheck.title}</h1>
+                <h1 className="text-3xl font-bold text-foreground">{rentencheck.title}</h1>
                 <div className="flex items-center gap-4 mt-2">
-                  <Badge className="bg-green-100 text-green-800">
+                  <Badge className="bg-[color-mix(in_oklch,var(--success)_15%,var(--background))] text-success">
                     {rentencheck.status === "completed" ? "Abgeschlossen" : "In Bearbeitung"}
                   </Badge>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                     Erstellt: {new Date(rentencheck.created_at).toLocaleDateString("de-DE")}
                   </span>
                 </div>
@@ -169,7 +169,7 @@ export default function AnalysisPage() {
               <Button
                 onClick={handleDownloadPdf}
                 disabled={downloading}
-                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-white"
               >
                 {downloading ? (
                   <>
@@ -199,10 +199,10 @@ export default function AnalysisPage() {
             <PensionResultsTable data={rentencheck} desiredPension={desiredPension} />
           </div>
           <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-xl font-semibold text-foreground mb-2">
               Rentenverlauf über die Zeit
             </h2>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Visualisierung Ihrer Rentenentwicklung mit Inflation und Versorgungslücke
             </p>
           </div>
@@ -223,7 +223,7 @@ export default function AnalysisPage() {
               <Button
                 onClick={handleDownloadPdf}
                 disabled={downloading}
-                className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                className="flex items-center gap-2 px-8 py-3 bg-primary hover:bg-primary-hover text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 {downloading ? (
                   <>

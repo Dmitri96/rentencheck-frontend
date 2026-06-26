@@ -86,10 +86,10 @@ export function ContractOverviewStep({ data, updateData, isConfirmed }: Contract
 
       {/* Confirmation Status */}
       {isConfirmed && (
-        <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+        <div className="bg-[color-mix(in_oklch,var(--success)_10%,var(--background))] p-4 rounded-lg border border-[color-mix(in_oklch,var(--success)_30%,var(--background))]">
           <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-green-800 font-medium">Vertragsübersicht bestätigt</span>
+            <div className="w-2 h-2 bg-success rounded-full"></div>
+            <span className="text-success font-medium">Vertragsübersicht bestätigt</span>
           </div>
         </div>
       )}
