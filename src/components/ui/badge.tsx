@@ -4,21 +4,37 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/*
+ * Badge — status pills + small contextual labels.
+ *
+ * Variants are tint-on-tint: a soft background (e.g. positive-bg) with a
+ * matching foreground (e.g. positive). No solid fills except `default`
+ * (navy) and `destructive` — those are for high-emphasis states only.
+ */
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
+  "inline-flex items-center justify-center rounded-sm border px-2 py-0.5 " +
+    "text-[0.6875rem] font-medium uppercase tracking-[0.06em] " +
+    "w-fit whitespace-nowrap shrink-0 gap-1 " +
+    "[&>svg]:size-3 [&>svg]:pointer-events-none " +
+    "focus-visible:ring-[3px] focus-visible:ring-ring/40 outline-none " +
+    "transition-colors duration-[180ms]",
   {
     variants: {
       variant: {
-        default: "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+        default: "border-transparent bg-primary text-primary-foreground",
+        secondary: "border-transparent bg-secondary text-secondary-foreground",
+        // Soft tints — primary use case for status pills
+        success:
+          "border-transparent bg-[color-mix(in_oklch,var(--success)_10%,var(--background))] text-success",
+        warning:
+          "border-transparent bg-[color-mix(in_oklch,var(--warning)_15%,var(--background))] text-[color-mix(in_oklch,var(--warning)_85%,var(--foreground))]",
         destructive:
-          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline: "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+          "border-transparent bg-[color-mix(in_oklch,var(--destructive)_10%,var(--background))] text-destructive",
+        outline: "border-border text-foreground bg-transparent",
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "outline",
     },
   },
 );

@@ -1,22 +1,34 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Fraunces } from "next/font/google";
 import "./globals.css";
 import { Providers } from "../providers";
 import { Toaster } from "sonner";
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
+  variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+  variable: "--font-mono",
   subsets: ["latin"],
+  display: "swap",
+});
+
+// Variable serif with an optical-size axis — display headings + hero KPIs.
+// Restricted to weights/axes we actually use to keep payload lean.
+const fraunces = Fraunces({
+  variable: "--font-display",
+  subsets: ["latin"],
+  display: "swap",
+  axes: ["opsz", "SOFT"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "RENTENBLICK.de - Professionelle Rentenberatung",
-  description: "Professionelle Rentenberatung und Rentenchecks für Finanzberater",
+  title: "Rentenblick — Rentenberatung",
+  description: "Rentenberatung und Rentenchecks für Finanzberater",
 };
 
 export default function RootLayout({
@@ -26,9 +38,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} antialiased`}
+      >
         <Providers>{children}</Providers>
-        <Toaster position="top-right" richColors closeButton duration={4000} />
+        <Toaster position="top-right" duration={4000} closeButton />
       </body>
     </html>
   );
