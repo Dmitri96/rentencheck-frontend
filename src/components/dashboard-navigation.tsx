@@ -2,27 +2,51 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuthContext } from "@/providers/auth-provider";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { LayoutDashboard, Users, Settings, LogOut, UserCog, Plus } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Settings,
+  LogOut,
+  UserCog,
+  Plus,
+  ChevronsUpDown,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface NavigationItem {
   href: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: LucideIcon;
   roles?: string[];
   permissions?: string[];
 }
 
+/*
+ * Sidebar — 264px fixed width, ivory surface, border-only right edge.
+ *
+ * Composition: monogram + wordmark at top, primary nav stack, quick-action
+ * link, user identity card at the bottom (clicks open a small dropdown that
+ * holds the logout — no logout button takes up sidebar space).
+ *
+ * Per the brief: no gradients, no glow, no chips with bright fills.
+ */
 const Navigation = () => {
   const { user, isAdmin, isAdvisor, logout, hasPermission } = useAuthContext();
   const pathname = usePathname();
+  const router = useRouter();
 
   const navigationItems: NavigationItem[] = [
-    // Admin-only items
     {
       href: "/dashboard/admin",
       label: "Admin Dashboard",
@@ -41,8 +65,6 @@ const Navigation = () => {
       icon: Settings,
       roles: ["admin"],
     },
-
-    // Advisor and Admin items
     {
       href: "/dashboard",
       label: "Dashboard",
@@ -51,7 +73,7 @@ const Navigation = () => {
     },
     {
       href: "/dashboard/clients",
-      label: "Kunden",
+      label: "Mandanten",
       icon: Users,
       roles: ["financial_advisor", "admin"],
     },
@@ -63,135 +85,160 @@ const Navigation = () => {
     } catch (error) {
       console.error("Logout error:", error);
     }
+    router.push("/login");
   };
 
   const isItemVisible = (item: NavigationItem): boolean => {
-    // If no roles specified, show to everyone
-    if (!item.roles && !item.permissions) {
-      return true;
-    }
+    if (!item.roles && !item.permissions) return true;
 
-    // Check role-based access
     if (item.roles) {
       const userRoles = user?.roles || [];
       const hasRequiredRole = item.roles.some((role) => userRoles.includes(role));
-      if (!hasRequiredRole) {
-        return false;
-      }
+      if (!hasRequiredRole) return false;
     }
 
-    // Check permission-based access
     if (item.permissions) {
       const hasRequiredPermission = item.permissions.some((permission) =>
         hasPermission(permission),
       );
-      if (!hasRequiredPermission) {
-        return false;
-      }
+      if (!hasRequiredPermission) return false;
     }
 
     return true;
   };
 
   const isActive = (href: string): boolean => {
-    if (href === "/dashboard") {
-      return pathname === "/dashboard";
-    }
+    if (href === "/dashboard") return pathname === "/dashboard";
     return pathname.startsWith(href);
   };
 
   const visibleItems = navigationItems.filter(isItemVisible);
+  const initials = (user?.first_name?.[0] ?? user?.name?.[0] ?? "U") + (user?.last_name?.[0] ?? "");
+
+  const roleLabel = isAdmin ? "Administrator" : isAdvisor ? "Finanzberater" : "Benutzer";
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 min-h-screen">
-      <div className="p-6">
-        {/* User Info */}
-        <Card className="mb-6">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium">
-                {user?.first_name?.[0] || user?.name?.[0] || "U"}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-gray-900 truncate">
-                  {user?.full_name || user?.name || "Benutzer"}
-                </p>
-                <p className="text-sm text-gray-600 truncate">
-                  {isAdmin ? "Administrator" : isAdvisor ? "Finanzberater" : "Benutzer"}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-border bg-surface">
+      {/* Wordmark — serif "R" monogram + sans wordmark. No gradient blob. */}
+      <div className="flex h-16 items-center gap-3 border-b border-border-subtle px-5">
+        <div
+          aria-hidden
+          className="flex h-9 w-9 items-center justify-center rounded-md bg-primary font-display text-[1.25rem] font-semibold text-primary-foreground"
+        >
+          R
+        </div>
+        <div className="leading-tight">
+          <div className="font-display text-[1.0625rem] font-medium tracking-[-0.01em] text-foreground">
+            Rentenblick
+          </div>
+          <div className="text-[0.6875rem] uppercase tracking-[0.08em] text-muted-foreground">
+            Rentenberatung
+          </div>
+        </div>
+      </div>
 
-        {/* Navigation Items */}
-        <nav className="space-y-2">
+      {/* Primary nav */}
+      <nav className="flex-1 overflow-y-auto px-3 py-5">
+        <ul className="space-y-0.5">
           {visibleItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
 
             return (
-              <Link key={item.href} href={item.href}>
-                <Button
-                  variant={active ? "default" : "ghost"}
+              <li key={item.href}>
+                <Link
+                  href={item.href}
                   className={cn(
-                    "w-full justify-start gap-3 h-11",
+                    "group flex items-center gap-3 rounded-md px-3 py-2 text-[0.9375rem] font-medium",
+                    "transition-colors duration-[180ms] ease-[cubic-bezier(0.16,1,0.3,1)]",
                     active
-                      ? "bg-blue-600 text-white hover:bg-blue-700"
-                      : "text-gray-700 hover:bg-gray-100",
+                      ? "bg-primary text-primary-foreground"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground",
                   )}
+                  aria-current={active ? "page" : undefined}
                 >
-                  <Icon className="w-5 h-5" />
-                  {item.label}
-                </Button>
-              </Link>
+                  <Icon
+                    className={cn(
+                      "size-[1.125rem] shrink-0",
+                      active ? "text-primary-foreground" : "text-muted-foreground",
+                    )}
+                    strokeWidth={1.75}
+                  />
+                  <span className="truncate">{item.label}</span>
+                </Link>
+              </li>
             );
           })}
-        </nav>
+        </ul>
 
-        {/* Quick Actions for Admins */}
-        {isAdmin && (
-          <div className="mt-8">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Schnellaktionen</h3>
-            <div className="space-y-2">
-              <Link href="/dashboard/admin/advisors/create">
-                <Button variant="outline" size="sm" className="w-full justify-start gap-2">
-                  <Plus className="w-4 h-4" />
-                  Neuer Berater
-                </Button>
-              </Link>
-            </div>
+        {/* Quick action — admins / advisors get one shortcut */}
+        {(isAdmin || isAdvisor) && (
+          <div className="mt-6 px-3">
+            <div className="label-uppercase mb-2">Schnellaktion</div>
+            <Link
+              href={isAdmin ? "/dashboard/admin/advisors/create" : "/dashboard/clients/new"}
+              className={cn(
+                "flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2",
+                "text-[0.875rem] font-medium text-foreground",
+                "transition-colors duration-[180ms]",
+                "hover:bg-accent hover:text-accent-foreground",
+              )}
+            >
+              <Plus className="size-4 text-muted-foreground" strokeWidth={1.75} />
+              {isAdmin ? "Neuer Berater" : "Neuer Mandant"}
+            </Link>
           </div>
         )}
+      </nav>
 
-        {/* Quick Actions for Advisors */}
-        {isAdvisor && (
-          <div className="mt-8">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Schnellaktionen</h3>
-            <div className="space-y-2">
-              <Link href="/dashboard/clients/new">
-                <Button variant="outline" size="sm" className="w-full justify-start gap-2">
-                  <Plus className="w-4 h-4" />
-                  Neuer Kunde
-                </Button>
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {/* Logout Button */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <Button
-            variant="ghost"
-            onClick={handleLogout}
-            className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50"
-          >
-            <LogOut className="w-5 h-5" />
-            Abmelden
-          </Button>
-        </div>
+      {/* User card — dropdown holds logout, no standalone red logout button */}
+      <div className="border-t border-border-subtle p-3">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className={cn(
+                "flex w-full items-center gap-3 rounded-md px-2 py-2 text-left",
+                "transition-colors duration-[180ms]",
+                "hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40",
+              )}
+            >
+              <div
+                aria-hidden
+                className="flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary font-medium text-foreground"
+              >
+                {initials.toUpperCase()}
+              </div>
+              <div className="min-w-0 flex-1 leading-tight">
+                <div className="truncate text-[0.875rem] font-medium text-foreground">
+                  {user?.full_name || user?.name || "Benutzer"}
+                </div>
+                <div className="truncate text-[0.75rem] text-muted-foreground">{roleLabel}</div>
+              </div>
+              <ChevronsUpDown
+                className="size-4 shrink-0 text-muted-foreground"
+                strokeWidth={1.75}
+              />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" side="top" sideOffset={8} className="w-56">
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col">
+                <span className="text-[0.875rem] font-medium text-foreground">
+                  {user?.full_name || user?.name}
+                </span>
+                <span className="text-[0.75rem] text-muted-foreground">{user?.email}</span>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout} className="text-foreground">
+              <LogOut className="mr-2 size-4 text-muted-foreground" strokeWidth={1.75} />
+              Abmelden
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-    </div>
+    </aside>
   );
 };
 

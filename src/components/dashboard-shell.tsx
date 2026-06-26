@@ -1,41 +1,36 @@
 "use client";
 
 import React from "react";
-import { ArrowLeft, LogOut } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { useAuthContext } from "@/providers/auth-provider";
+import { ArrowLeft } from "lucide-react";
 
 interface DashboardShellProps {
-  /** Page title shown in the top bar subtitle and as the h1 in the content area (optional) */
+  /** Page title — rendered as h1 in Fraunces. */
   title?: string;
-  /** Secondary description shown below the title in the content area */
+  /** Optional secondary description shown below the title. */
   subtitle?: string;
   /**
-   * Back-link target. When provided, renders an arrow-back link in the top bar
+   * Back-link target. When provided, renders an inline back link above the title
    * (e.g. "/dashboard/clients/42"). Omit for root-level pages.
    */
   backHref?: string;
   /** Text for the back link. Defaults to "Zurück". */
   backLabel?: string;
-  /** Extra controls rendered on the right side of the top bar (e.g. save-indicator). */
+  /** Controls rendered on the right side of the top bar (e.g. save indicator, primary CTA). */
   headerActions?: React.ReactNode;
   /** Page body content. */
   children: React.ReactNode;
 }
 
-/**
- * Shared top-bar chrome for every authenticated page.
+/*
+ * DashboardShell — top bar + content frame.
  *
- * The sidebar navigation lives in (protected-pages)/layout.tsx via <Navigation />.
- * DashboardShell owns the sticky top bar only: logo, optional back-link, logout,
- * and optional custom headerActions (e.g. a saving spinner).
+ * The sidebar is owned by (protected-pages)/layout.tsx via <Navigation />, so
+ * this component is just the page header chrome: optional back link, page
+ * title in Fraunces, optional headerActions on the right, and the main content
+ * area centered to 1280px with generous padding.
  *
- * Usage:
- *   <DashboardShell title="Mein Dashboard" subtitle="Überblick über Ihre Mandanten">
- *     <YourPageContent />
- *   </DashboardShell>
+ * No sticky background blur / no gradient hero strip — paper register only.
  */
 export function DashboardShell({
   title,
@@ -45,71 +40,44 @@ export function DashboardShell({
   headerActions,
   children,
 }: DashboardShellProps) {
-  const router = useRouter();
-  const { logout } = useAuthContext();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      router.push("/login");
-    } catch {
-      router.push("/login");
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Sticky top bar */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            {/* Left: optional back arrow + logo + subtitle */}
-            <div className="flex items-center space-x-4">
-              {backHref && (
-                <Link
-                  href={backHref}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                  <span>{backLabel}</span>
-                </Link>
-              )}
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-lg">R</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">RENTENBLICK.de</h1>
-                {title && <p className="text-sm text-gray-600">{title}</p>}
-              </div>
-            </div>
-
-            {/* Right: caller-supplied actions + logout */}
-            <div className="flex items-center space-x-4">
-              {headerActions}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                onClick={handleLogout}
+    <div className="min-h-screen bg-background">
+      {/* Top bar — 64px height, hairline border, no shadow */}
+      <header className="sticky top-0 z-40 h-16 border-b border-border-subtle bg-background/95 backdrop-blur-[2px]">
+        <div className="mx-auto flex h-full max-w-[1280px] items-center justify-between px-8">
+          <div className="flex min-w-0 items-center gap-4">
+            {backHref ? (
+              <Link
+                href={backHref}
+                className="group inline-flex items-center gap-2 text-[0.875rem] text-muted-foreground transition-colors duration-[180ms] hover:text-foreground"
               >
-                <LogOut className="h-4 w-4" />
-                Logout
-              </Button>
-            </div>
+                <ArrowLeft className="size-4" strokeWidth={1.75} />
+                <span>{backLabel}</span>
+              </Link>
+            ) : null}
           </div>
+          <div className="flex items-center gap-3">{headerActions}</div>
         </div>
       </header>
 
-      {/* Page content area */}
-      <div className="container mx-auto px-6 py-8">
+      {/* Content area — max 1280px, generous padding */}
+      <main className="mx-auto max-w-[1280px] px-8 py-10">
         {(title || subtitle) && (
-          <div className="mb-8">
-            {title && <h2 className="text-3xl font-bold text-gray-900 mb-2">{title}</h2>}
-            {subtitle && <p className="text-gray-600">{subtitle}</p>}
-          </div>
+          <header className="mb-10">
+            {title && (
+              <h1 className="font-display text-[clamp(2rem,3vw,2.5rem)] font-medium leading-[1.1] tracking-[-0.015em] text-foreground">
+                {title}
+              </h1>
+            )}
+            {subtitle && (
+              <p className="mt-3 max-w-3xl text-[1.0625rem] leading-relaxed text-muted-foreground">
+                {subtitle}
+              </p>
+            )}
+          </header>
         )}
         {children}
-      </div>
+      </main>
     </div>
   );
 }
