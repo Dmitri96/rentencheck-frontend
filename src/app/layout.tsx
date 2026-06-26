@@ -16,13 +16,18 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-// Variable serif with an optical-size axis — display headings + hero KPIs.
-// Loaded as a true variable font so the optical-size + soft axes stay active.
+// Variable serif for display headings + hero KPIs.
+//
+// Fraunces is a true variable font; weights 300-900 are interpolated server-side
+// when Tailwind classes like `font-medium` apply. Variable axes (opsz, SOFT,
+// WONK) are driven from globals.css via `font-variation-settings` — we don't
+// declare them in `axes:[...]` because Turbopack's font subset resolver chokes
+// on non-`opsz`/`wght` axes (Module not found:
+// `@vercel/turbopack-next/internal/font/google/font`).
 const fraunces = Fraunces({
   variable: "--font-display",
   subsets: ["latin"],
   display: "swap",
-  axes: ["opsz", "SOFT"],
 });
 
 export const metadata: Metadata = {
