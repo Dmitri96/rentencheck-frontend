@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Edit3, FileText } from "lucide-react";
-import { PensionResultsOverview } from "@/features/pension";
+import { PensionResultsOverview, PensionChart, DisabilityIncomeDiagram } from "@/features/pension";
 import type { Rentencheck, RentencheckData } from "@/lib/services/rentencheck-service";
 
 type RentenblickResultsProps = {
@@ -52,8 +52,40 @@ export function RentenblickResults({
 
   return (
     <div className="space-y-12">
+      {/* 1. KPI summary + breakdown table (overview) */}
       <PensionResultsOverview data={projected} desiredPension={data.pensionWishCurrentValue} />
 
+      {/* 2. Pension timeline + Versorgungslücke diagram */}
+      <Card data-elevated="true">
+        <CardHeader>
+          <CardTitle>Rentenverlauf über die Zeit</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Visualisierung der Rentenentwicklung mit Inflation und Versorgungslücke
+          </p>
+        </CardHeader>
+        <CardContent>
+          <PensionChart data={projected} desiredPension={data.pensionWishCurrentValue} />
+        </CardContent>
+      </Card>
+
+      {/* 3. Berufsunfähigkeit — net income drop on disability */}
+      <Card data-elevated="true">
+        <CardHeader>
+          <CardTitle>Berufsunfähigkeit — Nettoeinkommen</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Vergleich des aktuellen Nettoeinkommens mit der Erwerbsminderungsrente
+          </p>
+        </CardHeader>
+        <CardContent>
+          <DisabilityIncomeDiagram
+            initialSalary={data.currentGrossIncome || 4000}
+            initialNetSalary={data.currentNetIncome}
+            disabilityPensionNetAmount={data.disabilityPensionAmount}
+          />
+        </CardContent>
+      </Card>
+
+      {/* 4. Actions — edit + PDF — hidden in print */}
       <Card className="no-print">
         <CardContent className="px-6 py-5">
           <div className="flex flex-col sm:flex-row gap-3 justify-end items-center">
