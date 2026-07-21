@@ -23,8 +23,8 @@ export type SettingRow = {
 export type SettingsPayload = {
   social_insurance: SettingRow[];
   economic_assumptions: SettingRow[];
-  tax_brackets: SettingRow[];
-  tax_thresholds: SettingRow[];
+  income_tax: SettingRow[];
+  taxable_shares: SettingRow[];
   regional_taxes: SettingRow[];
   demographics?: SettingRow[];
 };
@@ -39,12 +39,15 @@ export type PensionParameters = {
     health_insurance_rate: number;
     additional_health_insurance_rate: number;
     care_insurance_rate: number;
+    care_insurance_childless_surcharge: number;
     total_insurance_rate: number;
     health_insurance_exemption_bav: number;
+    bbg_health_monthly: number;
   };
   tax_system: {
-    rates: Record<string, number>;
-    thresholds: Record<string, number>;
+    /** §32a EStG zone borders + coefficients, keys match PensionSettingRepository::getIncomeTaxParameters(). */
+    income_tax_zones: Record<string, number>;
+    statutory_pension_taxable_share: number;
     solidarity_surcharge_rate: number;
     solidarity_surcharge_threshold: number;
   };
@@ -61,14 +64,12 @@ export type PensionParameters = {
 function rowToPath(category: keyof SettingsPayload | "demographics", key: string): string | null {
   if (category === "economic_assumptions") return `economic_assumptions.${key}`;
   if (category === "social_insurance") return `social_insurance.${key}`;
-  if (category === "tax_brackets") {
-    const m = key.match(/^tax_rate_(stufe_\d)$/);
-    return m ? `tax_system.rates.${m[1]}` : null;
+  if (category === "income_tax") {
+    // Setting keys are prefixed (income_tax_zone1_end); the parameters object
+    // uses the short names (zone1_end). werbungskosten_pauschbetrag is unprefixed.
+    return `tax_system.income_tax_zones.${key.replace(/^income_tax_/, "")}`;
   }
-  if (category === "tax_thresholds") {
-    const m = key.match(/^tax_threshold_(\d)$/);
-    return m ? `tax_system.thresholds.threshold_${m[1]}` : null;
-  }
+  if (category === "taxable_shares") return `tax_system.${key}`;
   if (category === "regional_taxes") return `regional_taxes.${key}`;
   if (category === "demographics") return `demographics.${key}`;
   return null;
@@ -101,7 +102,8 @@ export function usePensionSettings(): UsePensionSettingsResult {
         const rows = rawData.data.settings as unknown as SettingsPayload;
         setSettingsRows(rows);
 
-        const p = rawData.data.current_parameters as PensionParameters;
+        // Generated OpenAPI types lag behind the new engine parameters; cast via unknown.
+        const p = rawData.data.current_parameters as unknown as PensionParameters;
         setParameters(p);
         setForm(p);
       } catch (err) {
@@ -134,8 +136,8 @@ export function usePensionSettings(): UsePensionSettingsResult {
       const categories: (keyof SettingsPayload | "demographics")[] = [
         "economic_assumptions",
         "social_insurance",
-        "tax_brackets",
-        "tax_thresholds",
+        "income_tax",
+        "taxable_shares",
         "regional_taxes",
         "demographics",
       ];

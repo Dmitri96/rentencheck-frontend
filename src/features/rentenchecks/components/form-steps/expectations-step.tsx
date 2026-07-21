@@ -58,6 +58,15 @@ export function ExpectationsStep({ data, updateData, isConfirmed }: Expectations
             placeholder="0"
             disabled={isConfirmed}
           />
+          {data.currentNetIncome > 0 && (
+            <p className="text-xs text-muted-foreground">
+              Faustregel: ca. 80% des heutigen Nettoeinkommens (≈{" "}
+              {(data.currentNetIncome * 0.8).toLocaleString("de-DE", {
+                maximumFractionDigits: 0,
+              })}{" "}
+              €)
+            </p>
+          )}
         </div>
 
         <div className="space-y-3">

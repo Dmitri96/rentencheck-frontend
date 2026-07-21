@@ -14,7 +14,7 @@ import {
 import { Plus, Trash2, Edit, Save, X } from "lucide-react";
 import type { RentencheckData } from "@/lib/services/rentencheck-service";
 import type { UseContractManagementReturn } from "@/hooks/use-contract-management";
-import type { PayoutContractData } from "@/lib/validations/contract-schemas";
+import { MAX_CONTRACT_ENTRIES, type PayoutContractData } from "@/lib/validations/contract-schemas";
 
 /**
  * Props interface for the Payout Contracts Section component
@@ -269,6 +269,8 @@ export function PayoutContractsSection({
     </div>
   );
 
+  const limitReached = data.payoutContracts.length >= MAX_CONTRACT_ENTRIES;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -279,13 +281,19 @@ export function PayoutContractsSection({
           variant="outline"
           size="sm"
           className="flex items-center gap-2"
-          disabled={isConfirmed}
+          disabled={isConfirmed || limitReached}
           onClick={handleShowPayoutForm}
         >
           <Plus className="h-4 w-4" />
           Vertrag hinzufügen
         </Button>
       </div>
+
+      {limitReached && (
+        <p className="text-muted-foreground text-sm">
+          Maximal {MAX_CONTRACT_ENTRIES} Verträge erreicht.
+        </p>
+      )}
 
       {state.showPayoutForm && (
         <PayoutContractFormFields

@@ -36,7 +36,7 @@ export function StatutoryPensionSection({
           disabled={isConfirmed}
         />
         <Label htmlFor="statutoryPensionClaims" className="text-sm font-medium cursor-pointer">
-          Ansprüche aus gesetzlicher Rentenversicherung dasds
+          Ansprüche aus gesetzlicher Rentenversicherung
         </Label>
       </div>
 
@@ -90,15 +90,28 @@ export function StatutoryPensionSection({
                 <Input
                   id="disabilityPensionAmount"
                   type="number"
-                  value={
-                    (data as RentencheckData & { disabilityPensionAmount?: number })
-                      .disabilityPensionAmount || ""
-                  }
+                  value={data.disabilityPensionAmount || ""}
                   onChange={(e) =>
                     updateData({
-                      // disabilityPensionAmount extends the base form model for forward compatibility
                       disabilityPensionAmount: Number.parseFloat(e.target.value) || 0,
-                    } as Partial<RentencheckData>)
+                    })
+                  }
+                  placeholder="0"
+                  disabled={isConfirmed}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="privateDisabilityInsuranceAmount" className="text-sm">
+                  Private BU-Rente (mtl. €)
+                </Label>
+                <Input
+                  id="privateDisabilityInsuranceAmount"
+                  type="number"
+                  value={data.privateDisabilityInsuranceAmount || ""}
+                  onChange={(e) =>
+                    updateData({
+                      privateDisabilityInsuranceAmount: Number.parseFloat(e.target.value) || 0,
+                    })
                   }
                   placeholder="0"
                   disabled={isConfirmed}

@@ -12,9 +12,8 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import annotationPlugin from "chartjs-plugin-annotation";
-import type { Rentencheck } from "@/lib/services/rentencheck-service";
+import type { PensionAnalysis } from "../hooks/use-pension-analysis";
 import { DisabilityIncomeDiagram } from "./disability-income-diagram";
-import { usePensionCalculation, type PensionData } from "@/features/pension";
 import { useChartConfig } from "../hooks/use-chart-config";
 
 ChartJS.register(
@@ -29,49 +28,15 @@ ChartJS.register(
   annotationPlugin,
 );
 
-interface PensionChartProps {
-  data: Rentencheck;
-  desiredPension: number;
-}
-
 const formatNumber = (value: number) =>
   `${value.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
 
-export function PensionChart({ data, desiredPension }: PensionChartProps) {
-  const clientId = data.client_id;
-  const rentencheckId = data.id;
-
-  const { pensionData, loading } = usePensionCalculation(clientId, rentencheckId, desiredPension);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-6 w-6 border-2 border-border border-t-primary mx-auto mb-3"></div>
-          <p className="text-sm text-muted-foreground">
-            Berechnung mit aktuellen Admin-Parametern…
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const resolvedData = pensionData ?? createFallbackPensionData(data, desiredPension);
-  return (
-    <PensionChartInner pensionData={resolvedData} desiredPension={desiredPension} rootData={data} />
-  );
-}
-
-/** Thin render layer — all chart math delegated to useChartConfig. */
-function PensionChartInner({
-  pensionData,
-  desiredPension,
-  rootData,
-}: {
-  pensionData: PensionData;
-  desiredPension: number;
-  rootData: Rentencheck;
-}) {
+/**
+ * Income projection chart (MVP Bild 1/2): stacked NET income bands vs the
+ * inflated Rentenwunsch line. Renders the backend analysis only — there is
+ * no client-side fallback calculation.
+ */
+export function PensionChart({ analysis }: { analysis: PensionAnalysis }) {
   const {
     chartData,
     options,
@@ -79,47 +44,33 @@ function PensionChartInner({
     totalGap,
     monthlyGapAtRetirement,
     totalIncomeAtRetirement,
-  } = useChartConfig(pensionData, desiredPension, rootData);
+  } = useChartConfig(analysis);
 
-  const { parameters, isBackendCalculation, retirementAge } = pensionData;
+  const params = analysis.parameters_used;
 
   return (
     <div className="w-full">
-      {/* Calculation source indicator */}
-      <div
-        className={`rounded-md border px-4 py-3 mb-6 ${
-          isBackendCalculation
-            ? "bg-[color-mix(in_oklch,var(--success)_10%,var(--background))] border-[color-mix(in_oklch,var(--success)_30%,var(--background))]"
-            : "bg-[color-mix(in_oklch,var(--warning)_15%,var(--background))] border-[color-mix(in_oklch,var(--warning)_30%,var(--background))]"
-        }`}
-      >
-        <p
-          className={`text-sm font-medium mb-2 ${
-            isBackendCalculation
-              ? "text-success"
-              : "text-[color-mix(in_oklch,var(--warning)_85%,var(--foreground))]"
-          }`}
-        >
-          {isBackendCalculation
-            ? "Backend-Berechnung mit dynamischen Admin-Parametern"
-            : "Fallback-Berechnung (Frontend)"}
+      {/* Assumptions used */}
+      <div className="rounded-md border px-4 py-3 mb-6 bg-[color-mix(in_oklch,var(--success)_10%,var(--background))] border-[color-mix(in_oklch,var(--success)_30%,var(--background))]">
+        <p className="text-sm font-medium mb-2 text-success">
+          Berechnung mit den hinterlegten Referenzwerten
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
           <ParamCell
             label="Inflation"
-            value={`${parameters.economic_assumptions.inflation_rate}%`}
+            value={`${analysis.inflationRate.toLocaleString("de-DE")}%`}
           />
           <ParamCell
-            label="Krankenversicherung"
-            value={`${parameters.social_insurance.health_insurance_rate}%`}
+            label="Rentensteigerung"
+            value={`${params.economic_assumptions.pension_increase_rate.toLocaleString("de-DE")}%`}
           />
           <ParamCell
-            label="Pflegeversicherung"
-            value={`${parameters.social_insurance.care_insurance_rate}%`}
+            label="KVdR gesamt"
+            value={`${(params.social_insurance.total_insurance_rate ?? 0).toLocaleString("de-DE")}%`}
           />
           <ParamCell
             label="Kapitalrendite"
-            value={`${parameters.economic_assumptions.investment_return_rate}%`}
+            value={`${params.economic_assumptions.investment_return_rate.toLocaleString("de-DE")}%`}
           />
         </div>
       </div>
@@ -129,36 +80,45 @@ function PensionChartInner({
         <ChartKpiTile
           label="Gesamtlücke im Ruhestand"
           value={formatNumber(totalGap)}
-          hint="Summe aller Ruhestandsjahre, 12 Monate pro Jahr"
-          tone="destructive"
+          hint={`Summe aller Jahre bis Alter ${analysis.provisionEndAge}`}
+          tone={totalGap > 0 ? "destructive" : "success"}
         />
         <ChartKpiTile
           label="Monatliche Lücke zum Rentenbeginn"
           value={formatNumber(monthlyGapAtRetirement)}
-          hint={`Monatlicher Fehlbetrag mit ${retirementAge} Jahren`}
-          tone="warning"
+          hint={`Monatlicher Fehlbetrag mit ${analysis.retirementAge} Jahren`}
+          tone={monthlyGapAtRetirement > 0 ? "warning" : "success"}
         />
         <ChartKpiTile
-          label="Gesamte monatliche Einnahmen"
+          label="Monatliche Netto-Einnahmen"
           value={formatNumber(totalIncomeAtRetirement)}
-          hint="Alle Einkommensquellen kombiniert"
+          hint="Alle Einkommensquellen nach Steuern und KV"
         />
       </div>
 
       {/* Chart */}
       <div className="w-full mb-8" style={{ height: "500px", padding: "20px" }}>
-        {}
         <Line data={chartData as any} options={options as any} plugins={[hoverLinePlugin as any]} />
       </div>
 
       {/* Disability income diagram */}
       <div className="mt-10">
-        <DisabilityIncomeDiagram
-          initialSalary={rootData?.step_1_data?.currentGrossIncome ?? 4000}
-          initialNetSalary={rootData?.step_1_data?.currentNetIncome}
-          disabilityPensionNetAmount={rootData?.step_3_data?.disabilityPensionAmount ?? undefined}
-        />
+        <DisabilityIncomeDiagram disability={analysis.disability} />
       </div>
+    </div>
+  );
+}
+
+/** Error state shown when the backend analysis is unavailable. */
+export function PensionAnalysisError({ message }: { message?: string }) {
+  return (
+    <div className="rounded-md border border-destructive/40 bg-destructive/5 px-6 py-8 text-center">
+      <p className="text-destructive font-medium mb-1">Berechnung nicht verfügbar</p>
+      <p className="text-sm text-muted-foreground">
+        Die Analyse konnte nicht vom Server geladen werden
+        {message ? ` (${message})` : ""}. Bitte laden Sie die Seite neu oder versuchen Sie es später
+        erneut.
+      </p>
     </div>
   );
 }
@@ -181,14 +141,16 @@ function ChartKpiTile({
   label: string;
   value: string;
   hint: string;
-  tone?: "destructive" | "warning";
+  tone?: "destructive" | "warning" | "success";
 }) {
   const valueColor =
     tone === "destructive"
       ? "text-destructive"
       : tone === "warning"
         ? "text-[color-mix(in_oklch,var(--warning)_85%,var(--foreground))]"
-        : "text-foreground";
+        : tone === "success"
+          ? "text-success"
+          : "text-foreground";
   return (
     <div className="rounded-md border border-border bg-card px-5 py-4">
       <p className="label-uppercase">{label}</p>
@@ -201,41 +163,4 @@ function ChartKpiTile({
       <p className="text-xs text-[var(--ink-tertiary)] mt-2">{hint}</p>
     </div>
   );
-}
-
-/** Build pension data from frontend fields when the backend call is unavailable. */
-function createFallbackPensionData(data: Rentencheck, desiredPension: number): PensionData {
-  const currentAge = data.step_2_data?.currentAge || 30;
-  const retirementAge = data.step_2_data?.retirementAge || 67;
-  const lifeExpectancy = 85;
-
-  const fallbackParameters = {
-    economic_assumptions: { inflation_rate: 2.0, investment_return_rate: 3.0 },
-    social_insurance: {
-      health_insurance_rate: 7.3,
-      care_insurance_rate: 3.6,
-      total_insurance_rate: 12.15,
-    },
-  };
-
-  const statutoryPensionGross = 800;
-  const statutoryPensionAfterInsurance =
-    statutoryPensionGross * (1 - fallbackParameters.social_insurance.total_insurance_rate / 100);
-  const privatePensionToday = 200;
-  const bavRiesterToday = 150;
-  const totalAvailable = statutoryPensionAfterInsurance + privatePensionToday + bavRiesterToday;
-
-  return {
-    currentAge,
-    retirementAge,
-    lifeExpectancy,
-    inflationRate: fallbackParameters.economic_assumptions.inflation_rate,
-    statutoryPensionGross,
-    statutoryPensionAfterInsurance,
-    privatePensionToday,
-    bavRiesterToday,
-    currentPensionGap: Math.max(0, desiredPension - totalAvailable),
-    parameters: fallbackParameters,
-    isBackendCalculation: false,
-  };
 }

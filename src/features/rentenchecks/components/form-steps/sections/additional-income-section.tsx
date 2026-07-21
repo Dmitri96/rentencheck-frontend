@@ -14,7 +14,10 @@ import {
 import { Plus, Trash2, Edit, Save, X } from "lucide-react";
 import type { RentencheckData } from "@/lib/services/rentencheck-service";
 import type { UseContractManagementReturn } from "@/hooks/use-contract-management";
-import type { AdditionalIncomeData } from "@/lib/validations/contract-schemas";
+import {
+  MAX_CONTRACT_ENTRIES,
+  type AdditionalIncomeData,
+} from "@/lib/validations/contract-schemas";
 
 /**
  * Props interface for the Additional Income Section component
@@ -204,6 +207,8 @@ export function AdditionalIncomeSection({
     </div>
   );
 
+  const limitReached = data.additionalIncome.length >= MAX_CONTRACT_ENTRIES;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -215,13 +220,19 @@ export function AdditionalIncomeSection({
           variant="outline"
           size="sm"
           className="flex items-center gap-2"
-          disabled={isConfirmed}
+          disabled={isConfirmed || limitReached}
           onClick={handleShowIncomeForm}
         >
           <Plus className="h-4 w-4" />
           Einkunft hinzufügen
         </Button>
       </div>
+
+      {limitReached && (
+        <p className="text-muted-foreground text-sm">
+          Maximal {MAX_CONTRACT_ENTRIES} Einkünfte erreicht.
+        </p>
+      )}
 
       {state.showIncomeForm && (
         <AdditionalIncomeFormFields

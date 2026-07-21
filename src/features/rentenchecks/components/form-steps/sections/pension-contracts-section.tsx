@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -14,7 +15,7 @@ import {
 import { Plus, Trash2, Edit, Save, X } from "lucide-react";
 import type { RentencheckData } from "@/lib/services/rentencheck-service";
 import type { UseContractManagementReturn } from "@/hooks/use-contract-management";
-import type { PensionContractData } from "@/lib/validations/contract-schemas";
+import { MAX_CONTRACT_ENTRIES, type PensionContractData } from "@/lib/validations/contract-schemas";
 
 /**
  * Props interface for the Pension Contracts Section component
@@ -86,6 +87,7 @@ const PensionContractFormFields = React.memo(
               <SelectItem value="Basis-Rente">Basis-Rente</SelectItem>
               <SelectItem value="Riester-Rente">Riester-Rente</SelectItem>
               <SelectItem value="BAV-Rente">BAV-Rente</SelectItem>
+              <SelectItem value="Private Rentenvers.">Private Rentenvers.</SelectItem>
               <SelectItem value="Mieteinnahme">Mieteinnahme</SelectItem>
               <SelectItem value="andere Art">andere Art</SelectItem>
             </SelectContent>
@@ -168,6 +170,21 @@ const PensionContractFormFields = React.memo(
           />
         </div>
       </div>
+      {pensionForm.contractType === "BAV-Rente" && (
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="isPre2005"
+            checked={pensionForm.isPre2005 ?? false}
+            onCheckedChange={(checked) =>
+              setPensionForm({ ...pensionForm, isPre2005: checked as boolean })
+            }
+            disabled={isConfirmed}
+          />
+          <Label htmlFor="isPre2005" className="text-sm cursor-pointer">
+            Vertrag vor 2005 (pauschalversteuert)
+          </Label>
+        </div>
+      )}
       <div className="flex gap-2">
         <Button
           onClick={
@@ -279,6 +296,8 @@ export function PensionContractsSection({
     </div>
   );
 
+  const limitReached = data.pensionContracts.length >= MAX_CONTRACT_ENTRIES;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -289,13 +308,19 @@ export function PensionContractsSection({
           variant="outline"
           size="sm"
           className="flex items-center gap-2"
-          disabled={isConfirmed}
+          disabled={isConfirmed || limitReached}
           onClick={handleShowPensionForm}
         >
           <Plus className="h-4 w-4" />
           Vertrag hinzufügen
         </Button>
       </div>
+
+      {limitReached && (
+        <p className="text-muted-foreground text-sm">
+          Maximal {MAX_CONTRACT_ENTRIES} Verträge erreicht.
+        </p>
+      )}
 
       {state.showPensionForm && (
         <PensionContractFormFields

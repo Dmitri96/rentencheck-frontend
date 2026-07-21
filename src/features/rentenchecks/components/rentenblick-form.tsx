@@ -58,6 +58,9 @@ export interface RentenblickFormProps {
   onDownloadPdf?: () => Promise<void>;
   completedSteps?: number[];
   saving?: boolean;
+  /** Needed by the results view to fetch the backend analysis. */
+  clientId?: number;
+  rentencheckId?: number;
 }
 
 /**
@@ -77,6 +80,8 @@ export function RentenblickForm({
   onDownloadPdf,
   completedSteps = [],
   saving = false,
+  clientId,
+  rentencheckId,
 }: RentenblickFormProps) {
   const {
     currentStep,
@@ -145,7 +150,8 @@ export function RentenblickForm({
   if (showResults) {
     return (
       <RentenblickResults
-        data={formData}
+        clientId={clientId}
+        rentencheckId={rentencheckId}
         saving={saving}
         onEdit={backToForm}
         onDownloadPdf={onDownloadPdf}

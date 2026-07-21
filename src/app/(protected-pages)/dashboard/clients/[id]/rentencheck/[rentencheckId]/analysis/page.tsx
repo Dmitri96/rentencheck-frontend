@@ -8,8 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Edit3, Download, FileText, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { PensionResultsTable } from "@/features/pension/components/pension-results-table";
-import { PensionChart } from "@/features/pension/components/pension-chart";
+import {
+  CapitalRequirementChart,
+  PensionAnalysisError,
+  PensionChart,
+  PensionResultsTable,
+  usePensionAnalysis,
+} from "@/features/pension";
 import { RentencheckService, type Rentencheck } from "@/lib/services/rentencheck-service";
 
 /**
@@ -27,6 +32,12 @@ export default function AnalysisPage() {
   const [rentencheck, setRentencheck] = useState<Rentencheck | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+
+  const {
+    analysis,
+    loading: analysisLoading,
+    error: analysisError,
+  } = usePensionAnalysis(parseInt(clientId), rentencheckId);
 
   // Load the rentencheck data
   useEffect(() => {
@@ -128,9 +139,6 @@ export default function AnalysisPage() {
     );
   }
 
-  // Use the backend data directly - no transformation needed!
-  const desiredPension = rentencheck.step_2_data?.pensionWishCurrentValue || 0;
-
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -187,27 +195,38 @@ export default function AnalysisPage() {
           </div>
         </div>
 
-        {/*/!* Analysis Results Table (single authoritative table) *!/*/}
-        {/*<div className="mt-8">*/}
-        {/*  <PensionResultsTable data={rentencheck} desiredPension={desiredPension} />*/}
-        {/*</div>*/}
+        {/* Analysis results — everything below renders the backend analysis */}
+        {analysisLoading ? (
+          <div className="flex items-center justify-center min-h-[300px]">
+            <div className="text-center">
+              <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">
+                Berechnung mit aktuellen Referenzwerten…
+              </p>
+            </div>
+          </div>
+        ) : !analysis ? (
+          <PensionAnalysisError message={analysisError ?? undefined} />
+        ) : (
+          <div className="space-y-8">
+            <div className="bg-white rounded-lg shadow-sm border p-6">
+              <div className="mb-8">
+                <PensionResultsTable analysis={analysis} />
+              </div>
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold text-foreground mb-2">
+                  Rentenverlauf über die Zeit
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Visualisierung Ihrer Rentenentwicklung mit Inflation und Versorgungslücke
+                </p>
+              </div>
+              <PensionChart analysis={analysis} />
+            </div>
 
-        {/* Pension Timeline Chart */}
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          {/* Analysis Results Table (single authoritative table) */}
-          <div className="mb-8">
-            <PensionResultsTable data={rentencheck} desiredPension={desiredPension} />
+            <CapitalRequirementChart analysis={analysis} />
           </div>
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-foreground mb-2">
-              Rentenverlauf über die Zeit
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Visualisierung Ihrer Rentenentwicklung mit Inflation und Versorgungslücke
-            </p>
-          </div>
-          <PensionChart data={rentencheck} desiredPension={desiredPension} />
-        </div>
+        )}
 
         {/* Footer Actions */}
         <Card className="mt-8">

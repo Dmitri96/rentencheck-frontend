@@ -1,61 +1,70 @@
 "use client";
 
-import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit3, FileText } from "lucide-react";
-import { PensionResultsOverview, PensionChart, DisabilityIncomeDiagram } from "@/features/pension";
-import type { Rentencheck, RentencheckData } from "@/lib/services/rentencheck-service";
+import { Edit3, FileText, Loader2 } from "lucide-react";
+import {
+  CapitalRequirementChart,
+  PensionAnalysisError,
+  PensionChart,
+  PensionResultsOverview,
+  usePensionAnalysis,
+} from "@/features/pension";
 
 type RentenblickResultsProps = {
-  data: RentencheckData;
+  clientId?: number;
+  rentencheckId?: number;
   saving?: boolean;
   onEdit: () => void;
   onDownloadPdf?: () => void;
 };
 
 /**
- * Reproject the wizard's flat form data into the step-keyed envelope expected
- * by downstream result views (which read `data.step_3_data?.payoutContracts`).
- */
-function projectFormDataToRentencheck(data: RentencheckData): Rentencheck {
-  return {
-    id: 0,
-    user_id: 0,
-    client_id: 0,
-    status: "draft",
-    title: "",
-    completed_steps: [],
-    step_1_data: data,
-    step_2_data: data,
-    step_3_data: data,
-    step_4_data: data,
-    step_5_data: data,
-    progress_percentage: 100,
-    is_complete: false,
-    created_at: "",
-    updated_at: "",
-  } as Rentencheck;
-}
-
-/**
- * Post-completion results — pure presentation. Action buttons sit in a
- * border-only card at the bottom so the chart + KPI hero own the visual stack.
+ * Post-completion results — pure presentation of the backend analysis.
+ *
+ * The steps are already persisted when this renders, so the engine computes
+ * from the saved data; there is no client-side projection of form state.
  */
 export function RentenblickResults({
-  data,
+  clientId,
+  rentencheckId,
   saving = false,
   onEdit,
   onDownloadPdf,
 }: RentenblickResultsProps) {
-  const projected = useMemo(() => projectFormDataToRentencheck(data), [data]);
+  const { analysis, loading, error } = usePensionAnalysis(clientId, rentencheckId);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <div className="text-center">
+          <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">Berechnung mit aktuellen Referenzwerten…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!analysis) {
+    return (
+      <div className="space-y-6">
+        <PensionAnalysisError message={error ?? undefined} />
+        <div className="flex justify-end">
+          <Button onClick={onEdit} variant="outline">
+            <Edit3 className="h-4 w-4" />
+            Daten bearbeiten
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-12">
-      {/* 1. KPI summary + breakdown table (overview) */}
-      <PensionResultsOverview data={projected} desiredPension={data.pensionWishCurrentValue} />
+      {/* 1. KPI summary + Bild-0 breakdown table */}
+      <PensionResultsOverview analysis={analysis} />
 
-      {/* 2. Pension timeline + Versorgungslücke diagram */}
+      {/* 2. Pension timeline + BU diagram */}
       <Card data-elevated="true">
         <CardHeader>
           <CardTitle>Rentenverlauf über die Zeit</CardTitle>
@@ -64,26 +73,12 @@ export function RentenblickResults({
           </p>
         </CardHeader>
         <CardContent>
-          <PensionChart data={projected} desiredPension={data.pensionWishCurrentValue} />
+          <PensionChart analysis={analysis} />
         </CardContent>
       </Card>
 
-      {/* 3. Berufsunfähigkeit — net income drop on disability */}
-      <Card data-elevated="true">
-        <CardHeader>
-          <CardTitle>Berufsunfähigkeit — Nettoeinkommen</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Vergleich des aktuellen Nettoeinkommens mit der Erwerbsminderungsrente
-          </p>
-        </CardHeader>
-        <CardContent>
-          <DisabilityIncomeDiagram
-            initialSalary={data.currentGrossIncome || 4000}
-            initialNetSalary={data.currentNetIncome}
-            disabilityPensionNetAmount={data.disabilityPensionAmount}
-          />
-        </CardContent>
-      </Card>
+      {/* 3. Capital requirement (Bild 3) */}
+      <CapitalRequirementChart analysis={analysis} />
 
       {/* 4. Actions — edit + PDF — hidden in print */}
       <Card className="no-print">

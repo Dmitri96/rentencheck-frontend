@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { RentencheckData } from "@/lib/services/rentencheck-service";
+import { FEDERAL_STATES } from "@/lib/validations/rentencheck-step-schemas";
 
 interface PersonalFinancialStepProps {
   data: RentencheckData;
@@ -191,7 +192,7 @@ export function PersonalFinancialStep({
 
       <div className="space-y-3">
         <Label htmlFor="healthInsuranceContribution" className="text-sm">
-          Beitragswert KV (€)
+          Mtl. KV-Beitrag heute (€)
         </Label>
         <Input
           id="healthInsuranceContribution"
@@ -205,6 +206,55 @@ export function PersonalFinancialStep({
           placeholder="0"
           disabled={isConfirmed}
         />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-3">
+          <Label htmlFor="federalState" className="text-sm">
+            Bundesland
+          </Label>
+          <Select
+            value={data.federalState ?? ""}
+            onValueChange={(value) => updateData({ federalState: value })}
+            disabled={isConfirmed}
+          >
+            <SelectTrigger id="federalState">
+              <SelectValue placeholder="Auswählen" />
+            </SelectTrigger>
+            <SelectContent>
+              {FEDERAL_STATES.map((state) => (
+                <SelectItem key={state} value={state}>
+                  {state}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">für Kirchensteuer 8%/9%</p>
+        </div>
+
+        <div className="space-y-3">
+          <Label className="text-sm">Haben Sie Kinder?</Label>
+          <RadioGroup
+            value={data.hasChildren === false ? "Nein" : "Ja"}
+            onValueChange={(value) => updateData({ hasChildren: value === "Ja" })}
+            disabled={isConfirmed}
+            className="grid grid-cols-2 gap-4"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="Ja" id="hasChildren-ja" />
+              <Label htmlFor="hasChildren-ja" className="text-sm cursor-pointer">
+                Ja
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="Nein" id="hasChildren-nein" />
+              <Label htmlFor="hasChildren-nein" className="text-sm cursor-pointer">
+                Nein
+              </Label>
+            </div>
+          </RadioGroup>
+          <p className="text-xs text-muted-foreground">für Pflegeversicherungs-Zuschlag</p>
+        </div>
       </div>
 
       {isConfirmed && (

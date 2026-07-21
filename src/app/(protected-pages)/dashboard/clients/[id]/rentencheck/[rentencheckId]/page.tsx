@@ -193,6 +193,8 @@ export default function EditRentencheckPage() {
           onDownloadPdf={handleDownloadPdf}
           completedSteps={rentencheck.completed_steps}
           saving={saving}
+          clientId={rentencheck.client_id}
+          rentencheckId={rentencheck.id}
         />
       </div>
     </DashboardShell>

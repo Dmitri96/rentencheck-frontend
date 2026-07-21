@@ -1,12 +1,13 @@
 /**
- * Derives all chart-ready data and Chart.js options from raw pension calculation data.
+ * Derives chart-ready data and Chart.js options from the backend analysis.
  *
- * Extracted from pension-chart.tsx to keep the render component thin. All the
- * series math, KPI values, annotation placement, and option objects live here.
+ * Comparison basis is consistent: all series are NET amounts (after tax and
+ * KV/PV) in nominal euros per age — the Rentenwunsch line is inflated the
+ * same way, so the visual gap at retirement equals the engine's
+ * gap.monthly_at_retirement.
  */
 
-import type { Rentencheck } from "@/lib/services/rentencheck-service";
-import type { PensionData } from "@/features/pension";
+import type { PensionAnalysis, PensionAnalysisRow } from "./use-pension-analysis";
 
 type AnyObject = Record<string, any>;
 
@@ -21,55 +22,51 @@ interface UseChartConfigResult {
   retirementIndex: number;
 }
 
-/**
- * Computes chart series, KPI tiles, and Chart.js config from pension calculation output.
- */
-export function useChartConfig(
-  pensionData: PensionData,
-  desiredPension: number,
-  rootData?: Rentencheck,
-): UseChartConfigResult {
-  const {
-    currentAge,
-    retirementAge,
-    lifeExpectancy,
-    inflationRate,
-    statutoryPensionGross,
-    privatePensionToday,
-    bavRiesterToday,
-    parameters,
-  } = pensionData;
+/** Stacked chart bands follow the engine's stable per-row group id. */
+function groupOf(row: PensionAnalysisRow): "statutory" | "bav" | "private" | "other" {
+  if (row.group === "statutory") return "statutory";
+  if (row.group === "occupational") return "bav";
+  if (row.group === "private") return "private";
+  return "other";
+}
 
-  const INFLATION_RATE = inflationRate / 100;
+export function useChartConfig(analysis: PensionAnalysis): UseChartConfigResult {
+  const { currentAge, retirementAge, provisionEndAge, inflationRate } = analysis;
 
-  const years = Array.from({ length: lifeExpectancy - currentAge + 1 }, (_, i) => currentAge + i);
+  const inflation = inflationRate / 100;
+  const pensionIncrease =
+    (analysis.parameters_used.economic_assumptions.pension_increase_rate ?? 0) / 100;
+  const pkvMonthly = analysis.private_health_insurance.monthly_at_retirement;
+
+  const netByGroup = { statutory: 0, bav: 0, private: 0, other: 0 };
+  for (const row of analysis.rows) {
+    netByGroup[groupOf(row)] += row.after_insurance;
+  }
+
+  const endAge = Math.max(provisionEndAge, retirementAge);
+  const years = Array.from({ length: endAge - currentAge + 1 }, (_, i) => currentAge + i);
 
   const series = years.map((age) => {
-    const yearsFromNow = age - currentAge;
-    const desired = desiredPension * Math.pow(1 + INFLATION_RATE, yearsFromNow);
+    const desired = analysis.desired_pension.today * Math.pow(1 + inflation, age - currentAge);
 
-    const pensionIncreaseRate =
-      (parameters?.economic_assumptions?.pension_increase_rate ?? 0) / 100;
+    // No pension income before retirement — the client is still working, so the
+    // income bands only appear from the Renteneintritt onward. After retirement
+    // the statutory claim grows with the Rentensteigerung, scaled around the
+    // retirement value so it matches the engine exactly at retirement age.
+    const preRetirement = age < retirementAge;
+    const statutory = preRetirement
+      ? 0
+      : netByGroup.statutory * Math.pow(1 + pensionIncrease, age - retirementAge);
+    const bav = preRetirement ? 0 : netByGroup.bav;
+    const privatePension = preRetirement ? 0 : netByGroup.private;
+    const other = preRetirement ? 0 : netByGroup.other;
 
-    const statutory =
-      age < currentAge
-        ? 0
-        : statutoryPensionGross * Math.pow(1 + pensionIncreaseRate, age - currentAge);
-
-    const bavNeuAtRetirement =
-      (rootData?.step_3_data?.professionalProvisionAmount || 0) +
-      (rootData?.step_3_data?.publicServiceProvisionAmount || 0);
-    const bavNeu = age < retirementAge ? 0 : bavNeuAtRetirement;
-
-    const otherIncomeAtRetirement = privatePensionToday + bavRiesterToday;
-    const otherIncome = age < retirementAge ? 0 : otherIncomeAtRetirement;
-
-    const totalIncome = statutory + bavNeu + otherIncome;
-    const gap = Math.max(0, desired - totalIncome);
-    return { age, desired, statutory, bavNeu, otherIncome, totalIncome, gap };
+    const totalIncome = preRetirement ? 0 : statutory + bav + privatePension + other - pkvMonthly;
+    const gap = preRetirement ? 0 : Math.max(0, desired - totalIncome);
+    return { age, desired, statutory, bav, privatePension, other, totalIncome, gap };
   });
 
-  const yearlyGapSeries = series.map((d) => (d.age >= retirementAge ? d.gap * 12 : 0));
+  const yearlyGapSeries = series.map((d) => d.gap * 12);
   const cumulativeGapSeries = yearlyGapSeries.reduce((acc: number[], val, idx) => {
     const prev = idx > 0 ? (acc[idx - 1] ?? 0) : 0;
     acc[idx] = prev + val;
@@ -77,43 +74,54 @@ export function useChartConfig(
   }, [] as number[]);
 
   const retirementIndex = years.indexOf(retirementAge);
-
-  const totalGap = series
-    .filter((d) => d.age >= retirementAge && d.age <= lifeExpectancy)
-    .reduce((sum, d) => sum + d.gap * 12, 0);
-
-  const monthlyGapAtRetirement = retirementIndex >= 0 ? (series[retirementIndex]?.gap ?? 0) : 0;
+  // The headline figure comes from the engine (gap growing with inflation over
+  // the whole retirement); the per-age series above is visualization only.
+  const totalGap = analysis.capital.total_payments;
+  const monthlyGapAtRetirement = analysis.gap.monthly_at_retirement;
   const totalIncomeAtRetirement =
-    retirementIndex >= 0 ? (series[retirementIndex]?.totalIncome ?? 0) : 0;
+    analysis.totals.after_insurance - analysis.private_health_insurance.monthly_at_retirement;
+
+  const stackedDataset = (label: string, values: number[], color: string, first = false) => ({
+    label,
+    data: values.map((v) => Math.round(v)),
+    backgroundColor: color.replace("1)", "0.8)"),
+    borderColor: color,
+    borderWidth: 1,
+    fill: first ? true : ("-1" as const),
+    tension: 0.1,
+  });
 
   const chartData = {
     labels: years,
     datasets: [
+      stackedDataset(
+        "Gesetzl. Versorgung (netto)",
+        series.map((d) => d.statutory),
+        "rgba(22, 163, 74, 1)",
+        true,
+      ),
+      stackedDataset(
+        "bAV & Zusatzversorgung (netto)",
+        series.map((d) => d.statutory + d.bav),
+        "rgba(2, 132, 199, 1)",
+      ),
+      stackedDataset(
+        "Private Vorsorge (netto)",
+        series.map((d) => d.statutory + d.bav + d.privatePension),
+        "rgba(124, 58, 237, 1)",
+      ),
+      stackedDataset(
+        "Weitere Einkünfte (netto)",
+        series.map((d) => d.statutory + d.bav + d.privatePension + d.other),
+        "rgba(100, 116, 139, 1)",
+      ),
       {
-        label: "Gesetzliche Rente",
-        data: series.map((d) => Math.round(d.statutory)),
-        backgroundColor: "rgba(22, 163, 74, 0.8)",
-        borderColor: "rgba(22, 163, 74, 1)",
-        borderWidth: 1,
-        fill: true,
-        tension: 0.1,
-      },
-      {
-        label: "BAV (neu)",
-        data: series.map((d) => Math.round(d.statutory + d.bavNeu)),
-        backgroundColor: "rgba(2, 132, 199, 0.8)",
-        borderColor: "rgba(2, 132, 199, 1)",
-        borderWidth: 1,
-        fill: "-1" as const,
-        tension: 0.1,
-      },
-      {
-        label: "Rentenwunsch",
+        label: "Rentenwunsch (inflationiert)",
         data: series.map((d) => Math.round(d.desired)),
-        backgroundColor: "rgba(234, 88, 12, 0.8)",
+        backgroundColor: "rgba(234, 88, 12, 0.15)",
         borderColor: "rgba(234, 88, 12, 1)",
         borderWidth: 2,
-        fill: "-1" as const,
+        fill: false,
         tension: 0.1,
       },
     ],
@@ -169,15 +177,13 @@ export function useChartConfig(
             const d = series[i];
             if (!d) return [];
             const lines = [
-              `Gesamte Einnahmen: €${Math.round(d.totalIncome).toLocaleString()}`,
-              `Lücke (monatlich): €${Math.round(d.gap).toLocaleString()}`,
+              `Gesamte Netto-Einnahmen: €${Math.round(d.totalIncome).toLocaleString("de-DE")}`,
+              `Lücke (monatlich): €${Math.round(d.gap).toLocaleString("de-DE")}`,
             ];
             if (d.age >= retirementAge) {
               lines.push(
-                `Lücke pro Jahr: €${Math.round(yearlyGapSeries[i] ?? 0).toLocaleString()}`,
-              );
-              lines.push(
-                `Kumulierte Lücke bis Alter ${d.age}: €${Math.round(cumulativeGapSeries[i] ?? 0).toLocaleString()}`,
+                `Lücke pro Jahr: €${Math.round(yearlyGapSeries[i] ?? 0).toLocaleString("de-DE")}`,
+                `Kumulierte Lücke bis Alter ${d.age}: €${Math.round(cumulativeGapSeries[i] ?? 0).toLocaleString("de-DE")}`,
               );
             }
             return lines;
@@ -205,8 +211,12 @@ export function useChartConfig(
             type: "label",
             xValue: Math.floor((retirementIndex + years.length) / 2),
             yValue: Math.max(...series.map((d) => d.desired)) * 0.7,
-            content: `Gesamte Lücke: €${Math.round(totalGap).toLocaleString()}`,
-            backgroundColor: "rgba(220, 38, 38, 0.9)",
+            content:
+              totalGap > 0
+                ? `Gesamte Lücke: €${Math.round(totalGap).toLocaleString("de-DE")}`
+                : "Keine Versorgungslücke",
+            // Green when the desired pension is fully covered, red when a gap remains.
+            backgroundColor: totalGap > 0 ? "rgba(220, 38, 38, 0.9)" : "rgba(22, 163, 74, 0.9)",
             color: "white",
             padding: 8,
             borderRadius: 4,
@@ -219,7 +229,7 @@ export function useChartConfig(
       y: {
         title: { display: true, text: "Monatlicher Betrag (€)" },
         ticks: {
-          callback: (value: any) => "€" + Number(value).toLocaleString(),
+          callback: (value: any) => "€" + Number(value).toLocaleString("de-DE"),
         },
       },
     },

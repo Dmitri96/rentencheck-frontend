@@ -6,20 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ArrowDownRight, ArrowUpRight, CircleCheck, TriangleAlert } from "lucide-react";
-import type { Rentencheck } from "@/lib/services/rentencheck-service";
-import { aggregateIncomeSources } from "../utils/income-aggregator";
-
-interface PensionResultsOverviewProps {
-  data: Rentencheck;
-  desiredPension: number;
-}
-
-// German tax + cost-of-living defaults — match the prior implementation.
-const TAX_RATE = 0.42;
-const CHURCH_TAX_RATE = 0.09;
-const SOLIDARITY_TAX_RATE = 0.055;
-const HEALTH_INSURANCE_RATE = 0.073;
-const INFLATION_RATE = 0.02;
+import type { PensionAnalysis } from "../hooks/use-pension-analysis";
+import { PensionBreakdownTable } from "./pension-breakdown-table";
 
 const eurFormatter = new Intl.NumberFormat("de-DE", {
   style: "currency",
@@ -27,81 +15,16 @@ const eurFormatter = new Intl.NumberFormat("de-DE", {
   maximumFractionDigits: 0,
 });
 
-const eurPreciseFormatter = new Intl.NumberFormat("de-DE", {
-  style: "currency",
-  currency: "EUR",
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-function fmtPrecise(amount: number, showSign = false) {
-  const sign = showSign && amount !== 0 ? (amount > 0 ? "+" : "−") : "";
-  return `${sign}${eurPreciseFormatter.format(Math.abs(amount))}`;
-}
-
 /**
- * Pension results — the moneymaker.
+ * Pension results — hero gap KPI, tiles and the Bild-0 breakdown table.
  *
- * Hero: a single Fraunces KPI showing the monthly gap (or 0 when covered).
- * Count-up animates once on mount (`--duration-slowest`). Three KPI tiles
- * below give the Rentenwunsch / Verfügbar / Gap breakdown, then the
- * breakdown table, then the recommendation pull-quote.
+ * Renders the backend analysis verbatim: the hero, the tiles and the table
+ * footer all show the SAME gap figures from the engine.
  */
-export function PensionResultsOverview({ data, desiredPension }: PensionResultsOverviewProps) {
-  const calculateNetAmounts = (grossAmount: number) => {
-    const incomeTax = grossAmount * TAX_RATE;
-    const churchTax = incomeTax * CHURCH_TAX_RATE;
-    const solidarityTax = incomeTax * SOLIDARITY_TAX_RATE;
-    const afterTax = grossAmount - incomeTax - churchTax - solidarityTax;
-    const healthInsurance = grossAmount * HEALTH_INSURANCE_RATE;
-    const afterHealthInsurance = afterTax - healthInsurance;
-    const purchasingPower = afterHealthInsurance / (1 + INFLATION_RATE);
-    return {
-      grossAmount,
-      incomeTax,
-      churchTax,
-      solidarityTax,
-      afterTax,
-      healthInsurance,
-      afterHealthInsurance,
-      purchasingPower,
-    };
-  };
-
-  const incomeData = aggregateIncomeSources(data.step_3_data ?? null).map(
-    ({ label, monthlyGross }) => ({
-      source: label,
-      ...calculateNetAmounts(monthlyGross),
-    }),
-  );
-
-  const totals = incomeData.reduce(
-    (acc, row) => ({
-      grossAmount: acc.grossAmount + row.grossAmount,
-      incomeTax: acc.incomeTax + row.incomeTax,
-      churchTax: acc.churchTax + row.churchTax,
-      solidarityTax: acc.solidarityTax + row.solidarityTax,
-      afterTax: acc.afterTax + row.afterTax,
-      healthInsurance: acc.healthInsurance + row.healthInsurance,
-      afterHealthInsurance: acc.afterHealthInsurance + row.afterHealthInsurance,
-      purchasingPower: acc.purchasingPower + row.purchasingPower,
-    }),
-    {
-      grossAmount: 0,
-      incomeTax: 0,
-      churchTax: 0,
-      solidarityTax: 0,
-      afterTax: 0,
-      healthInsurance: 0,
-      afterHealthInsurance: 0,
-      purchasingPower: 0,
-    },
-  );
-
-  const pensionGap = Math.max(0, desiredPension - totals.purchasingPower);
-  const additionalCapitalNeeded = pensionGap * 12 * 20;
-  const inflationAdjustedCapital = additionalCapitalNeeded * Math.pow(1 + INFLATION_RATE, 20);
-
+export function PensionResultsOverview({ analysis }: { analysis: PensionAnalysis }) {
+  const pensionGap = analysis.gap.monthly_today;
+  const availablePension =
+    analysis.totals.purchasing_power - analysis.private_health_insurance.purchasing_power;
   const isCovered = pensionGap === 0;
 
   // Hero count-up: animates from 0 to final on mount, single moment of theatre.
@@ -129,10 +52,11 @@ export function PensionResultsOverview({ data, desiredPension }: PensionResultsO
             </>
           ) : (
             <>
-              Differenz zwischen Rentenwunsch und kaufkraftbereinigter Rente. Über 20 Jahre
-              entspricht das einem Kapitalbedarf von{" "}
+              Differenz zwischen Rentenwunsch und kaufkraftbereinigter Netto-Rente. Um die Lücke bis
+              Alter {analysis.provisionEndAge} zu schließen, benötigen Sie zum Rentenbeginn ein
+              Kapital von{" "}
               <span className="text-foreground font-medium currency">
-                {eurFormatter.format(inflationAdjustedCapital)}
+                {eurFormatter.format(analysis.capital.required_capital)}
               </span>
               .
             </>
@@ -144,12 +68,12 @@ export function PensionResultsOverview({ data, desiredPension }: PensionResultsO
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <KpiTile
           label="Rentenwunsch"
-          value={desiredPension}
+          value={analysis.desired_pension.today}
           icon={<ArrowUpRight className="h-4 w-4" />}
         />
         <KpiTile
-          label="Verfügbare Rente"
-          value={totals.purchasingPower}
+          label="Verfügbare Rente (Kaufkraft)"
+          value={availablePension}
           accent="success"
           icon={<CircleCheck className="h-4 w-4 text-success" />}
         />
@@ -172,7 +96,7 @@ export function PensionResultsOverview({ data, desiredPension }: PensionResultsO
         {isCovered ? (
           <Badge variant="success">Vollständig abgedeckt</Badge>
         ) : (
-          <Badge variant="destructive">{fmtPrecise(pensionGap)} monatlich offen</Badge>
+          <Badge variant="destructive">{eurFormatter.format(pensionGap)} monatlich offen</Badge>
         )}
       </div>
 
@@ -181,64 +105,12 @@ export function PensionResultsOverview({ data, desiredPension }: PensionResultsO
         <CardHeader>
           <CardTitle>Berechnungsergebnisse</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Alle Beträge sind monatliche Werte. Die Kaufkraft berücksichtigt 2 % Inflation p. a.
+            Alle Beträge sind monatliche Werte zum Rentenbeginn; die Kaufkraft ist auf heutige
+            Preise abgezinst ({analysis.inflationRate.toLocaleString("de-DE")} % Inflation p. a.).
           </p>
         </CardHeader>
         <CardContent className="px-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border-subtle">
-                  <Th align="left">Einkommensquelle</Th>
-                  <Th>Brutto</Th>
-                  <Th>Steuer</Th>
-                  <Th>Kirche</Th>
-                  <Th>Soli</Th>
-                  <Th>Nach Steuer</Th>
-                  <Th>KV</Th>
-                  <Th>Nach KV</Th>
-                  <Th>Kaufkraft</Th>
-                </tr>
-              </thead>
-              <tbody className="[&_tr:nth-child(even)]:bg-[var(--surface-subtle)]">
-                {incomeData.map((row, index) => (
-                  <tr key={index}>
-                    <Td align="left" strong>
-                      {row.source}
-                    </Td>
-                    <Td>{fmtPrecise(row.grossAmount)}</Td>
-                    <Td tone="muted">{fmtPrecise(row.incomeTax)}</Td>
-                    <Td tone="muted">{fmtPrecise(row.churchTax)}</Td>
-                    <Td tone="muted">{fmtPrecise(row.solidarityTax)}</Td>
-                    <Td>{fmtPrecise(row.afterTax)}</Td>
-                    <Td tone="muted">{fmtPrecise(row.healthInsurance)}</Td>
-                    <Td tone="success">{fmtPrecise(row.afterHealthInsurance)}</Td>
-                    <Td tone="success" strong>
-                      {fmtPrecise(row.purchasingPower)}
-                    </Td>
-                  </tr>
-                ))}
-
-                <tr className="border-t border-foreground/20 bg-muted">
-                  <Td align="left" strong>
-                    Gesamt
-                  </Td>
-                  <Td strong>{fmtPrecise(totals.grossAmount)}</Td>
-                  <Td tone="muted">{fmtPrecise(totals.incomeTax)}</Td>
-                  <Td tone="muted">{fmtPrecise(totals.churchTax)}</Td>
-                  <Td tone="muted">{fmtPrecise(totals.solidarityTax)}</Td>
-                  <Td strong>{fmtPrecise(totals.afterTax)}</Td>
-                  <Td tone="muted">{fmtPrecise(totals.healthInsurance)}</Td>
-                  <Td tone="success" strong>
-                    {fmtPrecise(totals.afterHealthInsurance)}
-                  </Td>
-                  <Td tone="success" strong>
-                    {fmtPrecise(totals.purchasingPower)}
-                  </Td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <PensionBreakdownTable analysis={analysis} />
         </CardContent>
       </Card>
 
@@ -276,8 +148,9 @@ export function PensionResultsOverview({ data, desiredPension }: PensionResultsO
       )}
 
       <p className="text-xs text-[var(--ink-tertiary)] text-center">
-        Alle Berechnungen sind Schätzungen. Individuelle Faktoren wie Steuern, Inflation und
-        Versicherungsleistungen sind in der detaillierten Planung zu berücksichtigen.
+        Alle Berechnungen sind Schätzungen auf Basis der hinterlegten Referenzwerte. Individuelle
+        steuerliche und versicherungsrechtliche Faktoren sind in der detaillierten Planung zu
+        berücksichtigen.
       </p>
     </div>
   );
@@ -315,53 +188,6 @@ function KpiTile({
         </p>
       </CardContent>
     </Card>
-  );
-}
-
-function Th({
-  children,
-  align = "right",
-}: {
-  children: React.ReactNode;
-  align?: "left" | "right";
-}) {
-  return (
-    <th className={`label-uppercase px-3 py-3 ${align === "right" ? "text-right" : "text-left"}`}>
-      {children}
-    </th>
-  );
-}
-
-function Td({
-  children,
-  align = "right",
-  strong = false,
-  tone,
-}: {
-  children: React.ReactNode;
-  align?: "left" | "right";
-  strong?: boolean;
-  tone?: "muted" | "success";
-}) {
-  const color =
-    tone === "muted"
-      ? "text-muted-foreground"
-      : tone === "success"
-        ? "text-success"
-        : "text-foreground";
-  const monoCols = align === "right" ? "font-mono tabular-nums currency" : "";
-  return (
-    <td
-      className={[
-        "px-3 py-3",
-        align === "right" ? "text-right" : "text-left",
-        monoCols,
-        strong ? "font-medium" : "",
-        color,
-      ].join(" ")}
-    >
-      {children}
-    </td>
   );
 }
 

@@ -51,22 +51,13 @@ export default function Home() {
             verwalten Sie Ihre Mandanten und optimieren Sie Ihre Beratungsqualität.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+          <div className="flex justify-center mb-12">
             <Link href="/register">
               <Button
                 size="lg"
                 className="px-8 py-4 text-lg bg-primary hover:bg-primary-hover shadow-xl hover:shadow-2xl transition-all duration-200"
               >
                 Kostenlos starten
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button
-                variant="outline"
-                size="lg"
-                className="px-8 py-4 text-lg border-2 hover:bg-[var(--surface-subtle)]"
-              >
-                Bereits registriert? Anmelden
               </Button>
             </Link>
           </div>
@@ -207,7 +198,7 @@ export default function Home() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="px-8 py-4 text-lg border-2 border-white text-white hover:bg-white/10"
+                    className="px-8 py-4 text-lg border-2 border-white bg-transparent text-white hover:bg-white/10 hover:text-white"
                   >
                     Anmelden
                   </Button>
@@ -230,7 +221,8 @@ export default function Home() {
             </div>
             <div className="text-center text-[var(--ink-tertiary)]">
               <p className="mb-4">
-                © 2024 RENTENBLICK.de - Professionelle Rentenberatungssoftware
+                © {new Date().getFullYear()} RENTENBLICK.de – Professionelle
+                Rentenberatungssoftware
               </p>
               <div className="flex items-center justify-center space-x-6 text-sm">
                 <Link href="#" className="hover:text-white transition-colors">

@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { ZodError } from "zod";
 import { api } from "@/lib/api";
 import type { RentencheckData } from "@/lib/services/rentencheck-service";
+import {
+  ExpectationsStepSchema,
+  PersonalFinancialStepSchema,
+} from "@/lib/validations/rentencheck-step-schemas";
 
 const DEFAULT_FORM_DATA: RentencheckData = {
   profession: "",
@@ -12,6 +17,8 @@ const DEFAULT_FORM_DATA: RentencheckData = {
   assetSeparation: "Nein",
   healthInsurance: "Gesetzlich/PflichtV",
   healthInsuranceContribution: 0,
+  federalState: undefined,
+  hasChildren: true,
   currentAge: 30,
   retirementAge: 67,
   pensionWishCurrentValue: 0,
@@ -22,6 +29,7 @@ const DEFAULT_FORM_DATA: RentencheckData = {
   statutoryPensionAge: 0,
   statutoryPensionAmount: 0,
   disabilityPensionAmount: 0,
+  privateDisabilityInsuranceAmount: 0,
   professionalProvisionWorks: false,
   professionalProvisionAge: 0,
   professionalProvisionAmount: 0,
@@ -135,15 +143,38 @@ export function useRentenblickForm({
     setFormData((prev) => ({ ...prev, ...data }));
   }, []);
 
+  /**
+   * Validates the calculation-critical steps (1 + 2) before they are confirmed.
+   * Mirrors the Zod-parse + toast pattern used by useContractManagement.
+   */
+  const validateStep = useCallback(
+    (stepId: number): boolean => {
+      const schema =
+        stepId === 1 ? PersonalFinancialStepSchema : stepId === 2 ? ExpectationsStepSchema : null;
+      if (!schema) return true;
+
+      const result = schema.safeParse(formData);
+      if (result.success) return true;
+
+      const zodError = result.error instanceof ZodError ? result.error : new ZodError([]);
+      const firstMessage = zodError.errors[0]?.message ?? "Bitte korrigieren Sie die Eingabefehler";
+      toast.error(firstMessage);
+      return false;
+    },
+    [formData],
+  );
+
   const confirmStep = useCallback(
     async (stepId: number) => {
       if (confirmedSteps.includes(stepId)) return;
+      if (!validateStep(stepId)) return;
+
       setConfirmedSteps((prev) => (prev.includes(stepId) ? prev : [...prev, stepId]));
       if (onStepSave) {
         await onStepSave(stepId, formData);
       }
     },
-    [confirmedSteps, formData, onStepSave],
+    [confirmedSteps, formData, onStepSave, validateStep],
   );
 
   const editStep = useCallback((stepId: number) => {

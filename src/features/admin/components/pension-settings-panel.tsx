@@ -5,9 +5,51 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { usePensionSettings } from "../hooks/use-pension-settings";
+import { usePensionSettings, type PensionParameters } from "../hooks/use-pension-settings";
+import { get } from "@/lib/utils/object-access";
 
 export type { SettingsPayload } from "../hooks/use-pension-settings";
+
+/** Labeled numeric input bound to a dot-path inside the parameters form. */
+function ZoneField({
+  label,
+  path,
+  form,
+  onChange,
+  compact = false,
+}: {
+  label: string;
+  path: string;
+  form: PensionParameters;
+  onChange: (path: string, raw: string) => void;
+  compact?: boolean;
+}) {
+  const value = get(form, path);
+  if (compact) {
+    return (
+      <div className="space-y-1">
+        <Label className="text-xs">{label}</Label>
+        <Input
+          type="number"
+          step="0.01"
+          value={value ?? ""}
+          onChange={(e) => onChange(path, e.target.value)}
+        />
+      </div>
+    );
+  }
+  return (
+    <div className="grid grid-cols-2 gap-3 items-center">
+      <Label>{label}</Label>
+      <Input
+        type="number"
+        step="0.01"
+        value={value ?? ""}
+        onChange={(e) => onChange(path, e.target.value)}
+      />
+    </div>
+  );
+}
 
 export function PensionSettingsPanel() {
   const { loading, saving, form, handleChange, handleSave, handleReset } = usePensionSettings();
@@ -131,126 +173,134 @@ export function PensionSettingsPanel() {
                     }
                   />
                 </div>
+                <div className="grid grid-cols-2 gap-3 items-center">
+                  <Label htmlFor="care_insurance_childless_surcharge">
+                    PV-Zuschlag Kinderlose (%)
+                  </Label>
+                  <Input
+                    id="care_insurance_childless_surcharge"
+                    type="number"
+                    step="0.1"
+                    value={s.care_insurance_childless_surcharge ?? 0.6}
+                    onChange={(e) =>
+                      handleChange(
+                        "social_insurance.care_insurance_childless_surcharge",
+                        e.target.value,
+                      )
+                    }
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3 items-center">
+                  <Label htmlFor="bbg_health_monthly">BBG-KV monatlich (EUR)</Label>
+                  <Input
+                    id="bbg_health_monthly"
+                    type="number"
+                    step="0.01"
+                    value={s.bbg_health_monthly ?? 5812.5}
+                    onChange={(e) =>
+                      handleChange("social_insurance.bbg_health_monthly", e.target.value)
+                    }
+                  />
+                </div>
               </div>
             </div>
 
             <div className="md:col-span-2">
-              <h3 className="font-medium mb-3">Steuersystem</h3>
+              <h3 className="font-medium mb-3">Einkommensteuer (§32a EStG)</h3>
+              <p className="text-xs text-muted-foreground mb-3">
+                Zonengrenzen und Koeffizienten des amtlichen Steuertarifs — jährlich mit dem
+                Jahressteuergesetz aktualisieren.
+              </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <Label>Stufe 1 (%)</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={form.tax_system.rates.stufe_1}
-                      onChange={(e) => handleChange("tax_system.rates.stufe_1", e.target.value)}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <Label>Stufe 2 (%)</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={form.tax_system.rates.stufe_2}
-                      onChange={(e) => handleChange("tax_system.rates.stufe_2", e.target.value)}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <Label>Stufe 3 (%)</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={form.tax_system.rates.stufe_3}
-                      onChange={(e) => handleChange("tax_system.rates.stufe_3", e.target.value)}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <Label>Stufe 4 (%)</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={form.tax_system.rates.stufe_4}
-                      onChange={(e) => handleChange("tax_system.rates.stufe_4", e.target.value)}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <Label>Stufe 5 (%)</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={form.tax_system.rates.stufe_5}
-                      onChange={(e) => handleChange("tax_system.rates.stufe_5", e.target.value)}
-                    />
-                  </div>
+                  <ZoneField
+                    label="Grundfreibetrag (EUR)"
+                    path="tax_system.income_tax_zones.zone1_end"
+                    form={form}
+                    onChange={handleChange}
+                  />
+                  <ZoneField
+                    label="Ende Progressionszone 1 (EUR)"
+                    path="tax_system.income_tax_zones.zone2_end"
+                    form={form}
+                    onChange={handleChange}
+                  />
+                  <ZoneField
+                    label="Ende Progressionszone 2 (EUR)"
+                    path="tax_system.income_tax_zones.zone3_end"
+                    form={form}
+                    onChange={handleChange}
+                  />
+                  <ZoneField
+                    label="Beginn Reichensteuer (EUR)"
+                    path="tax_system.income_tax_zones.zone4_end"
+                    form={form}
+                    onChange={handleChange}
+                  />
+                  <ZoneField
+                    label="Werbungskosten-Pauschbetrag (EUR)"
+                    path="tax_system.income_tax_zones.werbungskosten_pauschbetrag"
+                    form={form}
+                    onChange={handleChange}
+                  />
                 </div>
 
                 <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <Label>Grenze 1 (EUR)</Label>
-                    <Input
-                      type="number"
-                      step="1"
-                      value={form.tax_system.thresholds.threshold_1}
-                      onChange={(e) =>
-                        handleChange("tax_system.thresholds.threshold_1", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <Label>Grenze 2 (EUR)</Label>
-                    <Input
-                      type="number"
-                      step="1"
-                      value={form.tax_system.thresholds.threshold_2}
-                      onChange={(e) =>
-                        handleChange("tax_system.thresholds.threshold_2", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <Label>Grenze 3 (EUR)</Label>
-                    <Input
-                      type="number"
-                      step="1"
-                      value={form.tax_system.thresholds.threshold_3}
-                      onChange={(e) =>
-                        handleChange("tax_system.thresholds.threshold_3", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <Label>Grenze 4 (EUR)</Label>
-                    <Input
-                      type="number"
-                      step="1"
-                      value={form.tax_system.thresholds.threshold_4}
-                      onChange={(e) =>
-                        handleChange("tax_system.thresholds.threshold_4", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <Label>Soli (%)</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={form.tax_system.solidarity_surcharge_rate}
-                      onChange={(e) =>
-                        handleChange("tax_system.solidarity_surcharge_rate", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <Label>Soli Schwelle (EUR)</Label>
-                    <Input
-                      type="number"
-                      step="1"
-                      value={form.tax_system.solidarity_surcharge_threshold}
-                      onChange={(e) =>
-                        handleChange("tax_system.solidarity_surcharge_threshold", e.target.value)
-                      }
-                    />
+                  <ZoneField
+                    label="Spitzensteuersatz Zone 4 (%)"
+                    path="tax_system.income_tax_zones.zone4_rate"
+                    form={form}
+                    onChange={handleChange}
+                  />
+                  <ZoneField
+                    label="Reichensteuersatz Zone 5 (%)"
+                    path="tax_system.income_tax_zones.zone5_rate"
+                    form={form}
+                    onChange={handleChange}
+                  />
+                  <ZoneField
+                    label="Besteuerungsanteil gesetzl. Rente (%)"
+                    path="tax_system.statutory_pension_taxable_share"
+                    form={form}
+                    onChange={handleChange}
+                  />
+                  <ZoneField
+                    label="Soli (%)"
+                    path="tax_system.solidarity_surcharge_rate"
+                    form={form}
+                    onChange={handleChange}
+                  />
+                  <ZoneField
+                    label="Soli-Freigrenze (EUR Steuer)"
+                    path="tax_system.solidarity_surcharge_threshold"
+                    form={form}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <h4 className="text-sm font-medium mb-2">Progressionskoeffizienten (§32a)</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    {(
+                      [
+                        ["Zone 2 Faktor", "zone2_factor"],
+                        ["Zone 2 Basis", "zone2_base"],
+                        ["Zone 3 Faktor", "zone3_factor"],
+                        ["Zone 3 Basis", "zone3_base"],
+                        ["Zone 3 Konstante", "zone3_const"],
+                        ["Zone 4 Konstante", "zone4_const"],
+                        ["Zone 5 Konstante", "zone5_const"],
+                      ] as const
+                    ).map(([label, key]) => (
+                      <ZoneField
+                        key={key}
+                        label={label}
+                        path={`tax_system.income_tax_zones.${key}`}
+                        form={form}
+                        onChange={handleChange}
+                        compact
+                      />
+                    ))}
                   </div>
                 </div>
               </div>

@@ -83,9 +83,19 @@ export const PensionContractSchema = z.object({
     .min(1, "Bitte wählen Sie einen Vertragstyp aus")
     .refine(
       (val) =>
-        ["Basis-Rente", "Riester-Rente", "BAV-Rente", "Mieteinnahme", "andere Art"].includes(val),
+        [
+          "Basis-Rente",
+          "Riester-Rente",
+          "BAV-Rente",
+          "Private Rentenvers.",
+          "Mieteinnahme",
+          "andere Art",
+        ].includes(val),
       "Ungültiger Vertragstyp",
     ),
+
+  // Only meaningful for BAV-Rente: pre-2005 contracts are taxed flat and KV-free.
+  isPre2005: z.boolean().optional(),
 
   interestRate: z
     .number()
@@ -140,6 +150,27 @@ export const AdditionalIncomeSchema = z.object({
     .min(1, "Bitte wählen Sie eine Periodizität aus")
     .refine((val) => ["Einmalig", "Monatlich", "Jährlich"].includes(val), "Ungültige Periodizität"),
 });
+
+/**
+ * Max entries per contract array, per MVP spec 2.a.iii.
+ * Enforced both in Zod (here) and server-side (UpdateRentencheckStepRequest).
+ */
+export const MAX_CONTRACT_ENTRIES = 5;
+
+export const PayoutContractsArraySchema = z
+  .array(PayoutContractSchema)
+  .max(MAX_CONTRACT_ENTRIES, `Es sind maximal ${MAX_CONTRACT_ENTRIES} Auszahlungsverträge erlaubt`);
+
+export const PensionContractsArraySchema = z
+  .array(PensionContractSchema)
+  .max(MAX_CONTRACT_ENTRIES, `Es sind maximal ${MAX_CONTRACT_ENTRIES} Rentenverträge erlaubt`);
+
+export const AdditionalIncomeArraySchema = z
+  .array(AdditionalIncomeSchema)
+  .max(
+    MAX_CONTRACT_ENTRIES,
+    `Es sind maximal ${MAX_CONTRACT_ENTRIES} zusätzliche Einkünfte erlaubt`,
+  );
 
 // Export type definitions for TypeScript
 export type PayoutContractData = z.infer<typeof PayoutContractSchema>;

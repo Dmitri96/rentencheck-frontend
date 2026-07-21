@@ -4,38 +4,16 @@ import { api } from "@/lib/api";
  * Response shape for GET /clients/{clientId}/rentenchecks/{rentencheckId}/calculation.
  * Mirrors backend `PensionCalculator::analyze()`. Full OpenAPI generation lands in Wave 3C.
  */
-export interface PensionCalculationData {
-  currentAge: number;
-  retirementAge: number;
-  lifeExpectancy: number;
-  inflationRate: number;
-  statutoryPensionGross: number;
-  statutoryPensionAfterInsurance: number;
-  privatePensionToday: number;
-  bavRiesterToday: number;
-  parameters_used: {
-    economic_assumptions: {
-      inflation_rate: number;
-      investment_return_rate: number;
-      pension_increase_rate?: number;
-    };
-    social_insurance: {
-      health_insurance_rate: number;
-      care_insurance_rate: number;
-      total_insurance_rate: number;
-    };
-    tax_system: {
-      rates: Record<string, number | undefined>;
-      thresholds: Record<string, number | undefined>;
-      solidarity_surcharge_rate?: number;
-      solidarity_surcharge_threshold?: number;
-    };
-  };
-}
+/**
+ * Response payload of GET /clients/{clientId}/rentenchecks/{rentencheckId}/calculation.
+ * Mirrors backend `PensionCalculator::analyze()` — the typed view lives in
+ * `features/pension/hooks/use-pension-analysis.ts` (PensionAnalysis); the
+ * service keeps the payload loosely typed to avoid duplicating the contract.
+ */
+export type PensionCalculationData = Record<string, unknown>;
 
 export interface PensionCalculationResponse {
   pension_data: PensionCalculationData;
-  pension_totals: Record<string, unknown>;
   client: Record<string, unknown>;
   message: string;
 }
@@ -51,6 +29,10 @@ export interface RentencheckData {
   healthInsuranceContribution: number;
   // Optional: whether church tax applies (frontend control). If omitted, assume true.
   hasToChurchTax?: boolean;
+  // Bundesland — drives Kirchensteuer rate (8% BY/BW vs 9% elsewhere).
+  federalState?: string;
+  // Drives Pflegeversicherung surcharge (3.6% vs 4.2% childless).
+  hasChildren?: boolean;
 
   // Step 2: Expectations
   currentAge: number;
@@ -66,6 +48,8 @@ export interface RentencheckData {
   statutoryPensionAmount?: number;
   // Monthly disability pension (Erwerbsminderungsrente).
   disabilityPensionAmount?: number;
+  // Monthly private disability annuity, shown alongside the EMR bar in the BU diagram.
+  privateDisabilityInsuranceAmount?: number;
 
   professionalProvisionWorks: boolean;
   professionalProvisionAge?: number;
@@ -98,6 +82,8 @@ export interface RentencheckData {
     guaranteedAmount: number;
     projectedAmount: number;
     monthlyAmount: number;
+    // Only meaningful for BAV-Rente: pre-2005 contracts are taxed flat and KV-free.
+    isPre2005?: boolean;
   }>;
   additionalIncome: Array<{
     type: string;
@@ -230,14 +216,14 @@ function unwrapRentencheckResponse(raw: unknown): RentencheckResponse {
 
 function unwrapRentencheckListResponse(raw: unknown): RentencheckListResponse {
   const payload = raw as {
-    data?: { data?: unknown[]; client?: unknown };
+    data?: { rentenchecks?: unknown[]; client?: unknown };
     message?: string;
   };
 
-  const inner = payload.data ?? { data: [], client: {} };
+  const inner = payload.data ?? { rentenchecks: [], client: {} };
 
   return {
-    data: ((inner.data as unknown[]) ?? []) as Rentencheck[],
+    data: ((inner.rentenchecks as unknown[]) ?? []) as Rentencheck[],
     client: (inner.client ?? {}) as RentencheckListResponse["client"],
   };
 }
@@ -439,7 +425,6 @@ export class RentencheckService {
     const payload = data as unknown as {
       data: {
         pension_data: PensionCalculationData;
-        pension_totals: Record<string, unknown>;
         client: Record<string, unknown>;
       };
       message: string;
@@ -447,7 +432,6 @@ export class RentencheckService {
 
     return {
       pension_data: payload.data.pension_data,
-      pension_totals: payload.data.pension_totals,
       client: payload.data.client,
       message: payload.message,
     };
