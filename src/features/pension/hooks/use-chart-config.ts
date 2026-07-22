@@ -115,6 +115,18 @@ export function useChartConfig(analysis: PensionAnalysis): UseChartConfigResult 
         series.map((d) => d.statutory + d.bav + d.privatePension + d.other),
         "rgba(100, 116, 139, 1)",
       ),
+      // Shades the shortfall red — filled from the total-income band (index 3) up
+      // to the Rentenwunsch, only where the wish sits above income (the gap). Null
+      // before retirement so the working years stay unshaded.
+      {
+        label: "Versorgungslücke",
+        data: series.map((d) => (d.age >= retirementAge ? Math.round(d.desired) : null)),
+        borderColor: "rgba(0,0,0,0)",
+        backgroundColor: "rgba(220, 38, 38, 0.45)",
+        fill: { target: 3, above: "rgba(220, 38, 38, 0.15)", below: "rgba(0,0,0,0)" },
+        pointRadius: 0,
+        tension: 0.1,
+      },
       {
         label: "Rentenwunsch (inflationiert)",
         data: series.map((d) => Math.round(d.desired)),
@@ -164,6 +176,7 @@ export function useChartConfig(analysis: PensionAnalysis): UseChartConfigResult 
         mode: "index",
         intersect: false,
         displayColors: true,
+        filter: (item: any) => item.dataset.label !== "Versorgungslücke",
         backgroundColor: "rgba(17,24,39,0.9)",
         borderColor: "rgba(0,0,0,0.1)",
         borderWidth: 1,

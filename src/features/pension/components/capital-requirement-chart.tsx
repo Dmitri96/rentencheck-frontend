@@ -41,16 +41,25 @@ const eur = new Intl.NumberFormat("de-DE", {
 export function CapitalRequirementChart({ analysis }: { analysis: PensionAnalysis }) {
   const { currentAge, retirementAge, provisionEndAge, inflationRate, gap, capital } = analysis;
 
-  if (gap.monthly_today <= 0) {
+  // Render whenever a shortfall exists in ANY retirement year — a pension that
+  // covers the need at 67 can still fall short later as fixed payouts lose
+  // ground to inflation, so keying off the first-year gap would hide it.
+  if (!gap.has_gap) {
     return null;
   }
 
-  const inflation = inflationRate / 100;
   const endAge = Math.max(provisionEndAge, retirementAge);
   const years = Array.from({ length: endAge - currentAge + 1 }, (_, i) => currentAge + i);
-  const gapSeries = years.map((age) =>
-    Math.round(gap.monthly_today * Math.pow(1 + inflation, age - currentAge)),
-  );
+
+  // Actual per-year shortfall from the engine (no pension income before
+  // retirement, so the gap is 0 there). Ages beyond the projection reuse the
+  // last known gap so the curve does not dip at the final label.
+  const gapByAge = new Map(analysis.retirement_projection.map((p) => [p.age, p.gap]));
+  const lastGap = analysis.retirement_projection.at(-1)?.gap ?? 0;
+  const gapSeries = years.map((age) => {
+    if (age < retirementAge) return 0;
+    return Math.round(gapByAge.get(age) ?? lastGap);
+  });
   const retirementIndex = years.indexOf(retirementAge);
 
   const chartData = {
@@ -136,9 +145,9 @@ export function CapitalRequirementChart({ analysis }: { analysis: PensionAnalysi
       <CardHeader>
         <CardTitle>Kapitalbedarf zur Schließung der Lücke</CardTitle>
         <CardDescription>
-          Ihre Lücke wächst mit {inflationRate.toLocaleString("de-DE")} % Inflation von{" "}
-          {eur.format(gap.monthly_today)} heute auf {eur.format(gap.monthly_at_retirement)} zum
-          Rentenbeginn ({eur.format(gap.annual_at_retirement)} pro Jahr).
+          {gap.first_gap_age !== null && gap.first_gap_age > retirementAge
+            ? `Ihre Versorgung reicht zunächst aus; ab Alter ${gap.first_gap_age} entsteht bei ${inflationRate.toLocaleString("de-DE")} % Inflation eine Lücke, die bis zum Alter ${provisionEndAge} auf ${eur.format(gap.monthly_at_end)} pro Monat wächst.`
+            : `Ihre monatliche Lücke wächst mit ${inflationRate.toLocaleString("de-DE")} % Inflation von ${eur.format(gap.monthly_at_retirement)} bei Rentenbeginn auf ${eur.format(gap.monthly_at_end)} mit ${provisionEndAge} Jahren.`}
         </CardDescription>
       </CardHeader>
       <CardContent>

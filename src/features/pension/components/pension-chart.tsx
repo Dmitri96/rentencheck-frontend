@@ -37,16 +37,36 @@ const formatNumber = (value: number) =>
  * no client-side fallback calculation.
  */
 export function PensionChart({ analysis }: { analysis: PensionAnalysis }) {
-  const {
-    chartData,
-    options,
-    hoverLinePlugin,
-    totalGap,
-    monthlyGapAtRetirement,
-    totalIncomeAtRetirement,
-  } = useChartConfig(analysis);
+  const { chartData, options, hoverLinePlugin, totalGap, totalIncomeAtRetirement } =
+    useChartConfig(analysis);
 
   const params = analysis.parameters_used;
+
+  // The monthly gap can be zero at retirement yet open up later as fixed
+  // pensions lose ground to inflation. Surface that instead of a bare "0 €"
+  // sitting next to a large Gesamtlücke.
+  const gap = analysis.gap;
+  const monthlyGapTile =
+    gap.monthly_at_retirement > 0
+      ? {
+          label: "Monatliche Lücke zum Rentenbeginn",
+          value: gap.monthly_at_retirement,
+          tone: "warning" as const,
+          hint: `Monatlicher Fehlbetrag mit ${analysis.retirementAge} Jahren`,
+        }
+      : gap.has_gap
+        ? {
+            label: "Monatliche Lücke im Alter",
+            value: gap.monthly_at_end,
+            tone: "warning" as const,
+            hint: `Beginnt ab Alter ${gap.first_gap_age}, wächst bis Alter ${analysis.provisionEndAge} auf diesen Betrag`,
+          }
+        : {
+            label: "Monatliche Lücke zum Rentenbeginn",
+            value: 0,
+            tone: "success" as const,
+            hint: `Kein Fehlbetrag mit ${analysis.retirementAge} Jahren`,
+          };
 
   return (
     <div className="w-full">
@@ -80,14 +100,14 @@ export function PensionChart({ analysis }: { analysis: PensionAnalysis }) {
         <ChartKpiTile
           label="Gesamtlücke im Ruhestand"
           value={formatNumber(totalGap)}
-          hint={`Summe aller Jahre bis Alter ${analysis.provisionEndAge}`}
+          hint={`Summe aller Fehlbeträge bis Alter ${analysis.provisionEndAge}`}
           tone={totalGap > 0 ? "destructive" : "success"}
         />
         <ChartKpiTile
-          label="Monatliche Lücke zum Rentenbeginn"
-          value={formatNumber(monthlyGapAtRetirement)}
-          hint={`Monatlicher Fehlbetrag mit ${analysis.retirementAge} Jahren`}
-          tone={monthlyGapAtRetirement > 0 ? "warning" : "success"}
+          label={monthlyGapTile.label}
+          value={formatNumber(monthlyGapTile.value)}
+          hint={monthlyGapTile.hint}
+          tone={monthlyGapTile.tone}
         />
         <ChartKpiTile
           label="Monatliche Netto-Einnahmen"

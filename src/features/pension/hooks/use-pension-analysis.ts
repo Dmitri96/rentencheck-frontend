@@ -53,7 +53,24 @@ export interface PensionAnalysis {
   };
 
   desired_pension: { today: number; at_retirement: number };
-  gap: { monthly_today: number; monthly_at_retirement: number; annual_at_retirement: number };
+  gap: {
+    monthly_today: number;
+    monthly_at_retirement: number;
+    annual_at_retirement: number;
+    /** Gap in the final provision year and its worst month (nominal €). */
+    monthly_at_end: number;
+    monthly_max: number;
+    /** First retirement age at which income no longer covers the need (null = fully covered). */
+    first_gap_age: number | null;
+    has_gap: boolean;
+  };
+  /** Year-by-year retirement income vs need (nominal €), retirement age → provision end. */
+  retirement_projection: Array<{
+    age: number;
+    net_income: number;
+    need: number;
+    gap: number;
+  }>;
   capital: {
     years: number;
     total_payments: number;
